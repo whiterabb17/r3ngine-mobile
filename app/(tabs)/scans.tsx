@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
-import { Play, Square, Clock, ChevronRight, AlertCircle, AlertTriangle } from 'lucide-react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Alert } from 'react-native';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
+import { Play, Square, Clock, ChevronRight, AlertCircle, AlertTriangle, X, CheckCircle } from 'lucide-react-native';
 import { Theme } from '../../src/constants/Theme';
 import apiClient from '../../src/api/client';
 import { useProjectStore } from '../../src/store/useProjectStore';
@@ -19,6 +19,10 @@ interface Scan {
 
 export default function ScansScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const targetId = params.targetId as string;
+  const targetName = params.targetName as string;
+  
   const { currentProject } = useProjectStore();
   const [scans, setScans] = useState<Scan[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -27,8 +31,13 @@ export default function ScansScreen() {
 
   const fetchScans = async () => {
     try {
+      setLoading(true);
       setError(null);
-      const response = await apiClient.get('listScans/');
+      let url = 'listScans/';
+      if (targetId) {
+        url += `?target_id=${targetId}`;
+      }
+      const response = await apiClient.get(url);
       const data = Array.isArray(response.data) ? response.data : (response.data.results || []);
       setScans(data);
     } catch (err: any) {
@@ -42,11 +51,38 @@ export default function ScansScreen() {
 
   useEffect(() => {
     fetchScans();
-  }, []);
+  }, [targetId]);
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchScans();
+  };
+
+  const handleStopScan = (scanId: number, domainName: string) => {
+    Alert.alert(
+      "Stop Scan",
+      `Are you sure you want to stop the scan for ${domainName}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Stop Scan", 
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const response = await apiClient.post('action/stop/scan/', { scan_ids: [scanId] });
+              if (response.data && response.data.status) {
+                Alert.alert("Success", "Scan stop request sent.");
+                fetchScans();
+              } else {
+                Alert.alert("Error", response.data.message || "Failed to stop scan.");
+              }
+            } catch (err: any) {
+              Alert.alert("Error", "An error occurred while stopping the scan.");
+            }
+          }
+        }
+      ]
+    );
   };
 
   const formatDate = (dateString: string) => {
@@ -92,10 +128,20 @@ export default function ScansScreen() {
     >
       <View style={styles.scanHeader}>
         <Text style={styles.domainName}>{item.domain?.name || 'N/A'}</Text>
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.scan_status) + '20' }]}>
-          <Text style={[styles.statusText, { color: getStatusColor(item.scan_status) }]}>
-            {getStatusLabel(item.scan_status)}
-          </Text>
+        <View style={styles.badgeRow}>
+          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.scan_status) + '20' }]}>
+            <Text style={[styles.statusText, { color: getStatusColor(item.scan_status) }]}>
+              {getStatusLabel(item.scan_status)}
+            </Text>
+          </View>
+          {item.scan_status === 1 && (
+            <TouchableOpacity 
+              style={styles.stopBtn}
+              onPress={() => handleStopScan(item.id, item.domain?.name)}
+            >
+              <Square size={14} color={Theme.colors.error} fill={Theme.colors.error} />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
       
@@ -119,8 +165,17 @@ export default function ScansScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Scan History' }} />
+      <Stack.Screen options={{ title: targetName ? `Scans: ${targetName}` : 'Scan History' }} />
       
+      {targetId && (
+        <View style={styles.filterHeader}>
+          <Text style={styles.filterText}>Filtering by Target: {targetName || targetId}</Text>
+          <TouchableOpacity onPress={() => router.setParams({ targetId: undefined, targetName: undefined })}>
+            <X size={16} color={Theme.colors.primary} />
+          </TouchableOpacity>
+        </View>
+      )}
+
       {error && (
         <View style={styles.errorAlert}>
           <AlertTriangle size={18} color={Theme.colors.error} />
@@ -153,6 +208,23 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: Theme.spacing.md,
+  },
+  filterHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: Theme.colors.surface,
+    padding: 12,
+    marginHorizontal: Theme.spacing.md,
+    marginTop: Theme.spacing.md,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Theme.colors.primary + '44',
+  },
+  filterText: {
+    color: Theme.colors.primary,
+    fontSize: 13,
+    fontWeight: '600',
   },
   errorAlert: {
     flexDirection: 'row',
@@ -206,6 +278,18 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 12,
     fontWeight: 'bold',
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  stopBtn: {
+    padding: 6,
+    backgroundColor: Theme.colors.error + '15',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: Theme.colors.error + '33',
   },
   scanFooter: {
     flexDirection: 'row',

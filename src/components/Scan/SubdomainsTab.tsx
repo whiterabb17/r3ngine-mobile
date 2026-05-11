@@ -21,6 +21,7 @@ import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { getMediaSource } from '../../api/client';
+import SubtaskModal from './SubtaskModal';
 
 interface Port {
   number: number;
@@ -35,6 +36,7 @@ interface IpAddress {
 }
 
 interface Subdomain {
+  id: number;
   name: string;
   http_status: number;
   page_title: string;
@@ -58,6 +60,8 @@ interface SubdomainsTabProps {
 export default function SubdomainsTab({ subdomains = [] }: SubdomainsTabProps) {
   const [search, setSearch] = useState('');
   const [selectedScreenshot, setSelectedScreenshot] = useState<string | null>(null);
+  const [subtaskModalVisible, setSubtaskModalVisible] = useState(false);
+  const [targetSubdomain, setTargetSubdomain] = useState<{id: number, name: string} | null>(null);
   const { serverIp } = useSettingsStore();
 
   const getFullImageUrl = (path: string) => {
@@ -169,6 +173,15 @@ export default function SubdomainsTab({ subdomains = [] }: SubdomainsTabProps) {
               <Camera size={16} color={Theme.colors.primary} />
             </TouchableOpacity>
           )}
+          <TouchableOpacity 
+            style={styles.actionBtn}
+            onPress={() => {
+              setTargetSubdomain({ id: item.id, name: item.name });
+              setSubtaskModalVisible(true);
+            }}
+          >
+            <Zap size={16} color={Theme.colors.warning} />
+          </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn}>
             <ExternalLink size={16} color={Theme.colors.textMuted} />
           </TouchableOpacity>
@@ -229,6 +242,16 @@ export default function SubdomainsTab({ subdomains = [] }: SubdomainsTabProps) {
           </View>
         </View>
       </Modal>
+
+      {/* Subtask Modal */}
+      {targetSubdomain && (
+        <SubtaskModal
+          visible={subtaskModalVisible}
+          onClose={() => setSubtaskModalVisible(false)}
+          subdomainId={targetSubdomain.id}
+          subdomainName={targetSubdomain.name}
+        />
+      )}
     </View>
   );
 }

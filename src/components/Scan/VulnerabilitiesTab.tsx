@@ -15,13 +15,15 @@ interface Vulnerability {
   remediation: string;
   impact?: string;
   matched_at: string;
+  is_gpt_used?: boolean;
 }
 
 interface VulnerabilitiesTabProps {
   vulnerabilities: Vulnerability[];
+  onRefresh?: () => void;
 }
 
-export default function VulnerabilitiesTab({ vulnerabilities = [] }: VulnerabilitiesTabProps) {
+export default function VulnerabilitiesTab({ vulnerabilities = [], onRefresh }: VulnerabilitiesTabProps) {
   const [selectedVuln, setSelectedVuln] = useState<Vulnerability | null>(null);
   const [isLlmLoading, setIsLlmLoading] = useState(false);
 
@@ -42,6 +44,7 @@ export default function VulnerabilitiesTab({ vulnerabilities = [] }: Vulnerabili
       console.error('Failed to fetch LLM report', error);
     } finally {
       setIsLlmLoading(false);
+      if (onRefresh) onRefresh();
     }
   };
 
@@ -70,7 +73,12 @@ export default function VulnerabilitiesTab({ vulnerabilities = [] }: Vulnerabili
         onPress={() => setSelectedVuln(vuln)}
       >
         <View style={styles.cardHeader}>
-          <Text style={styles.vulnName} numberOfLines={2}>{vuln.name}</Text>
+          <View style={styles.nameRow}>
+            <Text style={styles.vulnName} numberOfLines={2}>{vuln.name}</Text>
+            {vuln.is_gpt_used && (
+              <Brain size={12} color={Theme.colors.primary} style={{ marginTop: 2 }} />
+            )}
+          </View>
           <View style={[styles.badge, { backgroundColor: color + '22' }]}>
             <Text style={[styles.badgeText, { color }]}>{label}</Text>
           </View>
@@ -135,6 +143,13 @@ export default function VulnerabilitiesTab({ vulnerabilities = [] }: Vulnerabili
                 <View style={[styles.modalSeverityBadge, { backgroundColor: getSeverityInfo(selectedVuln.severity).color }]}>
                   <Text style={styles.modalSeverityText}>{getSeverityInfo(selectedVuln.severity).label}</Text>
                 </View>
+
+                {selectedVuln.is_gpt_used && (
+                  <View style={styles.aiBadge}>
+                    <Brain size={12} color="#fff" />
+                    <Text style={styles.aiBadgeText}>AI ENHANCED</Text>
+                  </View>
+                )}
 
                 <Text style={styles.detailName}>{selectedVuln.name}</Text>
                 
@@ -202,6 +217,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: Theme.colors.text,
+  },
+  nameRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: 'transparent',
+    gap: 6,
   },
   badge: {
     paddingHorizontal: 8,
@@ -324,5 +346,22 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: Theme.colors.border,
+  },
+  aiBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: Theme.colors.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
+    marginBottom: 12,
+  },
+  aiBadgeText: {
+    color: '#fff',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 0.5,
   }
 });

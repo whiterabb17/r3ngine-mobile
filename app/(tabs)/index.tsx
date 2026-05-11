@@ -1,21 +1,24 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, ScrollView, RefreshControl, TouchableOpacity, useWindowDimensions, Modal } from 'react-native';
 import { Stack } from 'expo-router';
-import { 
-  Target, 
-  ShieldAlert, 
-  Globe, 
-  Zap, 
-  ChevronDown, 
-  Activity, 
+import {
+  Target,
+  ShieldAlert,
+  Globe,
+  Zap,
+  ChevronDown,
+  Activity,
   AlertTriangle,
-  LayoutGrid
+  LayoutGrid,
+  Biohazard,
+  ChevronRight
 } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../src/constants/Theme';
 import apiClient from '../../src/api/client';
 import { useProjectStore } from '../../src/store/useProjectStore';
+import GeoMap from '../../src/components/Dashboard/GeoMap';
 
 interface Kpis {
   domain_count: number;
@@ -68,6 +71,7 @@ export default function DashboardScreen() {
   const [technologies, setTechnologies] = useState<Technology[]>([]);
   const [topVulnerableTargets, setTopVulnerableTargets] = useState<VulnerableTarget[]>([]);
   const [trends, setTrends] = useState<Trends | null>(null);
+  const [assetCountries, setAssetCountries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
@@ -83,6 +87,7 @@ export default function DashboardScreen() {
       setTechnologies(response.data.most_used_tech || []);
       setTopVulnerableTargets(response.data.most_vulnerable_targets || []);
       setTrends(response.data.trends || null);
+      setAssetCountries(response.data.asset_countries || []);
     } catch (err: any) {
       console.error('Error fetching dashboard:', err);
       setError(`Dashboard Error: ${err.message}`);
@@ -96,10 +101,10 @@ export default function DashboardScreen() {
     try {
       setError(null);
       const response = await apiClient.get('projects/');
-      const projectList = (response.data && Array.isArray(response.data)) 
-        ? response.data 
+      const projectList = (response.data && Array.isArray(response.data))
+        ? response.data
         : (response.data?.results || []);
-      
+
       setProjects(projectList);
       if (projectList.length > 0 && !currentProject) {
         setCurrentProject(projectList[0].slug);
@@ -148,6 +153,25 @@ export default function DashboardScreen() {
     }
   };
 
+  const formatRelativeTime = (dateString: string) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'N/A';
+
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return 'just now';
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays}d ago`;
+
+    return date.toLocaleDateString();
+  };
+
   const KpiCard = ({ icon: Icon, title, value, color }: any) => (
     <View style={[styles.kpiCard, { width: (width - Theme.spacing.md * 3) / 2 }]}>
       <View style={styles.kpiHeader}>
@@ -160,11 +184,13 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ 
-        title: 'reNgine',
+      <Stack.Screen options={{
+        headerTitle: () => (
+          <Text style={styles.headerTitleText}>R3NGINE</Text>
+        ),
         headerRight: () => (
-          <TouchableOpacity 
-            style={styles.projectPicker} 
+          <TouchableOpacity
+            style={styles.projectPicker}
             activeOpacity={0.7}
             onPress={() => setShowProjectModal(true)}
           >
@@ -176,7 +202,7 @@ export default function DashboardScreen() {
         )
       }} />
 
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Theme.colors.primary} />}
       >
@@ -196,29 +222,25 @@ export default function DashboardScreen() {
         {/* Severity Distribution */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Activity size={18} color={Theme.colors.text} />
-            <Text style={styles.sectionTitle}>Severity Breakdown</Text>
+            <ShieldAlert size={18} color={Theme.colors.text} />
+            <Text style={styles.sectionTitle}>Severity Distribution</Text>
           </View>
-          <View style={styles.severityBarContainer}>
+          <View style={styles.severityGrid}>
             {[4, 3, 2, 1].map((sev) => {
               const count = kpis ? (
                 sev === 4 ? kpis.critical_count :
-                sev === 3 ? kpis.high_count :
-                sev === 2 ? kpis.medium_count :
-                kpis.low_count
+                  sev === 3 ? kpis.high_count :
+                    sev === 2 ? kpis.medium_count :
+                      kpis.low_count
               ) : 0;
-              const total = kpis?.vulnerability_count || 1;
-              const percentage = (count / total) * 100;
-              
+              const color = getSeverityColor(sev);
+              const label = sev === 4 ? 'Crit' : sev === 3 ? 'High' : sev === 2 ? 'Med' : 'Low';
+
               return (
-                <View key={sev} style={styles.severityItem}>
-                  <View style={styles.severityLabelRow}>
-                    <Text style={styles.severityLabel}>{sev === 4 ? 'CRITICAL' : sev === 3 ? 'HIGH' : sev === 2 ? 'MEDIUM' : 'LOW'}</Text>
-                    <Text style={styles.severityCount}>{count}</Text>
-                  </View>
-                  <View style={styles.progressBarBg}>
-                    <View style={[styles.progressBarFill, { width: `${Math.max(percentage, 2)}%`, backgroundColor: getSeverityColor(sev) }]} />
-                  </View>
+                <View key={sev} style={[styles.severityMiniCard, { borderColor: color + '44' }]}>
+                  <View style={[styles.severityCardIndicator, { backgroundColor: color }]} />
+                  <Text style={styles.severityMiniLabel}>{label}</Text>
+                  <Text style={[styles.severityMiniCount, { color: color }]}>{count}</Text>
                 </View>
               );
             })}
@@ -233,7 +255,7 @@ export default function DashboardScreen() {
           </View>
           <View style={styles.card}>
             {trends ? (
-              <View style={styles.trendChartContainer}>
+              <View style={[styles.trendChartContainer, { marginTop: 10, marginBottom: 10 }]}>
                 <View style={styles.trendBarsRow}>
                   {trends.vulns_in_last_week.map((val, i) => {
                     const maxVal = Math.max(...trends.vulns_in_last_week, 1);
@@ -252,6 +274,11 @@ export default function DashboardScreen() {
             )}
           </View>
         </View>
+
+        {/* GeoMap Section */}
+        {assetCountries && assetCountries.length > 0 && (
+          <GeoMap data={assetCountries} />
+        )}
 
         {/* Most Vulnerable Targets */}
         <View style={styles.section}>
@@ -283,12 +310,12 @@ export default function DashboardScreen() {
             <LayoutGrid size={18} color={Theme.colors.text} />
             <Text style={styles.sectionTitle}>Top Technologies</Text>
           </View>
-          <View style={styles.card}>
+          <View style={[styles.card]}>
             {technologies.length > 0 ? technologies.map((tech, index) => (
               <View key={index} style={styles.techRow}>
                 <Text style={styles.techName}>{tech.name}</Text>
                 <View style={styles.techBarContainer}>
-                  <View style={[styles.techBarFill, { width: `${Math.min((tech.count / (technologies[0]?.count || 1)) * 100, 100)}%` }]} />
+                  <View style={[styles.techBarFill, { marginLeft: -20, width: `${Math.min((tech.count / (technologies[0]?.count || 1)) * 100, 100)}%` }]} />
                   <Text style={styles.techCount}>{tech.count}</Text>
                 </View>
               </View>
@@ -301,18 +328,21 @@ export default function DashboardScreen() {
         {/* Recent Vulnerabilities */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <AlertTriangle size={18} color={Theme.colors.text} />
+            <Biohazard size={18} color={Theme.colors.text} />
             <Text style={styles.sectionTitle}>Recent Vulnerabilities</Text>
           </View>
           <View style={styles.card}>
             {vulnerabilities.length > 0 ? vulnerabilities.map((vuln) => (
-              <View key={vuln.id} style={styles.vulnRow}>
-                <View style={[styles.severityDot, { backgroundColor: getSeverityColor(vuln.severity) }]} />
+              <TouchableOpacity key={vuln.id} style={styles.vulnRow} activeOpacity={0.7}>
+                <View style={[styles.vulnIconContainer, { backgroundColor: getSeverityColor(vuln.severity) + '15' }]}>
+                  <Biohazard size={18} color={getSeverityColor(vuln.severity)} />
+                </View>
                 <View style={styles.vulnInfo}>
                   <Text style={styles.vulnName} numberOfLines={1}>{vuln.name}</Text>
-                  <Text style={styles.vulnDate}>{formatDate(vuln.discovered_date)}</Text>
+                  <Text style={styles.vulnDate}>{formatRelativeTime(vuln.discovered_date)}</Text>
                 </View>
-              </View>
+                <ChevronRight size={16} color={Theme.colors.textMuted} />
+              </TouchableOpacity>
             )) : (
               <Text style={styles.emptyText}>No recent vulnerabilities found</Text>
             )}
@@ -336,9 +366,9 @@ export default function DashboardScreen() {
         animationType="fade"
         onRequestClose={() => setShowProjectModal(false)}
       >
-        <TouchableOpacity 
-          style={styles.modalOverlay} 
-          activeOpacity={1} 
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
           onPress={() => setShowProjectModal(false)}
         >
           <View style={styles.modalContent}>
@@ -382,6 +412,14 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: Theme.spacing.md,
+  },
+  headerTitleText: {
+    fontWeight: 900,
+    fontFamily: "Bangers, cursive",
+    letterSpacing: 2,
+    color: "rgba(215, 98, 30, 1)",
+    fontSize: 20,
+    textTransform: 'uppercase'
   },
   projectPicker: {
     flexDirection: 'row',
@@ -470,50 +508,55 @@ const styles = StyleSheet.create({
     color: Theme.colors.text,
     marginLeft: 8,
   },
-  severityBarContainer: {
-    backgroundColor: Theme.colors.surface,
-    borderRadius: Theme.borderRadius.lg,
-    padding: Theme.spacing.md,
-    borderWidth: 1,
-    borderColor: Theme.colors.border,
-  },
-  severityItem: {
-    marginBottom: Theme.spacing.md,
-    backgroundColor: 'transparent',
-  },
-  severityLabelRow: {
+  severityGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
     backgroundColor: 'transparent',
   },
-  severityLabel: {
-    fontSize: 10,
-    fontWeight: '900',
-    color: Theme.colors.textMuted,
-    letterSpacing: 1,
-  },
-  severityCount: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: Theme.colors.text,
-  },
-  progressBarBg: {
-    height: 6,
-    backgroundColor: Theme.colors.border + '33',
-    borderRadius: 3,
+  severityMiniCard: {
+    flex: 1,
+    backgroundColor: Theme.colors.surface,
+    borderRadius: 12,
+    padding: 10,
+    marginHorizontal: 4,
+    borderWidth: 1,
+    alignItems: 'center',
+    position: 'relative',
     overflow: 'hidden',
   },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 3,
+  severityCardIndicator: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+  },
+  severityMiniLabel: {
+    fontSize: 9,
+    fontWeight: '900',
+    color: Theme.colors.textMuted,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+    letterSpacing: 0.5,
+  },
+  severityMiniCount: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   card: {
     backgroundColor: Theme.colors.surface,
     borderRadius: Theme.borderRadius.lg,
     borderWidth: 1,
     borderColor: Theme.colors.border,
-    padding: Theme.spacing.sm,
+    padding: Theme.spacing.xs,
+  },
+  vulnIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   vulnRow: {
     flexDirection: 'row',

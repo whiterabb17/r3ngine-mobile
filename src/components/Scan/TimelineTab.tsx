@@ -1,15 +1,22 @@
-import React from 'react';
-import { StyleSheet, FlatList } from 'react-native';
-import { CheckCircle2, Clock, XCircle, AlertCircle, Terminal } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { StyleSheet, FlatList, Modal, ScrollView } from 'react-native';
+import { CheckCircle2, Clock, XCircle, AlertCircle, Terminal, X, Copy, ChevronRight } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
+
+interface CommandOutput {
+  command: string;
+  output: string;
+  return_code: number;
+}
 
 interface TimelineActivity {
   id: string | number;
   title: string;
   status: string;
   time: string;
+  commands?: CommandOutput[];
 }
 
 interface TimelineTabProps {
@@ -17,6 +24,15 @@ interface TimelineTabProps {
 }
 
 export default function TimelineTab({ timeline = [] }: TimelineTabProps) {
+  const [selectedLog, setSelectedLog] = useState<CommandOutput | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  
+  const handleViewOutput = (commands?: CommandOutput[]) => {
+    if (commands && commands.length > 0) {
+      setSelectedLog(commands[0]);
+      setModalVisible(true);
+    }
+  };
   
   const formatTime = (timeString: string) => {
     if (!timeString) return '--:--';
@@ -56,11 +72,16 @@ export default function TimelineTab({ timeline = [] }: TimelineTabProps) {
              </Text>
           </View>
           
-          {/* Optional: Add a 'View Logs' button if logs are available */}
-          <TouchableOpacity style={styles.logButton}>
-             <Terminal size={12} color={Theme.colors.primary} />
-             <Text style={styles.logButtonText}>VIEW OUTPUT</Text>
-          </TouchableOpacity>
+          {/* View Logs button if logs are available */}
+          {item.commands && item.commands.length > 0 && (
+            <TouchableOpacity 
+              style={styles.logButton}
+              onPress={() => handleViewOutput(item.commands)}
+            >
+               <Terminal size={12} color={Theme.colors.primary} />
+               <Text style={styles.logButtonText}>VIEW OUTPUT</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     );
@@ -80,6 +101,55 @@ export default function TimelineTab({ timeline = [] }: TimelineTabProps) {
           contentContainerStyle={styles.listContent}
         />
       )}
+
+      {/* Output Modal */}
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <View style={styles.modalHeaderTitleRow}>
+                <Terminal size={20} color={Theme.colors.primary} />
+                <Text style={styles.modalTitle}>Command Output</Text>
+              </View>
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeBtn}>
+                <X size={24} color={Theme.colors.textMuted} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalBody}>
+              {selectedLog && (
+                <>
+                  <View style={styles.logSection}>
+                    <Text style={styles.logSectionTitle}>COMMAND</Text>
+                    <View style={styles.commandBox}>
+                      <Text style={styles.commandText}>{selectedLog.command}</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.logSection}>
+                    <View style={styles.logSectionHeader}>
+                      <Text style={styles.logSectionTitle}>OUTPUT</Text>
+                      <View style={[styles.statusMiniBadge, { backgroundColor: selectedLog.return_code === 0 ? Theme.colors.success + '22' : Theme.colors.error + '22' }]}>
+                        <Text style={[styles.statusMiniText, { color: selectedLog.return_code === 0 ? Theme.colors.success : Theme.colors.error }]}>
+                          EXIT: {selectedLog.return_code}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.outputBox}>
+                      <Text style={styles.outputText}>{selectedLog.output || 'No output recorded.'}</Text>
+                    </View>
+                  </View>
+                </>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -173,5 +243,100 @@ const styles = StyleSheet.create({
     color: Theme.colors.textMuted,
     fontSize: 14,
     textAlign: 'center',
-  }
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: Theme.colors.background,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    height: '85%',
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: Theme.colors.border,
+    backgroundColor: Theme.colors.surface,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalHeaderTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: 'transparent',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Theme.colors.text,
+  },
+  closeBtn: {
+    padding: 4,
+  },
+  modalBody: {
+    flex: 1,
+    padding: 20,
+  },
+  logSection: {
+    marginBottom: 24,
+    backgroundColor: 'transparent',
+  },
+  logSectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+    backgroundColor: 'transparent',
+  },
+  logSectionTitle: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: Theme.colors.textMuted,
+    letterSpacing: 1,
+    marginBottom: 8,
+  },
+  commandBox: {
+    backgroundColor: '#000',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+  },
+  commandText: {
+    fontFamily: 'monospace',
+    color: '#00ff00',
+    fontSize: 12,
+  },
+  outputBox: {
+    backgroundColor: '#000',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    minHeight: 100,
+  },
+  outputText: {
+    fontFamily: 'monospace',
+    color: '#e2e8f0',
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  statusMiniBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  statusMiniText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
 });

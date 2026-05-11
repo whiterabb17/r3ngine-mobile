@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, ScrollView, RefreshControl, TouchableOpacity, useWindowDimensions, ActivityIndicator } from 'react-native';
+import { StyleSheet, ScrollView, RefreshControl, TouchableOpacity, useWindowDimensions, ActivityIndicator, Alert } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { 
   Activity, 
@@ -11,7 +11,8 @@ import {
   Clock,
   Zap,
   Target,
-  AlertTriangle
+  AlertTriangle,
+  Square
 } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
@@ -60,6 +61,33 @@ export default function ScanDetailScreen() {
     fetchScanDetail();
   };
 
+  const handleStopScan = () => {
+    Alert.alert(
+      "Stop Scan",
+      "Are you sure you want to stop this scan? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Stop Scan", 
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const response = await apiClient.post('action/stop/scan/', { scan_ids: [id] });
+              if (response.data && response.data.status) {
+                Alert.alert("Success", "Scan stop request sent.");
+                fetchScanDetail();
+              } else {
+                Alert.alert("Error", response.data.message || "Failed to stop scan.");
+              }
+            } catch (err: any) {
+              Alert.alert("Error", "An error occurred while stopping the scan.");
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const getStatusColor = (status: number) => {
     switch (status) {
       case 2: return Theme.colors.success; // Success
@@ -95,8 +123,13 @@ export default function ScanDetailScreen() {
     <View style={styles.container}>
       <Stack.Screen options={{ 
         title: 'Scan Detail',
+        headerStyle: { backgroundColor: Theme.colors.surface },
+        headerTintColor: Theme.colors.text,
         headerLeft: () => (
-          <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
+          <TouchableOpacity 
+            onPress={() => router.back()} 
+            style={{ marginLeft: -10, paddingLeft: 10, paddingRight: 15 }}
+          >
             <ChevronLeft size={24} color={Theme.colors.text} />
           </TouchableOpacity>
         ),
@@ -114,10 +147,17 @@ export default function ScanDetailScreen() {
             <Text style={styles.targetName} numberOfLines={1}>{data?.target_info?.name || 'Target'}</Text>
             <Text style={styles.scanMeta}>ID: {id} • {data?.scan_info?.engine_name || 'Scan Engine'}</Text>
           </View>
-          <View style={[styles.statusBadge, { borderColor: getStatusColor(data?.scan_info?.scan_status) }]}>
-            <Text style={[styles.statusLabel, { color: getStatusColor(data?.scan_info?.scan_status) }]}>
-              {getStatusLabel(data?.scan_info?.scan_status)}
-            </Text>
+          <View style={styles.badgeContainer}>
+            <View style={[styles.statusBadge, { borderColor: getStatusColor(data?.scan_info?.scan_status) }]}>
+              <Text style={[styles.statusLabel, { color: getStatusColor(data?.scan_info?.scan_status) }]}>
+                {getStatusLabel(data?.scan_info?.scan_status)}
+              </Text>
+            </View>
+            {data?.scan_info?.scan_status === 1 && (
+              <TouchableOpacity onPress={handleStopScan} style={styles.stopBtn}>
+                <Square size={16} color={Theme.colors.error} fill={Theme.colors.error} />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
@@ -177,7 +217,10 @@ export default function ScanDetailScreen() {
         )}
 
         {activeTab === 'VULNERABILITIES' && data && (
-           <VulnerabilitiesTab vulnerabilities={data.vulnerabilities} />
+           <VulnerabilitiesTab 
+             vulnerabilities={data.vulnerabilities} 
+             onRefresh={fetchScanDetail}
+           />
         )}
 
         {activeTab === 'TIMELINE' && data && (
@@ -237,6 +280,19 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: '900',
     letterSpacing: 0.5,
+  },
+  badgeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'transparent',
+  },
+  stopBtn: {
+    padding: 6,
+    backgroundColor: Theme.colors.error + '22',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: Theme.colors.error + '44',
   },
   progressSection: {
     marginTop: Theme.spacing.md,

@@ -80,6 +80,7 @@ export const getMediaSource = (path: string) => {
     baseUrl += '/';
   }
   const uri = `${baseUrl}mapi/media/?path=${encodeURIComponent(path)}`;
+  console.log(`[getMediaSource] Constructed URI: ${uri}`);
   return {
     uri,
     headers: token ? { Authorization: `Bearer ${token}` } : {},
