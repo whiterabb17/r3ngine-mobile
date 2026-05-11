@@ -1,0 +1,711 @@
+import React, { useEffect, useState, useCallback } from 'react';
+import { StyleSheet, ScrollView, RefreshControl, TouchableOpacity, useWindowDimensions, Modal } from 'react-native';
+import { Stack } from 'expo-router';
+import { 
+  Target, 
+  ShieldAlert, 
+  Globe, 
+  Zap, 
+  ChevronDown, 
+  Activity, 
+  AlertTriangle,
+  LayoutGrid
+} from 'lucide-react-native';
+
+import { Text, View } from '@/components/Themed';
+import { Theme } from '../../src/constants/Theme';
+import apiClient from '../../src/api/client';
+import { useProjectStore } from '../../src/store/useProjectStore';
+
+interface Kpis {
+  domain_count: number;
+  subdomain_count: number;
+  endpoint_count: number;
+  vulnerability_count: number;
+  critical_count: number;
+  high_count: number;
+  medium_count: number;
+  low_count: number;
+  info_count: number;
+}
+
+interface Vulnerability {
+  id: number;
+  name: string;
+  severity: number;
+  discovered_date: string;
+}
+
+interface Project {
+  name: string;
+  slug: string;
+}
+
+interface Technology {
+  name: string;
+  count: number;
+}
+
+interface VulnerableTarget {
+  name: string;
+  vuln_count: number;
+  critical_count: number;
+  high_count: number;
+  medium_count: number;
+  low_count: number;
+}
+
+interface Trends {
+  vulns_in_last_week: number[];
+  last_7_dates: string[];
+}
+
+export default function DashboardScreen() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const { currentProject, setCurrentProject } = useProjectStore();
+  const [kpis, setKpis] = useState<Kpis | null>(null);
+  const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
+  const [technologies, setTechnologies] = useState<Technology[]>([]);
+  const [topVulnerableTargets, setTopVulnerableTargets] = useState<VulnerableTarget[]>([]);
+  const [trends, setTrends] = useState<Trends | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { width } = useWindowDimensions();
+
+  const fetchDashboard = useCallback(async (slug: string) => {
+    try {
+      setError(null);
+      const response = await apiClient.get(`dashboard/${slug}/`);
+      setKpis(response.data.kpis);
+      setVulnerabilities(response.data.vulnerability_feed || []);
+      setTechnologies(response.data.most_used_tech || []);
+      setTopVulnerableTargets(response.data.most_vulnerable_targets || []);
+      setTrends(response.data.trends || null);
+    } catch (err: any) {
+      console.error('Error fetching dashboard:', err);
+      setError(`Dashboard Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  const fetchProjects = useCallback(async () => {
+    try {
+      setError(null);
+      const response = await apiClient.get('projects/');
+      const projectList = (response.data && Array.isArray(response.data)) 
+        ? response.data 
+        : (response.data?.results || []);
+      
+      setProjects(projectList);
+      if (projectList.length > 0 && !currentProject) {
+        setCurrentProject(projectList[0].slug);
+        fetchDashboard(projectList[0].slug);
+      } else if (currentProject) {
+        fetchDashboard(currentProject);
+      } else {
+        setLoading(false);
+      }
+    } catch (err: any) {
+      console.error('Error fetching projects:', err);
+      setError(`Projects Error: ${err.message}`);
+      setLoading(false);
+    }
+  }, [currentProject, fetchDashboard]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchProjects();
+  };
+
+  const handleProjectSelect = (slug: string) => {
+    setCurrentProject(slug);
+    setShowProjectModal(false);
+    setLoading(true);
+    fetchDashboard(slug);
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString();
+  };
+
+  const getSeverityColor = (severity: number) => {
+    switch (severity) {
+      case 4: return '#ff003c'; // Critical
+      case 3: return '#ff6b00'; // High
+      case 2: return '#ffcc00'; // Medium
+      case 1: return '#00d1ff'; // Low
+      default: return '#888';
+    }
+  };
+
+  const KpiCard = ({ icon: Icon, title, value, color }: any) => (
+    <View style={[styles.kpiCard, { width: (width - Theme.spacing.md * 3) / 2 }]}>
+      <View style={styles.kpiHeader}>
+        <Icon size={20} color={color} />
+        <Text style={styles.kpiTitle}>{title}</Text>
+      </View>
+      <Text style={styles.kpiValue}>{value}</Text>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Stack.Screen options={{ 
+        title: 'reNgine',
+        headerRight: () => (
+          <TouchableOpacity 
+            style={styles.projectPicker} 
+            activeOpacity={0.7}
+            onPress={() => setShowProjectModal(true)}
+          >
+            <Text style={styles.projectPickerText} numberOfLines={1}>
+              {projects.find(p => p.slug === currentProject)?.name || 'Select Project'}
+            </Text>
+            <ChevronDown size={14} color={Theme.colors.textMuted} />
+          </TouchableOpacity>
+        )
+      }} />
+
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Theme.colors.primary} />}
+      >
+        {error && (
+          <View style={styles.errorAlert}>
+            <AlertTriangle size={18} color={Theme.colors.error} />
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
+        {/* KPI Grid */}
+        <View style={styles.grid}>
+          <KpiCard icon={Target} title="Targets" value={kpis?.domain_count || 0} color={Theme.colors.primary} />
+          <KpiCard icon={Globe} title="Subdomains" value={kpis?.subdomain_count || 0} color={Theme.colors.secondary} />
+          <KpiCard icon={Zap} title="Endpoints" value={kpis?.endpoint_count || 0} color={Theme.colors.info} />
+          <KpiCard icon={ShieldAlert} title="Vulnerabilities" value={kpis?.vulnerability_count || 0} color={Theme.colors.error} />
+        </View>
+        {/* Severity Distribution */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Activity size={18} color={Theme.colors.text} />
+            <Text style={styles.sectionTitle}>Severity Breakdown</Text>
+          </View>
+          <View style={styles.severityBarContainer}>
+            {[4, 3, 2, 1].map((sev) => {
+              const count = kpis ? (
+                sev === 4 ? kpis.critical_count :
+                sev === 3 ? kpis.high_count :
+                sev === 2 ? kpis.medium_count :
+                kpis.low_count
+              ) : 0;
+              const total = kpis?.vulnerability_count || 1;
+              const percentage = (count / total) * 100;
+              
+              return (
+                <View key={sev} style={styles.severityItem}>
+                  <View style={styles.severityLabelRow}>
+                    <Text style={styles.severityLabel}>{sev === 4 ? 'CRITICAL' : sev === 3 ? 'HIGH' : sev === 2 ? 'MEDIUM' : 'LOW'}</Text>
+                    <Text style={styles.severityCount}>{count}</Text>
+                  </View>
+                  <View style={styles.progressBarBg}>
+                    <View style={[styles.progressBarFill, { width: `${Math.max(percentage, 2)}%`, backgroundColor: getSeverityColor(sev) }]} />
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+
+        {/* 7-Day Activity Horizon */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Activity size={18} color={Theme.colors.text} />
+            <Text style={styles.sectionTitle}>7-Day Activity Horizon</Text>
+          </View>
+          <View style={styles.card}>
+            {trends ? (
+              <View style={styles.trendChartContainer}>
+                <View style={styles.trendBarsRow}>
+                  {trends.vulns_in_last_week.map((val, i) => {
+                    const maxVal = Math.max(...trends.vulns_in_last_week, 1);
+                    const barHeight = (val / maxVal) * 100;
+                    return (
+                      <View key={i} style={styles.trendBarWrapper}>
+                        <View style={[styles.trendBar, { height: `${Math.max(barHeight, 5)}%` }]} />
+                        <Text style={styles.trendBarLabel}>{new Date(trends.last_7_dates[i]).getDate()}</Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              </View>
+            ) : (
+              <Text style={styles.emptyText}>No activity data available</Text>
+            )}
+          </View>
+        </View>
+
+        {/* Most Vulnerable Targets */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Target size={18} color={Theme.colors.text} />
+            <Text style={styles.sectionTitle}>Most Vulnerable Targets</Text>
+          </View>
+          <View style={styles.card}>
+            {topVulnerableTargets.length > 0 ? topVulnerableTargets.map((target, index) => (
+              <View key={index} style={styles.targetRow}>
+                <View style={styles.targetMainInfo}>
+                  <Text style={styles.targetName} numberOfLines={1}>{target.name}</Text>
+                  <View style={styles.targetSeverityCounts}>
+                    {target.critical_count > 0 && <View style={[styles.miniBadge, { backgroundColor: '#ff003c' }]}><Text style={styles.miniBadgeText}>{target.critical_count}</Text></View>}
+                    {target.high_count > 0 && <View style={[styles.miniBadge, { backgroundColor: '#ff6b00' }]}><Text style={styles.miniBadgeText}>{target.high_count}</Text></View>}
+                    <Text style={styles.totalVulnLabel}>{target.vuln_count} Total</Text>
+                  </View>
+                </View>
+              </View>
+            )) : (
+              <Text style={styles.emptyText}>No vulnerable targets found</Text>
+            )}
+          </View>
+        </View>
+
+        {/* Most Used Technologies */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <LayoutGrid size={18} color={Theme.colors.text} />
+            <Text style={styles.sectionTitle}>Top Technologies</Text>
+          </View>
+          <View style={styles.card}>
+            {technologies.length > 0 ? technologies.map((tech, index) => (
+              <View key={index} style={styles.techRow}>
+                <Text style={styles.techName}>{tech.name}</Text>
+                <View style={styles.techBarContainer}>
+                  <View style={[styles.techBarFill, { width: `${Math.min((tech.count / (technologies[0]?.count || 1)) * 100, 100)}%` }]} />
+                  <Text style={styles.techCount}>{tech.count}</Text>
+                </View>
+              </View>
+            )) : (
+              <Text style={styles.emptyText}>No technologies detected</Text>
+            )}
+          </View>
+        </View>
+
+        {/* Recent Vulnerabilities */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <AlertTriangle size={18} color={Theme.colors.text} />
+            <Text style={styles.sectionTitle}>Recent Vulnerabilities</Text>
+          </View>
+          <View style={styles.card}>
+            {vulnerabilities.length > 0 ? vulnerabilities.map((vuln) => (
+              <View key={vuln.id} style={styles.vulnRow}>
+                <View style={[styles.severityDot, { backgroundColor: getSeverityColor(vuln.severity) }]} />
+                <View style={styles.vulnInfo}>
+                  <Text style={styles.vulnName} numberOfLines={1}>{vuln.name}</Text>
+                  <Text style={styles.vulnDate}>{formatDate(vuln.discovered_date)}</Text>
+                </View>
+              </View>
+            )) : (
+              <Text style={styles.emptyText}>No recent vulnerabilities found</Text>
+            )}
+          </View>
+        </View>
+
+        {__DEV__ && (
+          <View style={[styles.card, { marginTop: 20, borderColor: Theme.colors.warning }]}>
+            <Text style={{ color: Theme.colors.warning, fontWeight: 'bold', marginBottom: 5 }}>DEBUG INFO</Text>
+            <Text style={{ color: '#fff', fontSize: 10 }}>Project Count: {projects.length}</Text>
+            <Text style={{ color: '#fff', fontSize: 10 }}>Current Project: {currentProject || 'None'}</Text>
+            <Text style={{ color: '#fff', fontSize: 10 }}>Loading: {loading ? 'YES' : 'NO'}</Text>
+          </View>
+        )}
+      </ScrollView>
+
+      {/* Project Selection Modal */}
+      <Modal
+        visible={showProjectModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowProjectModal(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1} 
+          onPress={() => setShowProjectModal(false)}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Switch Project</Text>
+            {projects.map((project) => (
+              <TouchableOpacity
+                key={project.slug}
+                style={[
+                  styles.projectItem,
+                  currentProject === project.slug && styles.projectItemActive
+                ]}
+                onPress={() => handleProjectSelect(project.slug)}
+              >
+                <Text style={[
+                  styles.projectItemText,
+                  currentProject === project.slug && styles.projectItemTextActive
+                ]}>
+                  {project.name}
+                </Text>
+                {currentProject === project.slug && (
+                  <View style={styles.activeDot} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Quick Scan FAB */}
+      <TouchableOpacity style={styles.fab} activeOpacity={0.8}>
+        <Zap size={24} color="#fff" />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Theme.colors.background,
+  },
+  scrollContent: {
+    padding: Theme.spacing.md,
+  },
+  projectPicker: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Theme.colors.surface,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    marginRight: 10,
+    maxWidth: 150,
+  },
+  projectPickerText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: Theme.colors.text,
+    marginRight: 6,
+  },
+  errorAlert: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Theme.colors.error + '22',
+    padding: Theme.spacing.md,
+    borderRadius: Theme.borderRadius.md,
+    marginBottom: Theme.spacing.md,
+    borderWidth: 1,
+    borderColor: Theme.colors.error + '44',
+  },
+  errorText: {
+    color: Theme.colors.error,
+    fontSize: 12,
+    marginLeft: Theme.spacing.sm,
+    flex: 1,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: Theme.spacing.lg,
+    backgroundColor: 'transparent',
+  },
+  kpiCard: {
+    backgroundColor: Theme.colors.surface,
+    borderRadius: Theme.borderRadius.lg,
+    padding: Theme.spacing.md,
+    marginBottom: Theme.spacing.md,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  kpiHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Theme.spacing.xs,
+    backgroundColor: 'transparent',
+  },
+  kpiTitle: {
+    fontSize: 12,
+    color: Theme.colors.textMuted,
+    marginLeft: 6,
+    fontWeight: '600',
+  },
+  kpiValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: Theme.colors.text,
+  },
+  section: {
+    marginBottom: Theme.spacing.xl,
+    backgroundColor: 'transparent',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Theme.spacing.md,
+    backgroundColor: 'transparent',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Theme.colors.text,
+    marginLeft: 8,
+  },
+  severityBarContainer: {
+    backgroundColor: Theme.colors.surface,
+    borderRadius: Theme.borderRadius.lg,
+    padding: Theme.spacing.md,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+  },
+  severityItem: {
+    marginBottom: Theme.spacing.md,
+    backgroundColor: 'transparent',
+  },
+  severityLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+    backgroundColor: 'transparent',
+  },
+  severityLabel: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: Theme.colors.textMuted,
+    letterSpacing: 1,
+  },
+  severityCount: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: Theme.colors.text,
+  },
+  progressBarBg: {
+    height: 6,
+    backgroundColor: Theme.colors.border + '33',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  card: {
+    backgroundColor: Theme.colors.surface,
+    borderRadius: Theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    padding: Theme.spacing.sm,
+  },
+  vulnRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Theme.spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Theme.colors.border + '33',
+    backgroundColor: 'transparent',
+  },
+  severityDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 12,
+  },
+  vulnInfo: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  vulnName: {
+    fontSize: 14,
+    color: Theme.colors.text,
+    marginBottom: 2,
+  },
+  vulnDate: {
+    fontSize: 11,
+    color: Theme.colors.textMuted,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: Theme.colors.textMuted,
+    padding: Theme.spacing.lg,
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Theme.colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: Theme.colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  trendChartContainer: {
+    height: 120,
+    paddingTop: Theme.spacing.md,
+    backgroundColor: 'transparent',
+  },
+  trendBarsRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    paddingHorizontal: Theme.spacing.xs,
+    backgroundColor: 'transparent',
+  },
+  trendBarWrapper: {
+    alignItems: 'center',
+    width: '12%',
+    backgroundColor: 'transparent',
+  },
+  trendBar: {
+    width: 12,
+    backgroundColor: Theme.colors.primary,
+    borderRadius: 6,
+  },
+  trendBarLabel: {
+    fontSize: 9,
+    color: Theme.colors.textMuted,
+    marginTop: 8,
+    fontWeight: 'bold',
+  },
+  targetRow: {
+    flexDirection: 'row',
+    padding: Theme.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Theme.colors.border + '33',
+    backgroundColor: 'transparent',
+  },
+  targetMainInfo: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  targetName: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: Theme.colors.text,
+    marginBottom: 4,
+  },
+  targetSeverityCounts: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+  miniBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  miniBadgeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  totalVulnLabel: {
+    fontSize: 11,
+    color: Theme.colors.textMuted,
+  },
+  techRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Theme.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Theme.colors.border + '33',
+    backgroundColor: 'transparent',
+  },
+  techName: {
+    width: '35%',
+    fontSize: 13,
+    color: Theme.colors.text,
+    fontWeight: '600',
+  },
+  techBarContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 20,
+    backgroundColor: 'transparent',
+  },
+  techBarFill: {
+    height: 8,
+    backgroundColor: Theme.colors.secondary + '66',
+    borderRadius: 4,
+  },
+  techCount: {
+    marginLeft: 8,
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: Theme.colors.textMuted,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Theme.spacing.xl,
+  },
+  modalContent: {
+    backgroundColor: Theme.colors.surface,
+    borderRadius: Theme.borderRadius.lg,
+    width: '100%',
+    padding: Theme.spacing.lg,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Theme.colors.text,
+    marginBottom: Theme.spacing.lg,
+  },
+  projectItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: Theme.spacing.md,
+    paddingHorizontal: Theme.spacing.md,
+    borderRadius: Theme.borderRadius.md,
+    marginBottom: Theme.spacing.xs,
+  },
+  projectItemActive: {
+    backgroundColor: Theme.colors.primary + '22',
+  },
+  projectItemText: {
+    fontSize: 16,
+    color: Theme.colors.textMuted,
+  },
+  projectItemTextActive: {
+    color: Theme.colors.primary,
+    fontWeight: 'bold',
+  },
+  activeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Theme.colors.primary,
+  },
+});
