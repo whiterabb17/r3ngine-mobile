@@ -1,8 +1,8 @@
-<div style="background:#e74c3c;color:#fff;border-color:#c0392b; text-align:center; top:0; z-index:9999; padding:12px 16px; font-size:13px; line-height:1.2; border-bottom:3px solid transparent;">
-  <em>THIS IS AN <strong>ALPHA</strong> RELEASE AND MAY CONTAIN BUGS</em>
-</div>
 <p align="center">
-<a href="https://rengine.wiki"><img src="../frontend/public/img/banner.png" height="400px" width="520px" alt=""/></a>
+  <em>THIS IS AN <strong>ALPHA</strong> RELEASE AND MAY CONTAIN BUGS</em>
+</p>
+<p align="center">
+<a href="https://rengine.wiki"><img src="https://raw.githubusercontent.com/whiterabb17/r3ngine/main/frontend/public/img/banner.png" height="400px" width="520px" alt=""/></a>
 </p>
 
 <p align="center">
