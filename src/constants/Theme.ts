@@ -7,6 +7,7 @@ export const Theme = {
     text: '#F8FAFC', // Slate 50
     textMuted: '#94A3B8', // Slate 400
     error: '#EF4444',
+    danger: '#EF4444',
     success: '#10B981',
     border: '#334155',
     warning: '#F59E0B',

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, ScrollView, RefreshControl, TouchableOpacity, useWindowDimensions, Modal } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import {
   Target,
   ShieldAlert,
@@ -11,7 +11,10 @@ import {
   AlertTriangle,
   LayoutGrid,
   Biohazard,
-  ChevronRight
+  ChevronRight,
+  Key,
+  Code,
+  StickyNote,
 } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
@@ -30,6 +33,7 @@ interface Kpis {
   medium_count: number;
   low_count: number;
   info_count: number;
+  secret_leak_count?: number;
 }
 
 interface Vulnerability {
@@ -65,6 +69,7 @@ interface Trends {
 
 export default function DashboardScreen() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const router = useRouter();
   const { currentProject, setCurrentProject } = useProjectStore();
   const [kpis, setKpis] = useState<Kpis | null>(null);
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
@@ -279,6 +284,82 @@ export default function DashboardScreen() {
         {assetCountries && assetCountries.length > 0 && (
           <GeoMap data={assetCountries} />
         )}
+
+        {/* Tactical Intelligence Shortcuts */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Tactical Intelligence</Text>
+        </View>
+        <View style={styles.intelligenceGrid}>
+          <TouchableOpacity 
+            style={styles.intelCard}
+            onPress={() => router.push('/feeds/assets' as any)}
+          >
+            <View style={[styles.intelIconBox, { backgroundColor: Theme.colors.primary + '22' }]}>
+              <Globe size={20} color={Theme.colors.primary} />
+            </View>
+            <Text style={styles.intelLabel}>Global Assets</Text>
+            <Text style={styles.intelCount}>{kpis?.subdomain_count || 0}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.intelCard}
+            onPress={() => router.push('/feeds/vulnerabilities' as any)}
+          >
+            <View style={[styles.intelIconBox, { backgroundColor: Theme.colors.error + '22' }]}>
+              <ShieldAlert size={20} color={Theme.colors.error} />
+            </View>
+            <Text style={styles.intelLabel}>Threat Feed</Text>
+            <Text style={[styles.intelCount, { color: Theme.colors.error }]}>
+              {(kpis?.critical_count || 0) + (kpis?.high_count || 0)}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.intelCard}
+            onPress={() => router.push('/feeds/endpoints' as any)}
+          >
+            <View style={[styles.intelIconBox, { backgroundColor: Theme.colors.info + '22' }]}>
+              <LayoutGrid size={20} color={Theme.colors.info} />
+            </View>
+            <Text style={styles.intelLabel}>Endpoints</Text>
+            <Text style={[styles.intelCount, { color: Theme.colors.info }]}>{kpis?.endpoint_count || 0}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.intelligenceGrid}>
+          <TouchableOpacity 
+            style={styles.intelCard}
+            onPress={() => router.push('/intelligence/secrets' as any)}
+          >
+            <View style={[styles.intelIconBox, { backgroundColor: Theme.colors.warning + '22' }]}>
+              <Key size={20} color={Theme.colors.warning} />
+            </View>
+            <Text style={styles.intelLabel}>Secret Leaks</Text>
+            <Text style={[styles.intelCount, { color: Theme.colors.warning }]}>{kpis?.secret_leak_count || 0}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.intelCard}
+            onPress={() => router.push('/intelligence/notes' as any)}
+          >
+             <View style={[styles.intelIconBox, { backgroundColor: Theme.colors.success + '22' }]}>
+                <StickyNote size={20} color={Theme.colors.success} />
+             </View>
+             <Text style={styles.intelLabel}>Notes</Text>
+             <Text style={[styles.intelCount, { color: Theme.colors.success }]}>RECON</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.intelCard}
+            onPress={() => router.push('/intelligence/attack-paths' as any)}
+          >
+             <View style={styles.intelIconBox}>
+                <Code size={20} color={Theme.colors.primary} />
+             </View>
+             <Text style={styles.intelLabel}>Analysis</Text>
+             <Text style={styles.intelCount}>APME</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Most Vulnerable Targets */}
         <View style={styles.section}>
@@ -723,7 +804,44 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: Theme.colors.text,
+    marginBottom: Theme.spacing.md,
+    fontFamily: 'Orbitron',
+  },
+  intelligenceGrid: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingHorizontal: Theme.spacing.md,
     marginBottom: Theme.spacing.lg,
+    backgroundColor: 'transparent',
+  },
+  intelCard: {
+    flex: 1,
+    backgroundColor: Theme.colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    alignItems: 'center',
+  },
+  intelIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  intelLabel: {
+    fontSize: 12,
+    color: Theme.colors.textMuted,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  intelCount: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: Theme.colors.primary,
+    fontFamily: 'Orbitron',
   },
   projectItem: {
     flexDirection: 'row',

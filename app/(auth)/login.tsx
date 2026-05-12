@@ -179,7 +179,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Theme.spacing.md,
     borderWidth: 1,
-    borderWidth: 1,
     borderColor: Theme.colors.border,
     overflow: 'hidden',
   },

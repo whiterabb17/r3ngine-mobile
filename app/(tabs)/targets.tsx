@@ -116,10 +116,13 @@ export default function TargetsScreen() {
   const renderItem = ({ item }: { item: TargetItem }) => (
     <View style={styles.targetCard}>
       <View style={styles.cardHeader}>
-        <View style={styles.targetInfo}>
+        <TouchableOpacity 
+          style={styles.targetInfo}
+          onPress={() => router.push(`/target/${item.id}` as any)}
+        >
           <Text style={styles.targetName}>{item.name}</Text>
           <Text style={styles.projectLabel}>{item.project?.name || 'No Project'}</Text>
-        </View>
+        </TouchableOpacity>
         <TouchableOpacity 
           style={styles.scanBtn}
           onPress={() => {
