@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: Theme.colors.danger,
-    fontFamily: 'Orbitron',
+    fontFamily: 'Bangers',
     fontSize: 12,
   }
 });

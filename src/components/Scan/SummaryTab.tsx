@@ -184,10 +184,10 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   kpiTitle: {
-    fontSize: 9,
-    fontWeight: '900',
+    fontSize: 12,
     color: Theme.colors.textMuted,
     letterSpacing: 0.5,
+    fontFamily: 'Bangers',
   },
   kpiValue: {
     fontSize: 24,
@@ -216,10 +216,10 @@ const styles = StyleSheet.create({
     backgroundColor: Theme.colors.surface,
   },
   sectionTitle: {
-    fontSize: 12,
-    fontWeight: '900',
+    fontSize: 16,
     letterSpacing: 1,
     color: Theme.colors.text,
+    fontFamily: 'Bangers',
   },
   sectionContent: {
     padding: Theme.spacing.md,

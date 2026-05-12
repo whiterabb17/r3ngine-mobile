@@ -113,7 +113,8 @@ export const ReconNoteCard: React.FC<ReconNoteCardProps> = ({
             style={styles.deleteButton}
           >
             <MaterialCommunityIcons name="trash-can-outline" size={20} color="#FF5252" />
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </View>
       </View>
     </TouchableOpacity>
   );

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, Dimensions, ImageBackground, TouchableOpacity, Animated } from 'react-native';
+import { StyleSheet, Dimensions, ImageBackground, TouchableOpacity, Animated, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
 import { Globe, MapPin, Map as MapIcon, X } from 'lucide-react-native';
@@ -24,6 +25,7 @@ const LAT_OFFSET = 18;
 const LON_OFFSET = -5;
 
 export default function GeoMap({ data }: GeoMapProps) {
+  const router = useRouter();
   const [selectedCountry, setSelectedCountry] = useState<CountryData | null>(null);
   
   const sortedData = [...data].sort((a, b) => b.count - a.count);
@@ -103,6 +105,19 @@ export default function GeoMap({ data }: GeoMapProps) {
                   <Text style={styles.tooltipLabel}>Assets Discovered</Text>
                   <Text style={styles.tooltipCount}>{selectedCountry.count}</Text>
                 </View>
+                <TouchableOpacity 
+                  style={styles.viewAssetsBtn}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    router.push({
+                      pathname: '/feeds/assets',
+                      params: { country: selectedCountry.name }
+                    } as any);
+                    setSelectedCountry(null);
+                  }}
+                >
+                  <Text style={styles.viewAssetsText}>VIEW ASSETS</Text>
+                </TouchableOpacity>
                 <View style={styles.tooltipTail} />
               </View>
             </View>
@@ -359,6 +374,21 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: Theme.colors.primary,
     transform: [{ rotate: '45deg' }],
+  },
+  viewAssetsBtn: {
+    backgroundColor: Theme.colors.primary + '22',
+    paddingVertical: 6,
+    borderRadius: 6,
+    marginTop: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Theme.colors.primary + '44',
+  },
+  viewAssetsText: {
+    color: Theme.colors.primary,
+    fontSize: 10,
+    fontWeight: '900',
+    fontFamily: 'Orbitron',
   },
   emptyText: {
     color: Theme.colors.textMuted,

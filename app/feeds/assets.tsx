@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, FlatList, RefreshControl, TouchableOpacity, TextInput, ActivityIndicator, ScrollView } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
-import { Globe, Search, Filter, ChevronRight, ExternalLink, Shield } from 'lucide-react-native';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
+import { Globe, Search, Filter, ChevronRight, ExternalLink, Shield, MapPin, X } from 'lucide-react-native';
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../src/constants/Theme';
 import apiClient from '../../src/api/client';
@@ -18,16 +18,22 @@ interface Subdomain {
     id: number;
     name: string;
   };
+  ip_addresses: {
+    address: string;
+    geo_iso_name?: string;
+  }[];
 }
 
 export default function GlobalAssetFeed() {
   const { currentProject } = useProjectStore();
   const router = useRouter();
+  const params = useLocalSearchParams();
   const [assets, setAssets] = useState<Subdomain[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<number | null>(null);
+  const [countryFilter, setCountryFilter] = useState<string | null>(params.country as string || null);
 
   const fetchAssets = useCallback(async () => {
     if (!currentProject) return;
@@ -50,8 +56,11 @@ export default function GlobalAssetFeed() {
   const filteredAssets = assets.filter(asset => {
     const matchesSearch = asset.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          (asset.page_title && asset.page_title.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesFilter = filter ? asset.http_status === filter : true;
-    return matchesSearch && matchesFilter;
+    const matchesStatus = filter ? asset.http_status === filter : true;
+    const matchesCountry = countryFilter ? 
+      asset.ip_addresses.some(ip => ip.geo_iso_name === countryFilter) : true;
+    
+    return matchesSearch && matchesStatus && matchesCountry;
   });
 
   const getStatusColor = (status: number) => {
@@ -124,6 +133,18 @@ export default function GlobalAssetFeed() {
           )}
         </View>
       </View>
+
+      {countryFilter && (
+        <View style={styles.filterBar}>
+          <View style={styles.activeFilter}>
+            <MapPin size={12} color={Theme.colors.primary} />
+            <Text style={styles.filterText}>Country: {countryFilter}</Text>
+            <TouchableOpacity onPress={() => setCountryFilter(null)}>
+              <X size={14} color={Theme.colors.primary} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       <View style={styles.filterRow}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
@@ -329,7 +350,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     color: Theme.colors.textMuted,
     fontSize: 12,
-    fontFamily: 'Orbitron',
+    fontFamily: 'Bangers',
   },
   emptyState: {
     alignItems: 'center',
@@ -346,5 +367,26 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Theme.colors.textMuted,
     textAlign: 'center',
-  }
+  },
+  filterBar: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  activeFilter: {
+    backgroundColor: Theme.colors.primary + '22',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: Theme.colors.primary + '44',
+  },
+  filterText: {
+    color: Theme.colors.primary,
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginHorizontal: 6,
+  },
 });

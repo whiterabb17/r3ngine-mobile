@@ -10,7 +10,7 @@ export default function FeedsLayout() {
         },
         headerTintColor: Theme.colors.text,
         headerTitleStyle: {
-          fontFamily: 'Orbitron',
+          fontFamily: 'Bangers',
           fontSize: 16,
           color: Theme.colors.primary,
         },

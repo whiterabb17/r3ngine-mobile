@@ -298,11 +298,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   logSectionTitle: {
-    fontSize: 12,
-    fontWeight: '900',
+    fontSize: 16,
     color: Theme.colors.textMuted,
+    fontFamily: 'Bangers',
     letterSpacing: 1,
-    marginBottom: 8,
+    marginBottom: 12,
   },
   commandBox: {
     backgroundColor: '#000',

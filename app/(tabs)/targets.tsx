@@ -420,11 +420,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 22,
     color: Theme.colors.text,
     marginTop: 16,
     marginBottom: 8,
+    fontFamily: 'Bangers',
+    letterSpacing: 1,
   },
   emptySub: {
     fontSize: 14,
@@ -491,10 +492,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '900',
+    fontSize: 24,
     color: Theme.colors.text,
-    fontFamily: 'Orbitron',
+    fontFamily: 'Bangers',
+    letterSpacing: 1,
   },
   modalBody: {
     backgroundColor: 'transparent',

@@ -114,9 +114,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: Theme.colors.text,
-    fontFamily: 'Orbitron',
+    color: Theme.colors.textMuted,
+    textTransform: 'uppercase',
+    marginBottom: Theme.spacing.sm,
+    fontFamily: 'Bangers',
     letterSpacing: 0.5,
   },
   severityContainer: {

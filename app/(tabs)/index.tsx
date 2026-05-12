@@ -15,6 +15,7 @@ import {
   Key,
   Code,
   StickyNote,
+  Camera,
 } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
@@ -361,6 +362,19 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </View>
 
+        <View style={styles.intelligenceGrid}>
+          <TouchableOpacity 
+            style={styles.intelCard}
+            onPress={() => router.push('/feeds/visual' as any)}
+          >
+            <View style={[styles.intelIconBox, { backgroundColor: Theme.colors.info + '22' }]}>
+              <Camera size={20} color={Theme.colors.info} />
+            </View>
+            <Text style={styles.intelLabel}>Visual Recon</Text>
+            <Text style={[styles.intelCount, { color: Theme.colors.info }]}>FEED</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Most Vulnerable Targets */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -495,11 +509,11 @@ const styles = StyleSheet.create({
     padding: Theme.spacing.md,
   },
   headerTitleText: {
-    fontWeight: 900,
-    fontFamily: "Bangers, cursive",
+    fontWeight: '400',
+    fontFamily: "Bangers",
     letterSpacing: 2,
     color: "rgba(215, 98, 30, 1)",
-    fontSize: 20,
+    fontSize: 24,
     textTransform: 'uppercase'
   },
   projectPicker: {
@@ -563,10 +577,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   kpiTitle: {
-    fontSize: 12,
+    fontSize: 14,
     color: Theme.colors.textMuted,
     marginLeft: 6,
-    fontWeight: '600',
+    fontFamily: 'Bangers',
+    letterSpacing: 0.5,
   },
   kpiValue: {
     fontSize: 24,
@@ -584,10 +599,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 20,
     color: Theme.colors.text,
     marginLeft: 8,
+    fontFamily: 'Bangers',
+    letterSpacing: 1,
   },
   severityGrid: {
     flexDirection: 'row',
@@ -801,11 +817,21 @@ const styles = StyleSheet.create({
     borderColor: Theme.colors.border,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 24,
     color: Theme.colors.text,
-    marginBottom: Theme.spacing.md,
-    fontFamily: 'Orbitron',
+    marginBottom: 20,
+    fontFamily: 'Bangers',
+    textAlign: 'center',
+    letterSpacing: 1,
+  },
+  kpiTitle: {
+    fontFamily: 'Bangers',
+  },
+  sectionTitle: {
+    fontFamily: 'Bangers',
+  },
+  headerTitleText: {
+    fontFamily: 'Bangers',
   },
   intelligenceGrid: {
     flexDirection: 'row',
@@ -841,7 +867,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '900',
     color: Theme.colors.primary,
-    fontFamily: 'Orbitron',
+    fontFamily: 'Bangers',
   },
   projectItem: {
     flexDirection: 'row',

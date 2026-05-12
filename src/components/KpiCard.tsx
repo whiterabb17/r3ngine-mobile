@@ -61,8 +61,10 @@ const styles = StyleSheet.create({
     color: Theme.colors.text,
   },
   title: {
-    fontSize: 12,
+    fontSize: 14,
     color: Theme.colors.textMuted,
     marginTop: 2,
+    fontFamily: 'Bangers',
+    letterSpacing: 0.5,
   },
 });

@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { LogOut, Server, Shield, Bell, Info } from 'lucide-react-native';
 import { Theme } from '../../src/constants/Theme';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 
 export default function SettingsScreen() {
+  const router = useRouter();
   const { logout } = useAuthStore();
   const { serverIp } = useSettingsStore();
 
@@ -55,6 +56,24 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Diagnostics</Text>
+          <View style={styles.card}>
+            <SettingRow 
+              icon={Activity} 
+              label="System Health" 
+              value="Tactical Status" 
+              onPress={() => router.push('/system/health' as any)} 
+            />
+            <SettingRow 
+              icon={Info} 
+              label="App Diagnostics" 
+              value="Technical Info" 
+              onPress={() => router.push('/diagnostics' as any)} 
+            />
+          </View>
+        </View>
+
+        <View style={styles.section}>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <LogOut size={20} color={Theme.colors.error} />
             <Text style={styles.logoutText}>Logout from reNgine</Text>
@@ -82,12 +101,13 @@ const styles = StyleSheet.create({
     marginBottom: Theme.spacing.xl,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 16,
     color: Theme.colors.textMuted,
     textTransform: 'uppercase',
     marginBottom: Theme.spacing.sm,
     marginLeft: Theme.spacing.xs,
+    fontFamily: 'Bangers',
+    letterSpacing: 0.5,
   },
   card: {
     backgroundColor: Theme.colors.surface,

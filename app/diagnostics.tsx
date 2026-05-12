@@ -127,12 +127,13 @@ const styles = StyleSheet.create({
     marginBottom: Theme.spacing.lg,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 16,
     color: Theme.colors.textMuted,
     textTransform: 'uppercase',
     marginBottom: Theme.spacing.sm,
     marginLeft: Theme.spacing.xs,
+    fontFamily: 'Bangers',
+    letterSpacing: 0.5,
   },
   card: {
     backgroundColor: Theme.colors.surface,

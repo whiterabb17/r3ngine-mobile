@@ -135,13 +135,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: Theme.colors.primary,
-    marginBottom: 16,
-    textTransform: 'uppercase',
+    fontSize: 18,
+    color: Theme.colors.text,
+    fontFamily: 'Bangers',
     letterSpacing: 1,
-    fontFamily: 'Orbitron',
+    marginBottom: 16,
   },
   inputGroup: {
     backgroundColor: 'transparent',

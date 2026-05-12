@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     color: Theme.colors.textMuted,
     fontSize: 12,
-    fontFamily: 'Orbitron',
+    fontFamily: 'Bangers',
   },
   headerBtn: {
     marginRight: 8,
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: Theme.colors.text,
-    fontFamily: 'Orbitron',
+    fontFamily: 'Bangers',
     textAlign: 'center',
   },
   emptySubtext: {

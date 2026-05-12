@@ -65,6 +65,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
     color: Theme.colors.textMuted,
     fontSize: 12,
-    fontFamily: 'Orbitron',
+    fontFamily: 'Bangers',
   },
 });

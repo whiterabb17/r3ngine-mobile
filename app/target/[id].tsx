@@ -135,7 +135,7 @@ export default function TargetDetailScreen() {
           backgroundColor: Theme.colors.surface,
         },
         headerTitleStyle: {
-          fontFamily: 'Orbitron',
+          fontFamily: 'Bangers',
           fontSize: 16,
           color: Theme.colors.primary,
         }
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     color: Theme.colors.textMuted,
     fontSize: 14,
-    fontFamily: 'Orbitron',
+    fontFamily: 'Bangers',
   },
   header: {
     padding: Theme.spacing.md,
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: Theme.colors.text,
-    fontFamily: 'Orbitron',
+    fontFamily: 'Bangers',
   },
   projectSlug: {
     fontSize: 12,

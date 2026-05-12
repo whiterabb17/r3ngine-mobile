@@ -245,7 +245,9 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     color: Theme.colors.textMuted,
-    fontSize: 14,
+    fontSize: 16,
+    fontFamily: 'Bangers',
+    letterSpacing: 1,
   },
   header: {
     padding: Theme.spacing.md,
@@ -260,10 +262,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   targetName: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 22,
     color: Theme.colors.text,
     marginBottom: 2,
+    fontFamily: 'Bangers',
+    letterSpacing: 1,
   },
   scanMeta: {
     fontSize: 12,
@@ -345,11 +348,11 @@ const styles = StyleSheet.create({
     borderBottomColor: Theme.colors.primary,
   },
   tabLabel: {
-    fontSize: 9,
+    fontSize: 10,
     marginTop: 6,
     color: Theme.colors.textMuted,
-    fontWeight: '800',
     letterSpacing: 0.5,
+    fontFamily: 'Bangers',
   },
   tabLabelActive: {
     color: Theme.colors.primary,

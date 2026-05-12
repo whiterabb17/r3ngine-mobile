@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Modal, TouchableOpacity, ActivityIndicator, Alert, Animated } from 'react-native';
 import { X, ChevronRight, ChevronLeft, Play } from 'lucide-react-native';
-import * as Haptics from 'expo-haptics';
+import { TacticalHaptics } from '../../utils/haptics';
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
 import apiClient from '../../api/client';
@@ -79,6 +79,7 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
   };
 
   const handleNext = () => {
+    TacticalHaptics.soft();
     if (step === 'engine') {
       if (!selectedEngineId) {
         Alert.alert('Error', 'Please select a scan engine');
@@ -91,6 +92,7 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
   };
 
   const handleBack = () => {
+    TacticalHaptics.soft();
     if (step === 'advanced') setStep('engine');
     else if (step === 'review') setStep('advanced');
   };
@@ -107,7 +109,7 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
       const response = await apiClient.post('action/initiate/scan/', payload);
 
       if (response.data && response.data.status) {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        TacticalHaptics.success();
         Alert.alert('Scan Initiated', `Targeting sequence started for ${targetName}`, [
           { text: 'ACKNOWLEDGE', onPress: onClose }
         ]);
@@ -254,7 +256,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '900',
     color: Theme.colors.text,
-    fontFamily: 'Orbitron',
+    fontFamily: 'Bangers',
     letterSpacing: 1.5,
   },
   stepIndicator: {
