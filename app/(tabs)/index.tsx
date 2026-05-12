@@ -16,6 +16,7 @@ import {
   Code,
   StickyNote,
   Camera,
+  Bell,
 } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
@@ -23,6 +24,7 @@ import { Theme } from '../../src/constants/Theme';
 import apiClient from '../../src/api/client';
 import { useProjectStore } from '../../src/store/useProjectStore';
 import GeoMap from '../../src/components/Dashboard/GeoMap';
+import { getUnreadCount } from '../../src/api/notifications';
 
 interface Kpis {
   domain_count: number;
@@ -78,6 +80,7 @@ export default function DashboardScreen() {
   const [topVulnerableTargets, setTopVulnerableTargets] = useState<VulnerableTarget[]>([]);
   const [trends, setTrends] = useState<Trends | null>(null);
   const [assetCountries, setAssetCountries] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
@@ -127,13 +130,28 @@ export default function DashboardScreen() {
     }
   }, [currentProject, fetchDashboard]);
 
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const count = await getUnreadCount(currentProject || undefined);
+      setUnreadCount(count);
+    } catch (err) {
+      console.error('Error fetching unread count:', err);
+    }
+  }, [currentProject]);
+
   useEffect(() => {
     fetchProjects();
-  }, []);
+    fetchUnreadCount();
+    
+    // Poll for notifications every 60 seconds
+    const interval = setInterval(fetchUnreadCount, 60000);
+    return () => clearInterval(interval);
+  }, [fetchUnreadCount]);
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchProjects();
+    fetchUnreadCount();
   };
 
   const handleProjectSelect = (slug: string) => {
@@ -195,16 +213,29 @@ export default function DashboardScreen() {
           <Text style={styles.headerTitleText}>R3NGINE</Text>
         ),
         headerRight: () => (
-          <TouchableOpacity
-            style={styles.projectPicker}
-            activeOpacity={0.7}
-            onPress={() => setShowProjectModal(true)}
-          >
-            <Text style={styles.projectPickerText} numberOfLines={1}>
-              {projects.find(p => p.slug === currentProject)?.name || 'Select Project'}
-            </Text>
-            <ChevronDown size={14} color={Theme.colors.textMuted} />
-          </TouchableOpacity>
+          <View style={styles.headerRightContainer}>
+            <TouchableOpacity
+              style={styles.notificationIcon}
+              onPress={() => router.push('/notifications')}
+            >
+              <Bell size={22} color="#fff" />
+              {unreadCount > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.projectPicker}
+              activeOpacity={0.7}
+              onPress={() => setShowProjectModal(true)}
+            >
+              <Text style={styles.projectPickerText} numberOfLines={1}>
+                {projects.find(p => p.slug === currentProject)?.name || 'Select Project'}
+              </Text>
+              <ChevronDown size={14} color={Theme.colors.textMuted} />
+            </TouchableOpacity>
+          </View>
         )
       }} />
 
@@ -515,6 +546,35 @@ const styles = StyleSheet.create({
     color: "rgba(215, 98, 30, 1)",
     fontSize: 24,
     textTransform: 'uppercase'
+  },
+  headerRightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: Theme.spacing.md,
+  },
+  notificationIcon: {
+    marginRight: 16,
+    position: 'relative',
+    padding: 4,
+  },
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: Theme.colors.error,
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 1.5,
+    borderColor: '#0f172a',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 9,
+    fontWeight: 'bold',
   },
   projectPicker: {
     flexDirection: 'row',
