@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { CheckCircle2, XCircle, Trash2, CheckSquare } from 'lucide-react-native';
-import { Text, View } from '../Themed';
+import { Text, View } from '../../../components/Themed';
 import { Theme } from '../../constants/Theme';
 
 interface Props {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Mail, User, Phone, Globe, Shield, CheckCircle2, XCircle, Info } from 'lucide-react-native';
-import { Text, View } from '../Themed';
+import { Text, View } from '../../../components/Themed';
 import { Theme } from '../../constants/Theme';
 
 export interface StagingItem {

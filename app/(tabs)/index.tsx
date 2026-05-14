@@ -17,6 +17,7 @@ import {
   StickyNote,
   Camera,
   Bell,
+  Inbox,
 } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
