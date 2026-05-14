@@ -11,7 +11,8 @@ import {
   Target as TargetIcon,
   AlertTriangle,
   StickyNote,
-  Plus
+  Plus,
+  Network
 } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
@@ -25,7 +26,9 @@ import VulnerabilitiesTab from '../../src/components/Scan/VulnerabilitiesTab';
 import TechStackTab from '../../src/components/Target/TechStackTab';
 import { ReconNoteCard } from '../../src/components/Intelligence/ReconNoteCard';
 
-type TabType = 'SUMMARY' | 'SUBDOMAINS' | 'VULNERABILITIES' | 'TECH' | 'NOTES';
+import AssetGraph from '../../src/components/Observability/AssetGraph';
+
+type TabType = 'SUMMARY' | 'SUBDOMAINS' | 'VULNERABILITIES' | 'TECH' | 'NOTES' | 'GRAPH';
 
 export default function TargetDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -114,6 +117,7 @@ export default function TargetDetailScreen() {
     { type: 'SUBDOMAINS', icon: Globe, label: 'Assets' },
     { type: 'VULNERABILITIES', icon: ShieldAlert, label: 'Vulns' },
     { type: 'TECH', icon: LayoutGrid, label: 'Stack' },
+    { type: 'GRAPH', icon: Network, label: 'Graph' },
     { type: 'NOTES', icon: StickyNote, label: 'Notes' },
   ];
 
@@ -250,6 +254,10 @@ export default function TargetDetailScreen() {
               <Text style={{ color: Theme.colors.primary, fontWeight: 'bold' }}>MANAGE ALL NOTES</Text>
             </TouchableOpacity>
           </ScrollView>
+        )}
+
+        {activeTab === 'GRAPH' && (
+           <AssetGraph targetId={Number(id)} />
         )}
       </View>
     </View>

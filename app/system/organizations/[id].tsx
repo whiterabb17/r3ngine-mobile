@@ -94,7 +94,7 @@ export default function OrganizationDetailScreen() {
           title: org?.name || 'ORG DETAIL',
           headerStyle: { backgroundColor: Theme.colors.background },
           headerTintColor: '#fff',
-          headerTitleStyle: { fontFamily: 'Bangers', letterSpacing: 1 },
+          headerTitleStyle: { fontFamily: 'Bangers' },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: -10, padding: 10 }}>
               <ChevronLeft size={24} color="#fff" />
@@ -151,7 +151,7 @@ export default function OrganizationDetailScreen() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>No targets are currently assigned to this tactical unit.</Text>
-            <TouchableOpacity style={styles.assignBtn} onPress={() => TacticalHaptics.impact('medium')}>
+            <TouchableOpacity style={styles.assignBtn} onPress={() => TacticalHaptics.impact()}>
               <Zap size={16} color="#000" />
               <Text style={styles.assignBtnText}>ASSIGN TARGETS</Text>
             </TouchableOpacity>

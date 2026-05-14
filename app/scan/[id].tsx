@@ -12,8 +12,10 @@ import {
   Zap,
   Target,
   AlertTriangle,
-  Square,
-  Folder
+  Folder,
+  Terminal,
+  Network,
+  Square
 } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
@@ -25,8 +27,9 @@ import SubdomainsTab from '../../src/components/Scan/SubdomainsTab';
 import VulnerabilitiesTab from '../../src/components/Scan/VulnerabilitiesTab';
 import TimelineTab from '../../src/components/Scan/TimelineTab';
 import DirectoriesTab from '../../src/components/Scan/DirectoriesTab';
+import AssetGraph from '../../src/components/Observability/AssetGraph';
 
-type TabType = 'SUMMARY' | 'SUBDOMAINS' | 'DIRECTORIES' | 'VULNERABILITIES' | 'TIMELINE';
+type TabType = 'SUMMARY' | 'SUBDOMAINS' | 'DIRECTORIES' | 'VULNERABILITIES' | 'TIMELINE' | 'GRAPH';
 
 export default function ScanDetailScreen() {
   const { id, slug } = useLocalSearchParams();
@@ -136,9 +139,20 @@ export default function ScanDetailScreen() {
           </TouchableOpacity>
         ),
         headerRight: () => (
-          <TouchableOpacity style={{ marginRight: 10 }}>
-            <MoreVertical size={20} color={Theme.colors.text} />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', backgroundColor: 'transparent', alignItems: 'center', gap: 10, marginRight: 10 }}>
+            {data?.scan_info?.scan_status === 1 && (
+              <TouchableOpacity 
+                onPress={() => router.push(`/system/logs/${id}` as any)}
+                style={styles.liveLogsBtn}
+              >
+                <Terminal size={18} color={Theme.colors.primary} />
+                <Text style={styles.liveLogsText}>LIVE LOGS</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity>
+              <MoreVertical size={20} color={Theme.colors.text} />
+            </TouchableOpacity>
+          </View>
         )
       }} />
 
@@ -178,7 +192,7 @@ export default function ScanDetailScreen() {
 
       {/* Tab Bar */}
       <View style={styles.tabBar}>
-        {(['SUMMARY', 'SUBDOMAINS', 'DIRECTORIES', 'VULNERABILITIES', 'TIMELINE'] as TabType[]).map((tab) => (
+        {(['SUMMARY', 'SUBDOMAINS', 'DIRECTORIES', 'VULNERABILITIES', 'TIMELINE', 'GRAPH'] as TabType[]).map((tab) => (
           <TouchableOpacity 
             key={tab}
             onPress={() => setActiveTab(tab)}
@@ -189,8 +203,9 @@ export default function ScanDetailScreen() {
             {tab === 'DIRECTORIES' && <Folder size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'VULNERABILITIES' && <ShieldAlert size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'TIMELINE' && <History size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'GRAPH' && <Network size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             <Text style={[styles.tabLabel, activeTab === tab && styles.tabLabelActive]}>
-              {tab.charAt(0) + tab.slice(1).toLowerCase()}
+              {tab === 'VULNERABILITIES' ? 'Vulns' : tab.charAt(0) + tab.slice(1).toLowerCase()}
             </Text>
           </TouchableOpacity>
         ))}
@@ -235,6 +250,10 @@ export default function ScanDetailScreen() {
 
         {activeTab === 'TIMELINE' && data && (
            <TimelineTab timeline={data.timeline} />
+        )}
+
+        {activeTab === 'GRAPH' && (
+           <AssetGraph scanId={Number(id)} />
         )}
       </View>
     </View>
@@ -384,5 +403,22 @@ const styles = StyleSheet.create({
     color: Theme.colors.error,
     textAlign: 'center',
     marginTop: 12,
+  },
+  liveLogsBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Theme.colors.primary + '15',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: Theme.colors.primary + '33',
+    gap: 6,
+  },
+  liveLogsText: {
+    color: Theme.colors.primary,
+    fontSize: 10,
+    fontFamily: 'Bangers',
+    letterSpacing: 0.5,
   }
 });

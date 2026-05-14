@@ -98,7 +98,7 @@ export default function StressHistoryScreen() {
           title: 'STRESS TELEMETRY',
           headerStyle: { backgroundColor: Theme.colors.background },
           headerTintColor: '#fff',
-          headerTitleStyle: { fontFamily: 'Bangers', letterSpacing: 1 }
+          headerTitleStyle: { fontFamily: 'Bangers' }
         }} 
       />
 

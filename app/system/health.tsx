@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, Dimensions, Animated } from 'react-native';
-import { Stack } from 'expo-router';
-import { Activity, Database, Cpu, HardDrive, ShieldCheck, AlertTriangle, Zap } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, Dimensions, Animated, TouchableOpacity } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
+import { Activity, Database, Cpu, HardDrive, ShieldCheck, AlertTriangle, Zap, Terminal } from 'lucide-react-native';
 import apiClient from '../../src/api/client';
 import { Theme } from '../../src/constants/Theme';
 import { TacticalHaptics } from '../../src/utils/haptics';
@@ -27,6 +27,7 @@ interface HealthData {
 }
 
 export default function SystemHealthDashboard() {
+  const router = useRouter();
   const [data, setData] = useState<HealthData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -180,6 +181,17 @@ export default function SystemHealthDashboard() {
           </View>
         </View>
 
+        <TouchableOpacity 
+          style={styles.logsButton} 
+          onPress={() => {
+            TacticalHaptics.impact();
+            router.push('/system/logs/system' as any);
+          }}
+        >
+          <Terminal color={Theme.colors.primary} size={20} />
+          <Text style={styles.logsButtonText}>VIEW SYSTEM LOGS</Text>
+        </TouchableOpacity>
+
         <View style={styles.footer}>
           <Text style={styles.footerText}>
             LAST UPDATED: {data ? new Date(data.timestamp * 1000).toLocaleTimeString() : 'N/A'}
@@ -313,6 +325,24 @@ const styles = StyleSheet.create({
     color: Theme.colors.textMuted,
     fontSize: 10,
     fontWeight: '700',
+    letterSpacing: 1,
+  },
+  logsButton: {
+    backgroundColor: Theme.colors.surface,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Theme.spacing.md,
+    borderRadius: Theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: Theme.colors.primary + '44',
+    marginTop: Theme.spacing.lg,
+    gap: 10,
+  },
+  logsButtonText: {
+    color: Theme.colors.primary,
+    fontFamily: 'Bangers',
+    fontSize: 16,
     letterSpacing: 1,
   },
 });

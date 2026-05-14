@@ -34,7 +34,7 @@ export default function StressDashboardScreen() {
     errors: []
   });
   
-  const pollInterval = useRef<NodeJS.Timeout | null>(null);
+  const pollInterval = useRef<any>(null);
 
   const fetchTelemetry = async (isFirstLoad = false) => {
     try {
@@ -99,7 +99,7 @@ export default function StressDashboardScreen() {
           title: 'PERFORMANCE DASHBOARD',
           headerStyle: { backgroundColor: Theme.colors.background },
           headerTintColor: '#fff',
-          headerTitleStyle: { fontFamily: 'Bangers', letterSpacing: 1 },
+          headerTitleStyle: { fontFamily: 'Bangers' },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: -10, padding: 10 }}>
               <ChevronLeft size={24} color="#fff" />
@@ -196,7 +196,7 @@ export default function StressDashboardScreen() {
         </View>
         <TouchableOpacity 
           style={styles.stopButton}
-          onPress={() => TacticalHaptics.notification('warning')}
+          onPress={() => TacticalHaptics.warning()}
         >
           <Square size={16} color="#fff" fill="#fff" />
           <Text style={styles.stopButtonText}>ABORT TEST</Text>

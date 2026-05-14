@@ -1,15 +1,45 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { LogOut, Server, Shield, Bell, Info, Activity, Database, Globe, Clock } from 'lucide-react-native';
+import { LogOut, Server, Shield, Bell, Info, Activity, Database, Globe, Clock, Terminal, Cpu } from 'lucide-react-native';
 import { Theme } from '../../src/constants/Theme';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
+import apiClient from '../../src/api/client';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { logout } = useAuthStore();
   const { serverIp } = useSettingsStore();
+  const [socEnabled, setSocEnabled] = React.useState(false);
+  const [loadingSoc, setLoadingSoc] = React.useState(true);
+
+  React.useEffect(() => {
+    fetchSocSettings();
+  }, []);
+
+  const fetchSocSettings = async () => {
+    try {
+      const response = await apiClient.get('soc-settings/');
+      setSocEnabled(response.data.enable_live_log_streaming);
+    } catch (err) {
+      console.error('Failed to fetch SOC settings:', err);
+    } finally {
+      setLoadingSoc(false);
+    }
+  };
+
+  const toggleSocStreaming = async () => {
+    const newValue = !socEnabled;
+    setSocEnabled(newValue); // Optimistic update
+    try {
+      await apiClient.post('soc-settings/toggle_streaming/');
+    } catch (err) {
+      console.error('Failed to toggle SOC streaming:', err);
+      setSocEnabled(!newValue); // Revert
+      Alert.alert('Error', 'Failed to update tactical log configuration.');
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -33,6 +63,22 @@ export default function SettingsScreen() {
         <Info size={16} color={Theme.colors.textMuted} />
       </View>
     </TouchableOpacity>
+  );
+
+  const SwitchRow = ({ icon: Icon, label, value, onValueChange, color, disabled }: any) => (
+    <View style={styles.row}>
+      <View style={styles.rowLabel}>
+        <Icon size={20} color={color || Theme.colors.textMuted} />
+        <Text style={styles.labelText}>{label}</Text>
+      </View>
+      <Switch
+        value={value}
+        onValueChange={onValueChange}
+        disabled={disabled}
+        trackColor={{ false: '#333', true: Theme.colors.primary + '66' }}
+        thumbColor={value ? Theme.colors.primary : '#888'}
+      />
+    </View>
   );
 
   return (
@@ -64,6 +110,12 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>Infrastructure</Text>
           <View style={styles.card}>
             <SettingRow 
+              icon={Cpu} 
+              label="Scan Engines" 
+              value="Tactical YAML" 
+              onPress={() => router.push('/system/engines' as any)} 
+            />
+            <SettingRow 
               icon={Database} 
               label="System Assets" 
               value="Engines & Tools" 
@@ -94,6 +146,14 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>Preferences</Text>
           <View style={styles.card}>
             <SettingRow icon={Bell} label="Notifications" value="Push Disabled" />
+            <SwitchRow 
+              icon={Terminal} 
+              label="Live Log Streaming" 
+              value={socEnabled} 
+              onValueChange={toggleSocStreaming}
+              color={socEnabled ? Theme.colors.primary : Theme.colors.textMuted}
+              disabled={loadingSoc}
+            />
           </View>
         </View>
 

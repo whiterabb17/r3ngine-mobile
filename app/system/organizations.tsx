@@ -96,7 +96,7 @@ export default function OrganizationsScreen() {
           title: 'ORGANIZATIONS',
           headerStyle: { backgroundColor: Theme.colors.background },
           headerTintColor: '#fff',
-          headerTitleStyle: { fontFamily: 'Bangers', letterSpacing: 1 }
+          headerTitleStyle: { fontFamily: 'Bangers' }
         }} 
       />
 
@@ -107,7 +107,7 @@ export default function OrganizationsScreen() {
         </View>
         <TouchableOpacity 
           style={styles.addButton}
-          onPress={() => TacticalHaptics.notification('success')}
+          onPress={() => TacticalHaptics.success()}
         >
           <Plus size={20} color="#000" />
         </TouchableOpacity>
