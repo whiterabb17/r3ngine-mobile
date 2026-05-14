@@ -63,7 +63,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onPre
         </Text>
         <View style={styles.footer}>
           <Text style={styles.time}>
-            {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+            {notification.created_at ? formatDistanceToNow(new Date(notification.created_at), { addSuffix: true }) : 'Just now'}
           </Text>
           {notification.redirect_link && (
             <View style={styles.linkIndicator}>

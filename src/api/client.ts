@@ -13,11 +13,7 @@ apiClient.interceptors.request.use(async (config) => {
     if (!baseUrl.endsWith('/')) {
         baseUrl += '/';
     }
-    config.baseURL = `${baseUrl}mapi/`;
-  }
-  // Ensure we are talking to the API namespace
-  if (!config.url?.startsWith('api/')) {
-      // Only prepend if it's not already there
+    config.baseURL = baseUrl;
   }
 
   if (token) {

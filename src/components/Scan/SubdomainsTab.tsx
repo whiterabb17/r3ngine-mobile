@@ -23,6 +23,7 @@ import { Theme } from '../../constants/Theme';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import apiClient, { getMediaSource } from '../../api/client';
 import SubtaskModal from './SubtaskModal';
+import { paths } from '../../types/api';
 
 interface Port {
   number: number;
@@ -80,7 +81,7 @@ export default function SubdomainsTab({ subdomains = [], onRefresh }: Subdomains
 
   const handleToggleImportant = async (subdomainId: number) => {
     try {
-      const response = await apiClient.post('toggle/subdomain/important/', { subdomain_id: subdomainId });
+      const response = await apiClient.post<any>('/mapi/toggle/subdomain/important/', { subdomain_id: subdomainId });
       if (response.data.status) {
         onRefresh?.();
       }

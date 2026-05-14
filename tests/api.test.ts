@@ -1,0 +1,125 @@
+import { mock } from './setup';
+import apiClient from '../src/api/client';
+import { getNotifications, getUnreadCount } from '../src/api/notifications';
+import { fetchSubdomainHistory, fetchWhoisData } from '../src/api/tools';
+import { fetchScanMetrics } from '../src/api/observability';
+
+describe('Mobile API (/mapi/) Integration Tests', () => {
+  
+  describe('Scan & Engine Operations', () => {
+    it('should fetch scan configuration correctly', async () => {
+      const mockData = {
+        engines: [
+          { id: 1, engine_name: 'Full Scan', tasks: ['subdomain', 'port_scan'] },
+          { id: 2, engine_name: 'Fast Scan', tasks: ['subdomain'] }
+        ]
+      };
+      
+      mock.onGet('/mapi/scans/configuration/').reply(200, mockData);
+      
+      const response = await apiClient.get('/mapi/scans/configuration/');
+      expect(response.status).toBe(200);
+      expect(response.data.engines).toHaveLength(2);
+      expect(response.data.engines[0].engine_name).toBe('Full Scan');
+    });
+
+    it('should initiate a new scan', async () => {
+      const payload = {
+        engine_id: 1,
+        domain_id: 10,
+        importSubdomainTextArea: '',
+      };
+      
+      mock.onPost('/mapi/action/initiate/scan/').reply(201, {
+        status: true,
+        message: 'Scan initiated successfully'
+      });
+      
+      const response = await apiClient.post('/mapi/action/initiate/scan/', payload);
+      expect(response.status).toBe(201);
+      expect(response.data.status).toBe(true);
+    });
+
+    it('should initiate a subtask', async () => {
+      const payload = {
+        subdomain_id: 5,
+        engine_id: 2,
+        tasks: ['subdomain']
+      };
+      
+      mock.onPost('/mapi/action/initiate/subtask/').reply(201, {
+        status: true,
+        message: 'Subscan initiated'
+      });
+      
+      const response = await apiClient.post('/mapi/action/initiate/subtask/', payload);
+      expect(response.status).toBe(201);
+      expect(response.data.status).toBe(true);
+    });
+  });
+
+  describe('Subdomain Operations', () => {
+    it('should toggle important status', async () => {
+      mock.onPost('/mapi/toggle/subdomain/important/').reply(200, {
+        status: true
+      });
+      
+      const response = await apiClient.post('/mapi/toggle/subdomain/important/', { subdomain_id: 123 });
+      expect(response.status).toBe(200);
+      expect(response.data.status).toBe(true);
+    });
+
+    it('should fetch subdomain history', async () => {
+      mock.onGet('/mapi/subdomain/history/').reply(200, {
+        results: [{ id: 1, change: 'IP changed' }]
+      });
+      
+      const response = await fetchSubdomainHistory(123);
+      expect(response.status).toBe(200);
+      expect(response.data.results).toHaveLength(1);
+    });
+  });
+
+  describe('Notification Operations', () => {
+    it('should fetch notifications', async () => {
+      mock.onGet('/mapi/notifications/').reply(200, {
+        results: [
+          { id: 1, title: 'Scan Completed', description: 'Scan for example.com finished' }
+        ]
+      });
+      
+      const data = await getNotifications();
+      expect(data.results).toHaveLength(1);
+      expect(data.results[0].title).toBe('Scan Completed');
+    });
+
+    it('should fetch unread count', async () => {
+      mock.onGet('/mapi/notifications/unread_count/').reply(200, { count: 5 });
+      
+      const count = await getUnreadCount();
+      expect(count).toBe(5);
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should handle unauthorized access', async () => {
+      mock.onGet('/mapi/scans/configuration/').reply(401, { detail: 'Unauthorized' });
+      
+      try {
+        await apiClient.get('/mapi/scans/configuration/');
+      } catch (error: any) {
+        expect(error.response.status).toBe(401);
+      }
+    });
+
+    it('should handle server errors', async () => {
+      mock.onPost('/mapi/action/initiate/scan/').reply(500, { message: 'Internal Server Error' });
+      
+      try {
+        await apiClient.post('/mapi/action/initiate/scan/', {});
+      } catch (error: any) {
+        expect(error.response.status).toBe(500);
+      }
+    });
+  });
+});

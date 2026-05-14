@@ -1,41 +1,33 @@
 import apiClient from './client';
+import { paths, components } from '../types/api';
 
-export interface InAppNotification {
-  id: number;
-  title: string;
-  description: string;
-  icon: string;
-  is_read: boolean;
-  created_at: string;
-  notification_type: string;
-  status: 'info' | 'success' | 'warning' | 'error';
-  redirect_link: string | null;
-  open_in_new_tab: boolean;
-  project: number | null;
-}
+export type InAppNotification = components['schemas']['InAppNotification'];
 
-export const getNotifications = async (projectSlug?: string) => {
+type GetNotificationsResponse = paths['/mapi/notifications/']['get']['responses']['200']['content']['application/json'];
+type UnreadCountResponse = paths['/mapi/notifications/unread_count/']['get']['responses']['200']['content']['application/json'];
+
+export const getNotifications = async (projectSlug?: string): Promise<GetNotificationsResponse> => {
   const params = projectSlug ? { project_slug: projectSlug } : {};
-  const response = await apiClient.get<InAppNotification[]>('api/notifications/', { params });
+  const response = await apiClient.get<GetNotificationsResponse>('/mapi/notifications/', { params });
   return response.data;
 };
 
-export const getUnreadCount = async (projectSlug?: string) => {
+export const getUnreadCount = async (projectSlug?: string): Promise<number> => {
   const params = projectSlug ? { project_slug: projectSlug } : {};
-  const response = await apiClient.get<{ count: number }>('api/notifications/unread_count/', { params });
-  return response.data.count;
+  const response = await apiClient.get<UnreadCountResponse>('/mapi/notifications/unread_count/', { params });
+  return response.data.count || 0;
 };
 
-export const markAsRead = async (id: number) => {
-  await apiClient.post(`api/notifications/${id}/mark_read/`);
+export const markAsRead = async (id: number): Promise<void> => {
+  await apiClient.post(`/mapi/notifications/${id}/mark_read/`);
 };
 
-export const markAllRead = async (projectSlug?: string) => {
+export const markAllRead = async (projectSlug?: string): Promise<void> => {
   const params = projectSlug ? { project_slug: projectSlug } : {};
-  await apiClient.post('api/notifications/mark_all_read/', {}, { params });
+  await apiClient.post('/mapi/notifications/mark_all_read/', {}, { params });
 };
 
-export const clearAllNotifications = async (projectSlug?: string) => {
+export const clearAllNotifications = async (projectSlug?: string): Promise<void> => {
   const params = projectSlug ? { project_slug: projectSlug } : {};
-  await apiClient.post('api/notifications/clear_all/', {}, { params });
+  await apiClient.post('/mapi/notifications/clear_all/', {}, { params });
 };

@@ -22,7 +22,7 @@ export default function OrgPicker({ selectedOrgId, onOrgChange }: OrgPickerProps
   useEffect(() => {
     const fetchOrgs = async () => {
       try {
-        const response = await apiClient.get('/api/listOrganizations/');
+        const response = await apiClient.get<{ organizations: Organization[] }>('/mapi/listOrganizations/');
         setOrganizations(response.data.organizations || []);
       } catch (err) {
         console.error('Failed to fetch orgs for picker:', err);

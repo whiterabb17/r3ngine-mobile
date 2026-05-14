@@ -4,16 +4,9 @@ import { Terminal, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react-nat
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
 import apiClient from '../../api/client';
+import { paths, components } from '../../types/api';
 
-interface LogEntry {
-  id: number;
-  command: string;
-  output: string;
-  activity: {
-    title: string;
-    status: number;
-  };
-}
+type LogEntry = components['schemas']['Command'];
 
 interface LiveProgressFeedProps {
   scanId: number;
@@ -41,12 +34,16 @@ export default function LiveProgressFeed({ scanId, active }: LiveProgressFeedPro
 
   const fetchLogs = async () => {
     try {
-      const response = await apiClient.get(`listScanLogs/?scan_id=${scanId}`);
+      type ResponseData = paths['/mapi/listScanLogs/']['get']['responses']['200']['content']['application/json'];
+      const response = await apiClient.get<ResponseData>(`/mapi/listScanLogs/`, {
+        params: { scan_id: scanId }
+      });
       if (response.data) {
         // Reverse to show latest at bottom if using flatlist normally, 
         // or keep as is if we want latest at top.
         // reNgine usually shows latest at bottom in web.
-        setLogs(response.data.results || response.data);
+        const data = Array.isArray(response.data) ? response.data : (response.data.results || []);
+        setLogs(data);
       }
     } catch (error) {
       console.error('Failed to fetch scan logs', error);
@@ -114,7 +111,7 @@ export default function LiveProgressFeed({ scanId, active }: LiveProgressFeedPro
           ref={flatListRef}
           data={logs}
           renderItem={renderLogItem}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => (item.id || Math.random()).toString()}
           contentContainerStyle={styles.listContent}
           onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
         />

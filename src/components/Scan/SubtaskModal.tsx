@@ -44,14 +44,15 @@ import {
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
 import apiClient from '../../api/client';
+import { paths, components } from '../../types/api';
 
 const { width } = Dimensions.get('window');
 
-interface Engine {
+type Engine = {
   id: number;
   engine_name: string;
   tasks: string[];
-}
+};
 
 interface SubtaskModalProps {
   visible: boolean;
@@ -166,12 +167,13 @@ export default function SubtaskModal({ visible, onClose, subdomainId, subdomainN
   const fetchEngines = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get('listEngines/');
+      // Falling back to any because schema content is missing for listEngines
+      const response = await apiClient.get<any>('/mapi/listEngines/');
       if (response.data && response.data.engines) {
         setEngines(response.data.engines);
         if (response.data.engines.length > 0) {
           const firstEngine = response.data.engines[0];
-          setSelectedEngineId(firstEngine.id);
+          setSelectedEngineId(firstEngine.id || null);
           setSelectedTasks(firstEngine.tasks || []);
         }
       }
@@ -208,7 +210,8 @@ export default function SubtaskModal({ visible, onClose, subdomainId, subdomainN
 
     setSubmitting(true);
     try {
-      const response = await apiClient.post('action/initiate/subtask/', {
+      // Falling back to any because schema content is missing for initiate/subtask
+      const response = await apiClient.post<any>('/mapi/action/initiate/subtask/', {
         subdomain_id: subdomainId,
         engine_id: selectedEngineId,
         tasks: selectedTasks
@@ -291,7 +294,7 @@ export default function SubtaskModal({ visible, onClose, subdomainId, subdomainN
               <ScrollView style={styles.taskSection} showsVerticalScrollIndicator={false}>
                 {selectedEngine?.tasks && selectedEngine.tasks.length > 0 ? (
                   <View style={styles.taskGrid}>
-                    {selectedEngine.tasks.map(taskKey => {
+                    {selectedEngine.tasks.map((taskKey: string) => {
                       const meta = TASK_META[taskKey] || { label: taskKey, icon: Code, color: Theme.colors.primary };
                       const isSelected = selectedTasks.includes(taskKey);
                       const Icon = meta.icon;

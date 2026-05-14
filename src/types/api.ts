@@ -100,6 +100,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mapi/action/note/delete/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mapi_action_note_delete_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mapi/action/rows/delete/": {
         parameters: {
             query?: never;
@@ -429,6 +445,63 @@ export interface paths {
             cookie?: never;
         };
         get: operations["mapi_github_tool_get_latest_releases_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/graph/node/{node_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                node_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description Fetch detailed metadata for a specific graph node. */
+        get: operations["mapi_graph_node_read"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/graph/scan/{scan_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scan_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description Fetch Cytoscape-compatible graph data for a specific scan. */
+        get: operations["mapi_graph_scan_read"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/graph/target/{target_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                target_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description Fetch Cytoscape-compatible graph data for an entire target. */
+        get: operations["mapi_graph_target_read"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1236,6 +1309,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mapi/media/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["mapi_media_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mapi/monitoring/": {
         parameters: {
             query?: never;
@@ -1403,6 +1492,115 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mapi/osintStaging/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["mapi_osintStaging_list"];
+        put?: never;
+        post: operations["mapi_osintStaging_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/osintStaging/bulk_discard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Bulk delete staging items. */
+        post: operations["mapi_osintStaging_bulk_discard"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/osintStaging/bulk_promote/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Bulk promote staging items to primary tables. */
+        post: operations["mapi_osintStaging_bulk_promote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/osintStaging/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this osint staging. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        get: operations["mapi_osintStaging_read"];
+        put: operations["mapi_osintStaging_update"];
+        post?: never;
+        delete: operations["mapi_osintStaging_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["mapi_osintStaging_partial_update"];
+        trace?: never;
+    };
+    "/mapi/osintStaging/{id}/discard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this osint staging. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Individual discard. */
+        post: operations["mapi_osintStaging_discard"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/osintStaging/{id}/promote/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this osint staging. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Individual promote. */
+        post: operations["mapi_osintStaging_promote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mapi/plugins/": {
         parameters: {
             query?: never;
@@ -1413,6 +1611,57 @@ export interface paths {
         get: operations["mapi_plugins_list"];
         put?: never;
         post: operations["mapi_plugins_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/plugins/marketplace/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Returns available plugins from the marketplace. */
+        get: operations["mapi_plugins_marketplace"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/plugins/marketplace/install/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Installs a plugin from the marketplace. */
+        post: operations["mapi_plugins_marketplace_marketplace_install"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/plugins/marketplace/refresh/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Force refreshes the marketplace cache. */
+        post: operations["mapi_plugins_marketplace_marketplace_refresh"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1764,6 +2013,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mapi/rengine/fetch-proxies/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mapi_rengine_fetch-proxies_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/rengine/proxy-settings/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["mapi_rengine_proxy-settings_list"];
+        put?: never;
+        post: operations["mapi_rengine_proxy-settings_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mapi/rengine/system-settings/": {
         parameters: {
             query?: never;
@@ -1933,6 +2214,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mapi/screenshots/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["mapi_screenshots_list"];
+        put?: never;
+        post: operations["mapi_screenshots_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/screenshots/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this screenshot. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        get: operations["mapi_screenshots_read"];
+        put: operations["mapi_screenshots_update"];
+        post?: never;
+        delete: operations["mapi_screenshots_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["mapi_screenshots_partial_update"];
+        trace?: never;
+    };
     "/mapi/search/": {
         parameters: {
             query?: never;
@@ -1957,6 +2273,115 @@ export interface paths {
             cookie?: never;
         };
         get: operations["mapi_search_history_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/secretLeaks/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["mapi_secretLeaks_list"];
+        put?: never;
+        post: operations["mapi_secretLeaks_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/secretLeaks/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this secret leak. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        get: operations["mapi_secretLeaks_read"];
+        put: operations["mapi_secretLeaks_update"];
+        post?: never;
+        delete: operations["mapi_secretLeaks_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["mapi_secretLeaks_partial_update"];
+        trace?: never;
+    };
+    "/mapi/soc-settings/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description ViewSet for managing global SOC configuration. */
+        get: operations["mapi_soc-settings_list"];
+        put?: never;
+        /** @description ViewSet for managing global SOC configuration. */
+        post: operations["mapi_soc-settings_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/soc-settings/toggle_streaming/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description ViewSet for managing global SOC configuration. */
+        post: operations["mapi_soc-settings_toggle_streaming"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/soc-settings/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this SOC Configuration. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        /** @description ViewSet for managing global SOC configuration. */
+        get: operations["mapi_soc-settings_read"];
+        /** @description ViewSet for managing global SOC configuration. */
+        put: operations["mapi_soc-settings_update"];
+        post?: never;
+        /** @description ViewSet for managing global SOC configuration. */
+        delete: operations["mapi_soc-settings_delete"];
+        options?: never;
+        head?: never;
+        /** @description ViewSet for managing global SOC configuration. */
+        patch: operations["mapi_soc-settings_partial_update"];
+        trace?: never;
+    };
+    "/mapi/stress-testing/history/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["mapi_stress-testing_history_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2050,6 +2475,39 @@ export interface paths {
         patch: operations["mapi_subscans_partial_update"];
         trace?: never;
     };
+    "/mapi/system/health/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["mapi_system_health_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/system/logs/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Fetch the tail of the system logs. Restricted to SysAdmins. */
+        get: operations["mapi_system_logs_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mapi/target-summary/{slug}/{id}/": {
         parameters: {
             query?: never;
@@ -2079,6 +2537,54 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["mapi_toggle-bug-bounty-mode_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/toggle/monitoring/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mapi_toggle_monitoring_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/toggle/note/importance/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mapi_toggle_note_importance_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mapi/toggle/note/status/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mapi_toggle_note_status_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2550,6 +3056,8 @@ export interface components {
             /** Id */
             readonly id?: number;
             ports: components["schemas"]["Port"][];
+            /** Geo iso name */
+            readonly geo_iso_name?: string;
             /** Address */
             address?: string | null;
             /** Is cdn */
@@ -2966,6 +3474,8 @@ export interface components {
             readonly engine_name?: string;
             /** Cfg starting point path */
             cfg_starting_point_path?: string | null;
+            /** Is spiderfoot running */
+            readonly is_spiderfoot_running?: string;
         };
         SubdomainChanges: {
             /** Id */
@@ -3031,6 +3541,10 @@ export interface components {
             readonly id?: number;
             /** Vuln count */
             readonly vuln_count?: string;
+            /** Subdomain count */
+            readonly subdomain_count?: string;
+            /** Vulnerability count */
+            readonly vulnerability_count?: string;
             /** Organization */
             readonly organization?: string;
             /** Most recent scan */
@@ -3410,7 +3924,7 @@ export interface components {
                      * @description Timezone to Run the Cron Schedule on. Default is UTC.
                      * @enum {string}
                      */
-                    timezone?: "Asia/Macau" | "America/Recife" | "Africa/Bissau" | "America/Mendoza" | "GMT0" | "America/St_Vincent" | "Australia/Broken_Hill" | "America/Ensenada" | "Asia/Kolkata" | "Europe/San_Marino" | "US/Mountain" | "Pacific/Johnston" | "America/Thule" | "America/Bogota" | "America/Porto_Velho" | "Asia/Hong_Kong" | "Antarctica/Rothera" | "Asia/Tbilisi" | "Indian/Cocos" | "Asia/Urumqi" | "America/Belize" | "Indian/Chagos" | "EET" | "Pacific/Norfolk" | "America/Indiana/Petersburg" | "Europe/Kaliningrad" | "America/Cordoba" | "Pacific/Guam" | "Canada/Mountain" | "Africa/Abidjan" | "America/Rainy_River" | "Asia/Thimbu" | "America/Caracas" | "America/Denver" | "Asia/Kuching" | "Asia/Magadan" | "Asia/Manila" | "Pacific/Marquesas" | "Israel" | "Etc/GMT+6" | "Africa/Asmera" | "Africa/Mbabane" | "Asia/Yangon" | "Europe/London" | "Atlantic/Bermuda" | "America/Ojinaga" | "Asia/Barnaul" | "America/Monterrey" | "America/Fort_Nelson" | "Europe/Saratov" | "America/St_Kitts" | "Asia/Jayapura" | "America/Moncton" | "America/Miquelon" | "Asia/Yekaterinburg" | "Asia/Dacca" | "Pacific/Wake" | "Etc/GMT-10" | "Europe/Bucharest" | "Etc/GMT+7" | "Eire" | "America/Buenos_Aires" | "Asia/Kuala_Lumpur" | "Europe/Busingen" | "Australia/Adelaide" | "Indian/Christmas" | "America/Boise" | "Pacific/Honolulu" | "Indian/Mauritius" | "Etc/GMT" | "Australia/Perth" | "Pacific/Samoa" | "America/Halifax" | "Europe/Helsinki" | "Antarctica/McMurdo" | "Asia/Damascus" | "Asia/Oral" | "Canada/Pacific" | "Europe/Athens" | "Africa/Kigali" | "US/Indiana-Starke" | "Asia/Bishkek" | "Asia/Colombo" | "Asia/Kashgar" | "America/Chihuahua" | "Asia/Tokyo" | "America/Port-au-Prince" | "Pacific/Tahiti" | "America/Anguilla" | "Asia/Harbin" | "America/Rio_Branco" | "Asia/Gaza" | "Atlantic/Cape_Verde" | "Asia/Vladivostok" | "America/Resolute" | "Africa/Mogadishu" | "Chile/Continental" | "Europe/Malta" | "Asia/Ho_Chi_Minh" | "Canada/Newfoundland" | "Asia/Choibalsan" | "America/Whitehorse" | "America/Cancun" | "Asia/Pontianak" | "Europe/Ljubljana" | "America/Grenada" | "America/Santa_Isabel" | "Arctic/Longyearbyen" | "Pacific/Yap" | "America/Swift_Current" | "US/Alaska" | "Asia/Kuwait" | "Europe/Warsaw" | "America/Phoenix" | "America/Porto_Acre" | "America/Kentucky/Louisville" | "Africa/Freetown" | "GMT" | "US/Pacific" | "Australia/Hobart" | "Africa/Bujumbura" | "Etc/GMT-14" | "America/Creston" | "Pacific/Majuro" | "Asia/Chita" | "Australia/LHI" | "America/Lower_Princes" | "Asia/Ujung_Pandang" | "America/Cayman" | "Pacific/Ponape" | "Europe/Budapest" | "America/Los_Angeles" | "Asia/Khandyga" | "Asia/Yakutsk" | "Africa/Dakar" | "America/Noronha" | "Cuba" | "America/Paramaribo" | "America/Nipigon" | "Etc/GMT0" | "America/Rosario" | "America/Indiana/Marengo" | "America/Grand_Turk" | "Europe/Zurich" | "Europe/Minsk" | "America/Cuiaba" | "Africa/Maputo" | "America/Vancouver" | "EST" | "Etc/GMT-9" | "Australia/Brisbane" | "Etc/GMT-8" | "America/Menominee" | "Etc/GMT-1" | "Africa/Harare" | "Africa/Lagos" | "America/Regina" | "Etc/GMT-4" | "Portugal" | "Pacific/Pitcairn" | "Brazil/Acre" | "MST7MDT" | "America/Cambridge_Bay" | "America/Argentina/Salta" | "America/Barbados" | "America/Santiago" | "Australia/Tasmania" | "US/Michigan" | "America/Nome" | "America/Eirunepe" | "Etc/UCT" | "Asia/Istanbul" | "Africa/El_Aaiun" | "UTC" | "America/Panama" | "Europe/Chisinau" | "Asia/Makassar" | "America/Punta_Arenas" | "Europe/Rome" | "Etc/GMT+12" | "Atlantic/South_Georgia" | "America/Sao_Paulo" | "Asia/Rangoon" | "America/Manaus" | "America/Argentina/Jujuy" | "Brazil/East" | "EST5EDT" | "Asia/Chungking" | "America/Louisville" | "Africa/Gaborone" | "Asia/Taipei" | "GMT+0" | "Antarctica/Syowa" | "Australia/Sydney" | "Europe/Lisbon" | "Canada/Central" | "Iran" | "Africa/Libreville" | "Asia/Shanghai" | "Asia/Pyongyang" | "Atlantic/Stanley" | "America/Belem" | "Europe/Sofia" | "America/Mazatlan" | "Etc/GMT-12" | "Pacific/Palau" | "Europe/Guernsey" | "Australia/Eucla" | "Australia/Darwin" | "Etc/Zulu" | "Africa/Banjul" | "Atlantic/Reykjavik" | "Europe/Tiraspol" | "America/Asuncion" | "Europe/Riga" | "Brazil/West" | "Indian/Antananarivo" | "America/Nassau" | "Africa/Ndjamena" | "America/Atikokan" | "Antarctica/Vostok" | "Europe/Brussels" | "America/Argentina/San_Luis" | "America/Indiana/Tell_City" | "Europe/Prague" | "Pacific/Port_Moresby" | "America/Aruba" | "America/Montserrat" | "Europe/Isle_of_Man" | "America/Guatemala" | "Etc/GMT-2" | "America/Yakutat" | "Antarctica/Macquarie" | "America/Argentina/Tucuman" | "Pacific/Kiritimati" | "Africa/Timbuktu" | "Asia/Beirut" | "US/Central" | "Etc/GMT-5" | "America/Indiana/Vevay" | "America/Mexico_City" | "Asia/Baku" | "Europe/Paris" | "US/Eastern" | "Asia/Aden" | "Africa/Dar_es_Salaam" | "Asia/Tomsk" | "America/Tegucigalpa" | "America/St_Thomas" | "Africa/Niamey" | "America/Tijuana" | "Asia/Dili" | "America/Fort_Wayne" | "Asia/Dubai" | "Asia/Tel_Aviv" | "Africa/Algiers" | "Pacific/Enderbury" | "Asia/Atyrau" | "America/Jamaica" | "Asia/Dushanbe" | "Africa/Addis_Ababa" | "Australia/NSW" | "Africa/Cairo" | "Asia/Brunei" | "America/Puerto_Rico" | "Asia/Riyadh" | "Africa/Lubumbashi" | "Asia/Almaty" | "America/Rankin_Inlet" | "Canada/Atlantic" | "Poland" | "Indian/Maldives" | "WET" | "Antarctica/Casey" | "Europe/Berlin" | "Pacific/Pohnpei" | "America/Lima" | "Etc/GMT-7" | "America/Nuuk" | "Pacific/Bougainville" | "Europe/Samara" | "Africa/Casablanca" | "Europe/Podgorica" | "Asia/Hebron" | "America/Argentina/San_Juan" | "Pacific/Tongatapu" | "Australia/Melbourne" | "Asia/Karachi" | "America/Dominica" | "America/Glace_Bay" | "America/Danmarkshavn" | "Atlantic/St_Helena" | "Asia/Krasnoyarsk" | "Europe/Simferopol" | "Europe/Sarajevo" | "Etc/GMT+1" | "Atlantic/Canary" | "GB-Eire" | "Japan" | "Europe/Kiev" | "Etc/UTC" | "America/Sitka" | "Europe/Kyiv" | "Asia/Nicosia" | "Australia/South" | "Pacific/Pago_Pago" | "US/East-Indiana" | "Etc/GMT-11" | "Pacific/Gambier" | "Africa/Lusaka" | "America/Guadeloupe" | "Europe/Oslo" | "America/Goose_Bay" | "Africa/Sao_Tome" | "Asia/Kathmandu" | "Africa/Conakry" | "Asia/Baghdad" | "Antarctica/Davis" | "Singapore" | "Navajo" | "Europe/Vienna" | "ROK" | "Pacific/Nauru" | "Greenwich" | "PST8PDT" | "Etc/GMT+3" | "America/Yellowknife" | "America/Thunder_Bay" | "Europe/Istanbul" | "Pacific/Guadalcanal" | "Etc/Universal" | "Africa/Bangui" | "Europe/Ulyanovsk" | "Australia/ACT" | "Antarctica/Mawson" | "America/Bahia_Banderas" | "Libya" | "America/Matamoros" | "Asia/Ashkhabad" | "Asia/Sakhalin" | "America/Toronto" | "Pacific/Midway" | "Pacific/Galapagos" | "Pacific/Kwajalein" | "NZ-CHAT" | "America/Indianapolis" | "America/Virgin" | "America/Martinique" | "Asia/Muscat" | "Asia/Hovd" | "US/Samoa" | "CET" | "America/Indiana/Knox" | "Canada/Yukon" | "Asia/Kabul" | "Pacific/Funafuti" | "America/St_Barthelemy" | "Asia/Jerusalem" | "America/Santo_Domingo" | "America/Coyhaique" | "Asia/Chongqing" | "Africa/Accra" | "Asia/Omsk" | "US/Arizona" | "Australia/Lord_Howe" | "Indian/Reunion" | "Indian/Kerguelen" | "Africa/Lome" | "America/New_York" | "Africa/Bamako" | "Jamaica" | "Asia/Anadyr" | "Pacific/Apia" | "Africa/Porto-Novo" | "America/Araguaina" | "Pacific/Niue" | "Europe/Dublin" | "Etc/GMT+10" | "Etc/GMT+5" | "Europe/Skopje" | "America/North_Dakota/New_Salem" | "Asia/Ulan_Bator" | "Zulu" | "UCT" | "Indian/Comoro" | "America/Hermosillo" | "Etc/Greenwich" | "America/Indiana/Winamac" | "Pacific/Kosrae" | "Africa/Ouagadougou" | "America/Atka" | "Pacific/Tarawa" | "Mexico/BajaSur" | "America/Merida" | "Asia/Aqtobe" | "Europe/Nicosia" | "Pacific/Auckland" | "America/Bahia" | "NZ" | "Africa/Malabo" | "GMT-0" | "Europe/Bratislava" | "America/Catamarca" | "America/North_Dakota/Center" | "Europe/Volgograd" | "Asia/Srednekolymsk" | "Asia/Aqtau" | "Etc/GMT-0" | "America/Ciudad_Juarez" | "Africa/Douala" | "America/St_Johns" | "Canada/Eastern" | "Asia/Qyzylorda" | "America/Boa_Vista" | "Pacific/Wallis" | "Asia/Amman" | "Europe/Madrid" | "America/Maceio" | "America/Jujuy" | "Asia/Yerevan" | "America/Pangnirtung" | "Atlantic/Faroe" | "Asia/Samarkand" | "Etc/GMT+0" | "Europe/Gibraltar" | "America/Indiana/Indianapolis" | "Egypt" | "Australia/Victoria" | "Europe/Vaduz" | "America/Kentucky/Monticello" | "Asia/Singapore" | "Africa/Blantyre" | "Chile/EasterIsland" | "America/Costa_Rica" | "Europe/Moscow" | "America/Havana" | "Asia/Bahrain" | "America/Indiana/Vincennes" | "Canada/Saskatchewan" | "Europe/Belgrade" | "Europe/Amsterdam" | "GB" | "America/Argentina/Cordoba" | "Africa/Windhoek" | "Asia/Qatar" | "Mexico/General" | "Africa/Brazzaville" | "Africa/Luanda" | "Pacific/Chatham" | "Australia/Queensland" | "HST" | "Africa/Maseru" | "Asia/Novokuznetsk" | "Asia/Qostanay" | "Europe/Copenhagen" | "PRC" | "Antarctica/DumontDUrville" | "Etc/GMT+8" | "Europe/Vilnius" | "America/Godthab" | "Atlantic/Faeroe" | "America/Edmonton" | "America/Fortaleza" | "Asia/Bangkok" | "Pacific/Rarotonga" | "America/Argentina/ComodRivadavia" | "America/Argentina/Catamarca" | "Africa/Nairobi" | "Asia/Thimphu" | "Asia/Ulaanbaatar" | "Australia/Yancowinna" | "Africa/Djibouti" | "Europe/Tallinn" | "Indian/Mayotte" | "America/Cayenne" | "Asia/Ust-Nera" | "Europe/Stockholm" | "Pacific/Saipan" | "Africa/Monrovia" | "Antarctica/Palmer" | "America/Detroit" | "Africa/Nouakchott" | "Europe/Zagreb" | "Europe/Mariehamn" | "America/North_Dakota/Beulah" | "Europe/Belfast" | "Australia/West" | "CST6CDT" | "US/Hawaii" | "Etc/GMT-13" | "America/Chicago" | "Europe/Andorra" | "America/Iqaluit" | "Australia/Currie" | "Asia/Ashgabat" | "Antarctica/South_Pole" | "Pacific/Fakaofo" | "America/Adak" | "America/La_Paz" | "Europe/Kirov" | "America/Argentina/La_Rioja" | "Pacific/Chuuk" | "Pacific/Easter" | "Africa/Tripoli" | "Pacific/Kanton" | "America/Santarem" | "Atlantic/Jan_Mayen" | "America/Blanc-Sablon" | "Pacific/Noumea" | "Europe/Astrakhan" | "America/Shiprock" | "Africa/Asmara" | "Asia/Dhaka" | "Africa/Khartoum" | "ROC" | "Africa/Kinshasa" | "Australia/North" | "Etc/GMT+11" | "Etc/GMT-3" | "Atlantic/Azores" | "Asia/Tashkent" | "America/Coral_Harbour" | "Asia/Vientiane" | "Universal" | "Europe/Uzhgorod" | "Iceland" | "Asia/Calcutta" | "Turkey" | "America/Dawson_Creek" | "Europe/Monaco" | "MST" | "America/Port_of_Spain" | "Asia/Irkutsk" | "Asia/Kamchatka" | "Mexico/BajaNorte" | "America/Tortola" | "Asia/Phnom_Penh" | "Australia/Lindeman" | "America/Dawson" | "Etc/GMT+2" | "Africa/Kampala" | "Europe/Luxembourg" | "America/El_Salvador" | "Asia/Famagusta" | "Asia/Tehran" | "America/Guayaquil" | "America/Argentina/Rio_Gallegos" | "America/Curacao" | "America/Kralendijk" | "Asia/Novosibirsk" | "W-SU" | "Africa/Ceuta" | "US/Aleutian" | "Indian/Mahe" | "America/Argentina/Mendoza" | "Asia/Jakarta" | "MET" | "Asia/Macao" | "Africa/Johannesburg" | "America/Metlakatla" | "Brazil/DeNoronha" | "Europe/Zaporozhye" | "America/Scoresbysund" | "Asia/Katmandu" | "Etc/GMT+9" | "Pacific/Efate" | "Pacific/Fiji" | "America/Montevideo" | "Europe/Tirane" | "Antarctica/Troll" | "Asia/Saigon" | "Africa/Juba" | "America/Argentina/Buenos_Aires" | "Africa/Tunis" | "Etc/GMT-6" | "Kwajalein" | "America/Knox_IN" | "America/Inuvik" | "America/Juneau" | "America/Argentina/Ushuaia" | "Hongkong" | "America/Guyana" | "America/Montreal" | "Europe/Jersey" | "America/Campo_Grande" | "Europe/Vatican" | "Australia/Canberra" | "Pacific/Truk" | "America/St_Lucia" | "Etc/GMT+4" | "America/Marigot" | "localtime" | "America/Managua" | "Asia/Seoul" | "America/Antigua" | "America/Winnipeg" | "America/Anchorage" | "Atlantic/Madeira";
+                    timezone?: "Australia/Lindeman" | "Pacific/Guadalcanal" | "Asia/Tel_Aviv" | "Africa/Cairo" | "America/Aruba" | "America/Blanc-Sablon" | "Asia/Thimbu" | "Asia/Baghdad" | "America/Vancouver" | "Indian/Comoro" | "Antarctica/Vostok" | "Europe/Vilnius" | "US/Samoa" | "Europe/Riga" | "Asia/Jayapura" | "GMT-0" | "Asia/Katmandu" | "US/Mountain" | "America/Merida" | "Kwajalein" | "America/Juneau" | "Pacific/Pohnpei" | "Chile/Continental" | "Asia/Pyongyang" | "Pacific/Wake" | "Africa/Khartoum" | "Europe/Nicosia" | "Europe/Jersey" | "Africa/Lusaka" | "Asia/Ulaanbaatar" | "MST" | "Etc/GMT0" | "Zulu" | "America/Mexico_City" | "Asia/Yangon" | "Etc/GMT" | "America/Goose_Bay" | "Asia/Kuwait" | "Australia/Eucla" | "Pacific/Kanton" | "Etc/GMT+9" | "America/Cayenne" | "Africa/Addis_Ababa" | "Etc/GMT+12" | "Australia/Victoria" | "GB-Eire" | "Pacific/Nauru" | "Asia/Sakhalin" | "CST6CDT" | "America/Havana" | "Europe/Tallinn" | "America/Port-au-Prince" | "US/East-Indiana" | "America/Dawson" | "America/Eirunepe" | "America/Porto_Acre" | "Africa/Maseru" | "America/St_Kitts" | "Asia/Ho_Chi_Minh" | "Asia/Khandyga" | "Asia/Ujung_Pandang" | "Africa/Libreville" | "America/Belem" | "Asia/Kolkata" | "Pacific/Yap" | "America/Maceio" | "Asia/Dili" | "GMT0" | "Africa/Lome" | "Asia/Hovd" | "America/Santo_Domingo" | "America/Yellowknife" | "EET" | "America/St_Lucia" | "Asia/Gaza" | "Asia/Brunei" | "Asia/Pontianak" | "Brazil/East" | "Europe/Sarajevo" | "America/Adak" | "Asia/Qatar" | "Asia/Phnom_Penh" | "America/Jujuy" | "America/Cancun" | "America/Thunder_Bay" | "America/Resolute" | "Europe/Sofia" | "America/Monterrey" | "America/Virgin" | "Atlantic/Faeroe" | "Africa/Dakar" | "US/Arizona" | "America/Santiago" | "Europe/Minsk" | "Pacific/Guam" | "America/Godthab" | "America/Boise" | "Indian/Kerguelen" | "Pacific/Kosrae" | "Australia/Melbourne" | "Indian/Christmas" | "America/Whitehorse" | "Atlantic/Bermuda" | "GMT+0" | "Asia/Srednekolymsk" | "America/Lower_Princes" | "Europe/London" | "America/Indiana/Petersburg" | "Iceland" | "Hongkong" | "Atlantic/South_Georgia" | "Pacific/Apia" | "Etc/GMT-1" | "Europe/Monaco" | "America/Kentucky/Monticello" | "Europe/Guernsey" | "Atlantic/Stanley" | "Pacific/Chuuk" | "America/Noronha" | "America/Coyhaique" | "Europe/Kyiv" | "Pacific/Ponape" | "America/Panama" | "America/Indiana/Winamac" | "Asia/Bahrain" | "Africa/Freetown" | "Asia/Tokyo" | "America/Atka" | "Africa/Malabo" | "Greenwich" | "Pacific/Noumea" | "America/Porto_Velho" | "Pacific/Saipan" | "Canada/Yukon" | "Etc/GMT+2" | "Etc/UCT" | "Europe/Isle_of_Man" | "US/Hawaii" | "America/Moncton" | "Pacific/Auckland" | "W-SU" | "EST5EDT" | "Cuba" | "Europe/Gibraltar" | "Asia/Makassar" | "Africa/Juba" | "Asia/Macau" | "Africa/Mbabane" | "Etc/GMT-2" | "America/Indiana/Knox" | "Africa/El_Aaiun" | "America/Scoresbysund" | "Africa/Gaborone" | "America/Anguilla" | "Africa/Ceuta" | "Europe/Malta" | "Asia/Almaty" | "Africa/Niamey" | "America/Boa_Vista" | "Europe/Warsaw" | "America/St_Barthelemy" | "ROC" | "Pacific/Norfolk" | "Africa/Timbuktu" | "Europe/Madrid" | "Europe/Uzhgorod" | "Antarctica/Troll" | "Singapore" | "America/La_Paz" | "Europe/San_Marino" | "Africa/Ndjamena" | "Europe/Ulyanovsk" | "Australia/Perth" | "Asia/Istanbul" | "Asia/Aden" | "America/Anchorage" | "America/St_Johns" | "Indian/Mahe" | "Europe/Astrakhan" | "Europe/Ljubljana" | "America/Santarem" | "Etc/GMT-0" | "Asia/Barnaul" | "Asia/Karachi" | "America/Inuvik" | "America/Dominica" | "Africa/Ouagadougou" | "Etc/GMT+3" | "America/Fort_Wayne" | "Canada/Newfoundland" | "America/Paramaribo" | "Pacific/Galapagos" | "America/Coral_Harbour" | "America/Edmonton" | "Africa/Windhoek" | "Africa/Bissau" | "Universal" | "Atlantic/Canary" | "Etc/GMT-8" | "Atlantic/Cape_Verde" | "Pacific/Fakaofo" | "NZ" | "Pacific/Tarawa" | "Antarctica/Syowa" | "Indian/Maldives" | "Asia/Ust-Nera" | "Asia/Aqtau" | "Mexico/BajaSur" | "America/Danmarkshavn" | "UCT" | "America/Kralendijk" | "Etc/GMT+1" | "America/Swift_Current" | "Pacific/Efate" | "Asia/Oral" | "Etc/GMT-11" | "Asia/Chongqing" | "America/Campo_Grande" | "America/Mendoza" | "America/Cambridge_Bay" | "Etc/GMT-12" | "America/Rainy_River" | "US/Alaska" | "Asia/Kashgar" | "Australia/Currie" | "Asia/Yerevan" | "America/Regina" | "Africa/Kampala" | "Etc/GMT+6" | "Indian/Mauritius" | "Africa/Asmara" | "Europe/Athens" | "Europe/Belfast" | "Brazil/West" | "Asia/Chita" | "EST" | "US/Michigan" | "Etc/GMT-9" | "Iran" | "Europe/Amsterdam" | "America/Managua" | "America/Atikokan" | "WET" | "America/Indiana/Vincennes" | "Asia/Kathmandu" | "Etc/Universal" | "Asia/Kuching" | "America/Cayman" | "America/Marigot" | "Europe/Moscow" | "Asia/Calcutta" | "Europe/Lisbon" | "Antarctica/Palmer" | "America/St_Thomas" | "America/Bahia" | "America/Grand_Turk" | "Asia/Samarkand" | "Asia/Novosibirsk" | "America/Argentina/Buenos_Aires" | "America/Montserrat" | "Atlantic/Azores" | "America/Chicago" | "America/Manaus" | "US/Aleutian" | "NZ-CHAT" | "Etc/GMT-10" | "Antarctica/Davis" | "Africa/Dar_es_Salaam" | "America/Louisville" | "Europe/Kiev" | "America/Sao_Paulo" | "America/Pangnirtung" | "Asia/Saigon" | "Africa/Djibouti" | "Asia/Ulan_Bator" | "America/Argentina/Rio_Gallegos" | "Africa/Accra" | "America/Matamoros" | "Asia/Amman" | "Australia/Lord_Howe" | "Antarctica/Casey" | "Indian/Chagos" | "Europe/Stockholm" | "Asia/Magadan" | "Australia/LHI" | "America/Tortola" | "Europe/Kirov" | "Africa/Casablanca" | "Pacific/Samoa" | "Etc/GMT+0" | "Asia/Omsk" | "Europe/Tiraspol" | "Pacific/Bougainville" | "Atlantic/St_Helena" | "Pacific/Fiji" | "America/Lima" | "America/Argentina/Catamarca" | "Asia/Vientiane" | "Europe/Vaduz" | "Australia/Queensland" | "Europe/Vienna" | "Europe/Busingen" | "Africa/Luanda" | "Chile/EasterIsland" | "Europe/Skopje" | "Asia/Riyadh" | "Asia/Seoul" | "America/Argentina/Mendoza" | "Africa/Johannesburg" | "America/Chihuahua" | "America/Phoenix" | "Mexico/BajaNorte" | "Europe/Copenhagen" | "Asia/Bangkok" | "Pacific/Honolulu" | "America/Asuncion" | "Australia/Darwin" | "Pacific/Pitcairn" | "Asia/Irkutsk" | "Antarctica/McMurdo" | "America/North_Dakota/Beulah" | "Europe/Andorra" | "Antarctica/Rothera" | "America/Guayaquil" | "America/Martinique" | "America/Guatemala" | "America/Barbados" | "America/Metlakatla" | "Europe/Prague" | "America/Guyana" | "America/Nassau" | "Africa/Algiers" | "Pacific/Funafuti" | "Asia/Taipei" | "America/Argentina/San_Juan" | "America/Detroit" | "America/Los_Angeles" | "Etc/GMT-6" | "Africa/Bamako" | "America/Nipigon" | "Europe/Istanbul" | "Africa/Monrovia" | "Europe/Samara" | "Europe/Vatican" | "Pacific/Rarotonga" | "Pacific/Niue" | "America/Fort_Nelson" | "Africa/Lubumbashi" | "Pacific/Marquesas" | "Asia/Krasnoyarsk" | "America/North_Dakota/Center" | "Asia/Qostanay" | "Asia/Urumqi" | "Etc/GMT-7" | "Europe/Zurich" | "PRC" | "America/Argentina/ComodRivadavia" | "America/Cuiaba" | "Africa/Douala" | "America/Yakutat" | "Pacific/Easter" | "Canada/Pacific" | "Turkey" | "America/Montreal" | "Asia/Nicosia" | "Asia/Aqtobe" | "America/Indiana/Indianapolis" | "America/St_Vincent" | "Asia/Kamchatka" | "CET" | "Asia/Baku" | "Pacific/Palau" | "Indian/Reunion" | "UTC" | "Pacific/Wallis" | "Europe/Berlin" | "Asia/Kabul" | "Australia/Yancowinna" | "Libya" | "PST8PDT" | "Navajo" | "Africa/Brazzaville" | "Canada/Atlantic" | "Atlantic/Reykjavik" | "Pacific/Enderbury" | "Europe/Kaliningrad" | "Australia/North" | "Pacific/Kiritimati" | "Canada/Eastern" | "Indian/Cocos" | "America/Indianapolis" | "Asia/Bishkek" | "America/Toronto" | "Asia/Tbilisi" | "America/Jamaica" | "America/Shiprock" | "America/Argentina/San_Luis" | "Etc/GMT-3" | "America/Fortaleza" | "Africa/Abidjan" | "America/Mazatlan" | "Etc/GMT+8" | "Africa/Conakry" | "Europe/Rome" | "America/Tegucigalpa" | "Asia/Atyrau" | "Europe/Brussels" | "America/Curacao" | "Antarctica/DumontDUrville" | "Europe/Zagreb" | "Asia/Dubai" | "Africa/Nairobi" | "Europe/Belgrade" | "Atlantic/Madeira" | "Canada/Central" | "Asia/Ashgabat" | "America/Port_of_Spain" | "Africa/Mogadishu" | "Japan" | "America/Halifax" | "America/Ojinaga" | "Australia/Broken_Hill" | "America/Hermosillo" | "Antarctica/Mawson" | "Asia/Hong_Kong" | "America/Buenos_Aires" | "Australia/Adelaide" | "Europe/Tirane" | "Pacific/Port_Moresby" | "America/Dawson_Creek" | "Asia/Choibalsan" | "Europe/Zaporozhye" | "Asia/Yekaterinburg" | "Pacific/Truk" | "Africa/Bangui" | "America/Argentina/La_Rioja" | "America/Ciudad_Juarez" | "Asia/Rangoon" | "America/Argentina/Jujuy" | "Atlantic/Jan_Mayen" | "Asia/Hebron" | "Asia/Yakutsk" | "Europe/Dublin" | "America/New_York" | "America/Tijuana" | "Antarctica/South_Pole" | "Asia/Qyzylorda" | "America/Nome" | "Europe/Oslo" | "America/Argentina/Tucuman" | "America/Argentina/Cordoba" | "Asia/Thimphu" | "Asia/Tomsk" | "Asia/Famagusta" | "America/Guadeloupe" | "Asia/Ashkhabad" | "US/Pacific" | "Indian/Mayotte" | "Asia/Shanghai" | "Egypt" | "America/Indiana/Tell_City" | "Antarctica/Macquarie" | "MST7MDT" | "America/Knox_IN" | "Africa/Blantyre" | "Pacific/Midway" | "America/El_Salvador" | "America/Rosario" | "Australia/Canberra" | "Asia/Macao" | "Africa/Tripoli" | "US/Eastern" | "America/Argentina/Ushuaia" | "Asia/Harbin" | "Etc/GMT-13" | "Etc/GMT-4" | "Etc/GMT+11" | "Pacific/Tongatapu" | "America/Santa_Isabel" | "Atlantic/Faroe" | "Etc/Greenwich" | "Europe/Paris" | "Australia/Brisbane" | "America/Argentina/Salta" | "America/Creston" | "Africa/Bujumbura" | "Europe/Bucharest" | "localtime" | "America/Bahia_Banderas" | "America/North_Dakota/New_Salem" | "Pacific/Tahiti" | "Europe/Luxembourg" | "Etc/UTC" | "America/Rankin_Inlet" | "Australia/ACT" | "Australia/NSW" | "Africa/Harare" | "Asia/Damascus" | "Africa/Porto-Novo" | "Europe/Chisinau" | "Etc/GMT-14" | "Africa/Sao_Tome" | "America/Menominee" | "America/Antigua" | "Brazil/DeNoronha" | "Pacific/Kwajalein" | "America/Indiana/Marengo" | "America/Recife" | "America/Rio_Branco" | "Pacific/Gambier" | "America/Puerto_Rico" | "Mexico/General" | "Etc/GMT+4" | "Africa/Kigali" | "America/Thule" | "Australia/South" | "Pacific/Chatham" | "Europe/Bratislava" | "Indian/Antananarivo" | "ROK" | "Asia/Dhaka" | "Etc/Zulu" | "Asia/Manila" | "Europe/Podgorica" | "Asia/Singapore" | "MET" | "Asia/Tashkent" | "America/Sitka" | "America/Indiana/Vevay" | "US/Indiana-Starke" | "America/Iqaluit" | "Asia/Vladivostok" | "US/Central" | "Asia/Jakarta" | "Canada/Mountain" | "Africa/Maputo" | "America/Nuuk" | "Africa/Banjul" | "Africa/Tunis" | "America/Winnipeg" | "Asia/Dushanbe" | "Asia/Jerusalem" | "Europe/Saratov" | "Australia/Hobart" | "America/Miquelon" | "America/Montevideo" | "America/Araguaina" | "Asia/Kuala_Lumpur" | "Australia/Tasmania" | "America/Cordoba" | "Europe/Mariehamn" | "America/Kentucky/Louisville" | "America/Ensenada" | "Pacific/Johnston" | "America/Caracas" | "Asia/Novokuznetsk" | "Etc/GMT+5" | "Europe/Helsinki" | "Europe/Simferopol" | "Etc/GMT+10" | "Brazil/Acre" | "America/Belize" | "Europe/Budapest" | "America/Grenada" | "Poland" | "Etc/GMT-5" | "Portugal" | "GMT" | "Etc/GMT+7" | "Jamaica" | "Asia/Beirut" | "Asia/Muscat" | "Asia/Chungking" | "America/Costa_Rica" | "Pacific/Pago_Pago" | "Africa/Nouakchott" | "Pacific/Majuro" | "Canada/Saskatchewan" | "Australia/West" | "America/Denver" | "Arctic/Longyearbyen" | "Africa/Lagos" | "America/Bogota" | "Africa/Asmera" | "Australia/Sydney" | "Eire" | "Asia/Tehran" | "Africa/Kinshasa" | "HST" | "America/Glace_Bay" | "Europe/Volgograd" | "Israel" | "America/Catamarca" | "Asia/Dacca" | "Asia/Anadyr" | "Asia/Colombo" | "America/Punta_Arenas" | "GB";
                 };
                 readonly solar?: {
                     /** ID */
@@ -4442,6 +4956,40 @@ export interface components {
             /** Project */
             project?: number | null;
         };
+        OsintStaging: {
+            /** Id */
+            readonly id?: number;
+            /** Discovered date humanized */
+            readonly discovered_date_humanized?: string;
+            /** Target domain name */
+            readonly target_domain_name?: string;
+            /** Scan history id */
+            readonly scan_history_id?: number;
+            /** Osint type */
+            osint_type: string;
+            /** Content */
+            content: string;
+            /** Source */
+            source: string;
+            /** Confidence */
+            confidence?: number;
+            /** Metadata */
+            metadata?: Record<string, never>;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status?: "pending" | "validated" | "ignored";
+            /**
+             * Discovered date
+             * Format: date-time
+             */
+            readonly discovered_date?: string;
+            /** Scan history */
+            scan_history: number;
+            /** Target domain */
+            target_domain: number;
+        };
         Plugin: {
             /** ID */
             readonly id?: number;
@@ -4556,6 +5104,40 @@ export interface components {
              */
             readonly date_changed?: string;
         };
+        SecretLeak: {
+            /** Id */
+            readonly id?: number;
+            /** Tool name */
+            tool_name: string;
+            /** Secret type */
+            secret_type: string;
+            /** Source url */
+            source_url: string;
+            /** Match content */
+            match_content: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status?: "unverified" | "verified" | "false_positive";
+            /**
+             * Discovered date
+             * Format: date-time
+             */
+            readonly discovered_date?: string;
+            /** Scan history */
+            scan_history: number;
+            /** Subdomain */
+            subdomain?: number | null;
+        };
+        SOCConfiguration: {
+            /** ID */
+            readonly id?: number;
+            /** Enable live log streaming */
+            enable_live_log_streaming?: boolean;
+            /** Log retention count */
+            log_retention_count?: number;
+        };
         SubScan: {
             /** Id */
             readonly id?: number;
@@ -4663,6 +5245,16 @@ export interface components {
                 "application/json": components["schemas"]["Command"];
             };
         };
+        SecretLeak: {
+            content: {
+                "application/json": components["schemas"]["SecretLeak"];
+            };
+        };
+        Screenshot: {
+            content: {
+                "application/json": components["schemas"]["Screenshot"];
+            };
+        };
         EndPointChanges: {
             content: {
                 "application/json": components["schemas"]["EndPointChanges"];
@@ -4713,6 +5305,11 @@ export interface components {
                 "application/json": components["schemas"]["InAppNotification"];
             };
         };
+        OsintStaging: {
+            content: {
+                "application/json": components["schemas"]["OsintStaging"];
+            };
+        };
         Plugin: {
             content: {
                 "application/json": components["schemas"]["Plugin"];
@@ -4721,6 +5318,11 @@ export interface components {
         Project: {
             content: {
                 "application/json": components["schemas"]["Project"];
+            };
+        };
+        SOCConfiguration: {
+            content: {
+                "application/json": components["schemas"]["SOCConfiguration"];
             };
         };
         SubScan: {
@@ -4825,6 +5427,23 @@ export interface operations {
         };
     };
     mapi_action_initiate_subtask_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mapi_action_note_delete_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -5175,6 +5794,63 @@ export interface operations {
             query?: never;
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mapi_graph_node_read: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                node_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mapi_graph_scan_read: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mapi_graph_target_read: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                target_id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -7396,6 +8072,23 @@ export interface operations {
             };
         };
     };
+    mapi_media_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     mapi_monitoring_list: {
         parameters: {
             query?: {
@@ -7791,6 +8484,222 @@ export interface operations {
             };
         };
     };
+    mapi_osintStaging_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        count: number;
+                        /** Format: uri */
+                        next?: string | null;
+                        /** Format: uri */
+                        previous?: string | null;
+                        results: components["schemas"]["OsintStaging"][];
+                    };
+                };
+            };
+        };
+    };
+    mapi_osintStaging_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["OsintStaging"];
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OsintStaging"];
+                };
+            };
+        };
+    };
+    mapi_osintStaging_bulk_discard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["OsintStaging"];
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OsintStaging"];
+                };
+            };
+        };
+    };
+    mapi_osintStaging_bulk_promote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["OsintStaging"];
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OsintStaging"];
+                };
+            };
+        };
+    };
+    mapi_osintStaging_read: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this osint staging. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OsintStaging"];
+                };
+            };
+        };
+    };
+    mapi_osintStaging_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this osint staging. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["OsintStaging"];
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OsintStaging"];
+                };
+            };
+        };
+    };
+    mapi_osintStaging_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this osint staging. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mapi_osintStaging_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this osint staging. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["OsintStaging"];
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OsintStaging"];
+                };
+            };
+        };
+    };
+    mapi_osintStaging_discard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this osint staging. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["OsintStaging"];
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OsintStaging"];
+                };
+            };
+        };
+    };
+    mapi_osintStaging_promote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this osint staging. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["OsintStaging"];
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OsintStaging"];
+                };
+            };
+        };
+    };
     mapi_plugins_list: {
         parameters: {
             query?: never;
@@ -7811,6 +8720,63 @@ export interface operations {
         };
     };
     mapi_plugins_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["Plugin"];
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Plugin"];
+                };
+            };
+        };
+    };
+    mapi_plugins_marketplace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Plugin"][];
+                };
+            };
+        };
+    };
+    mapi_plugins_marketplace_marketplace_install: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["Plugin"];
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Plugin"];
+                };
+            };
+        };
+    };
+    mapi_plugins_marketplace_marketplace_refresh: {
         parameters: {
             query?: never;
             header?: never;
@@ -8377,6 +9343,57 @@ export interface operations {
             };
         };
     };
+    "mapi_rengine_fetch-proxies_create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "mapi_rengine_proxy-settings_list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "mapi_rengine_proxy-settings_create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     "mapi_rengine_system-settings_list": {
         parameters: {
             query?: never;
@@ -8674,6 +9691,140 @@ export interface operations {
             };
         };
     };
+    mapi_screenshots_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        count: number;
+                        /** Format: uri */
+                        next?: string | null;
+                        /** Format: uri */
+                        previous?: string | null;
+                        results: components["schemas"]["Screenshot"][];
+                    };
+                };
+            };
+        };
+    };
+    mapi_screenshots_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["Screenshot"];
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Screenshot"];
+                };
+            };
+        };
+    };
+    mapi_screenshots_read: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this screenshot. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Screenshot"];
+                };
+            };
+        };
+    };
+    mapi_screenshots_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this screenshot. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["Screenshot"];
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Screenshot"];
+                };
+            };
+        };
+    };
+    mapi_screenshots_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this screenshot. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mapi_screenshots_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this screenshot. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["Screenshot"];
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Screenshot"];
+                };
+            };
+        };
+    };
     mapi_search_list: {
         parameters: {
             query?: never;
@@ -8692,6 +9843,310 @@ export interface operations {
         };
     };
     mapi_search_history_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mapi_secretLeaks_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        count: number;
+                        /** Format: uri */
+                        next?: string | null;
+                        /** Format: uri */
+                        previous?: string | null;
+                        results: components["schemas"]["SecretLeak"][];
+                    };
+                };
+            };
+        };
+    };
+    mapi_secretLeaks_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["SecretLeak"];
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SecretLeak"];
+                };
+            };
+        };
+    };
+    mapi_secretLeaks_read: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this secret leak. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SecretLeak"];
+                };
+            };
+        };
+    };
+    mapi_secretLeaks_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this secret leak. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["SecretLeak"];
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SecretLeak"];
+                };
+            };
+        };
+    };
+    mapi_secretLeaks_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this secret leak. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mapi_secretLeaks_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this secret leak. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["SecretLeak"];
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SecretLeak"];
+                };
+            };
+        };
+    };
+    "mapi_soc-settings_list": {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        count: number;
+                        /** Format: uri */
+                        next?: string | null;
+                        /** Format: uri */
+                        previous?: string | null;
+                        results: components["schemas"]["SOCConfiguration"][];
+                    };
+                };
+            };
+        };
+    };
+    "mapi_soc-settings_create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["SOCConfiguration"];
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SOCConfiguration"];
+                };
+            };
+        };
+    };
+    "mapi_soc-settings_toggle_streaming": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["SOCConfiguration"];
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SOCConfiguration"];
+                };
+            };
+        };
+    };
+    "mapi_soc-settings_read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this SOC Configuration. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SOCConfiguration"];
+                };
+            };
+        };
+    };
+    "mapi_soc-settings_update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this SOC Configuration. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["SOCConfiguration"];
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SOCConfiguration"];
+                };
+            };
+        };
+    };
+    "mapi_soc-settings_delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this SOC Configuration. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "mapi_soc-settings_partial_update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this SOC Configuration. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: components["requestBodies"]["SOCConfiguration"];
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SOCConfiguration"];
+                };
+            };
+        };
+    };
+    "mapi_stress-testing_history_list": {
         parameters: {
             query?: never;
             header?: never;
@@ -8899,6 +10354,40 @@ export interface operations {
             };
         };
     };
+    mapi_system_health_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mapi_system_logs_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     "mapi_target-summary_read": {
         parameters: {
             query?: never;
@@ -8920,6 +10409,57 @@ export interface operations {
         };
     };
     "mapi_toggle-bug-bounty-mode_create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mapi_toggle_monitoring_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mapi_toggle_note_importance_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mapi_toggle_note_status_create: {
         parameters: {
             query?: never;
             header?: never;

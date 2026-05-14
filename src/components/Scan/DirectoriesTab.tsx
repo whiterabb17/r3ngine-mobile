@@ -1,33 +1,37 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, Linking } from 'react-native';
-import { Folder, Globe, Search, Filter, ExternalLink, FileText, ChevronRight, Hash } from 'lucide-react-native';
+import { Folder, Globe, Search, Filter, ExternalLink, FileText, ChevronRight, Hash, FileCode, Database, Copy } from 'lucide-react-native';
 import { Theme } from '../../constants/Theme';
 import apiClient from '../../api/client';
 import { TacticalHaptics } from '../../utils/haptics';
+import { paths, components } from '../../types/api';
 
-interface DirectoryFile {
-  id: number;
-  name: string;
-  url: string;
-  http_status: number;
-  length: number;
-  content_type: string;
-}
+type Directory = components['schemas']['DirectoryFile'];
 
 interface DirectoriesTabProps {
   scanId: number;
 }
 
 export default function DirectoriesTab({ scanId }: DirectoriesTabProps) {
-  const [directories, setDirectories] = useState<DirectoryFile[]>([]);
+  const [directories, setDirectories] = useState<Directory[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
+  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+
+  const toggleRow = (id: number) => {
+    const next = new Set(expandedRows);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setExpandedRows(next);
+  };
 
   const fetchDirectories = useCallback(async () => {
     try {
-      const response = await apiClient.get(`/api/listDirectories/?scan_history=${scanId}`);
-      // The API returns results in a 'results' field if paginated, or just as an array
+      type ResponseData = paths['/mapi/listDirectories/']['get']['responses']['200']['content']['application/json'];
+      const response = await apiClient.get<ResponseData>(`/mapi/listDirectories/`, {
+        params: { scan_history: scanId }
+      });
       const data = Array.isArray(response.data) ? response.data : (response.data.results || []);
       setDirectories(data);
     } catch (err) {
@@ -56,44 +60,67 @@ export default function DirectoriesTab({ scanId }: DirectoriesTabProps) {
     return Theme.colors.error;
   };
 
-  const renderItem = ({ item }: { item: DirectoryFile }) => (
-    <TouchableOpacity 
-      style={styles.card} 
-      onPress={() => item.url && Linking.openURL(item.url)}
-      activeOpacity={0.7}
-    >
-      <View style={styles.cardMain}>
-        <View style={styles.iconContainer}>
-          <Folder size={18} color={Theme.colors.primary} />
-        </View>
-        <View style={styles.contentContainer}>
-          <Text style={styles.fileName} numberOfLines={1}>{item.name}</Text>
-          <Text style={styles.fullUrl} numberOfLines={1}>{item.url}</Text>
-        </View>
-        <View style={[styles.statusBadge, { borderColor: getStatusColor(item.http_status) + '44' }]}>
-          <Text style={[styles.statusText, { color: getStatusColor(item.http_status) }]}>
-            {item.http_status}
-          </Text>
-        </View>
-      </View>
+  const renderItem = ({ item }: { item: Directory }) => {
+    const isExpanded = expandedRows.has(item.id || 0);
 
-      <View style={styles.cardFooter}>
-        <View style={styles.footerItem}>
-          <Hash size={12} color={Theme.colors.textMuted} />
-          <Text style={styles.footerText}>{(item.length / 1024).toFixed(1)} KB</Text>
-        </View>
-        <View style={styles.footerItem}>
-          <FileText size={12} color={Theme.colors.textMuted} />
-          <Text style={styles.footerText}>{item.content_type || 'unknown/type'}</Text>
-        </View>
-        <ExternalLink size={14} color={Theme.colors.textMuted} />
+    return (
+      <View style={styles.card}>
+        <TouchableOpacity 
+          style={styles.cardHeader}
+          onPress={() => toggleRow(item.id || 0)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.headerMain}>
+            <View style={styles.urlSection}>
+              <Text style={styles.directoryName} numberOfLines={1}>{item.name}</Text>
+              <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.http_status || 0) + '22', borderColor: getStatusColor(item.http_status || 0) + '44' }]}>
+                <Text style={[styles.statusText, { color: getStatusColor(item.http_status || 0) }]}>
+                  {item.http_status || '404'}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.metricsRow}>
+              <View style={styles.metric}>
+                <FileCode size={12} color={Theme.colors.textMuted} />
+                <Text style={styles.metricText}>{item.content_type || 'text/html'}</Text>
+              </View>
+              <View style={styles.metric}>
+                <Database size={12} color={Theme.colors.textMuted} />
+                <Text style={styles.metricText}>{((item.length || 0) / 1024).toFixed(1)} KB</Text>
+              </View>
+            </View>
+          </View>
+          <ChevronRight 
+            size={20} 
+            color={Theme.colors.textMuted} 
+            style={{ transform: [{ rotate: isExpanded ? '90deg' : '0deg' }] }}
+          />
+        </TouchableOpacity>
+
+        {isExpanded && (
+          <View style={styles.expandedContent}>
+            <View style={styles.actionRow}>
+              <TouchableOpacity 
+                style={styles.actionBtn}
+                onPress={() => item.url && Linking.openURL(item.url)}
+              >
+                <ExternalLink size={14} color={Theme.colors.primary} />
+                <Text style={styles.actionText}>OPEN URL</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.actionBtn}>
+                <Copy size={14} color={Theme.colors.textMuted} />
+                <Text style={styles.actionText}>COPY PATH</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </View>
-    </TouchableOpacity>
-  );
+    );
+  };
 
   const filteredDirs = directories.filter(d => 
-    d.name.toLowerCase().includes(search.toLowerCase()) || 
-    d.url.toLowerCase().includes(search.toLowerCase())
+    (d.name || '').toLowerCase().includes(search.toLowerCase()) || 
+    (d.url || '').toLowerCase().includes(search.toLowerCase())
   );
 
   if (loading && !refreshing) {
@@ -110,7 +137,7 @@ export default function DirectoriesTab({ scanId }: DirectoriesTabProps) {
       <FlatList
         data={filteredDirs}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => (item.id || 0).toString()}
         contentContainerStyle={styles.listContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Theme.colors.primary} />
@@ -235,5 +262,74 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
     lineHeight: 20,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerMain: {
+    flex: 1,
+  },
+  urlSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  directoryName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Theme.colors.text,
+    flex: 1,
+  },
+  metricsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  metric: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  metricText: {
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+  },
+  expandedContent: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: Theme.colors.border,
+  },
+  subdomainRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  subdomainText: {
+    fontSize: 11,
+    color: Theme.colors.textMuted,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  actionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: Theme.colors.background,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+  },
+  actionText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: Theme.colors.text,
   },
 });

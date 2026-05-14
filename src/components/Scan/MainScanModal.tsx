@@ -8,11 +8,12 @@ import apiClient from '../../api/client';
 import EngineSelector from './EngineSelector';
 import AdvancedOptions from './AdvancedOptions';
 import ScanReview from './ScanReview';
+import { paths, components } from '../../types/api';
 
-interface Engine {
+type Engine = {
   id: number;
   engine_name: string;
-}
+};
 
 interface MainScanModalProps {
   visible: boolean;
@@ -50,19 +51,19 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
   const fetchConfiguration = async () => {
     setLoading(true);
     try {
-      // Using the more comprehensive configuration endpoint
-      const response = await apiClient.get('scans/configuration/');
+      // Falling back to any because schema content is missing for scans/configuration
+      const response = await apiClient.get<any>('/mapi/scans/configuration/');
       if (response.data && response.data.engines) {
         setEngines(response.data.engines);
         if (response.data.engines.length > 0 && !selectedEngineId) {
-          setSelectedEngineId(response.data.engines[0].id);
+          setSelectedEngineId(response.data.engines[0].id || null);
         }
       }
     } catch (error) {
       console.error('Failed to fetch configurations', error);
       // Fallback to simpler listEngines if configuration fails
       try {
-        const fallback = await apiClient.get('listEngines/');
+        const fallback = await apiClient.get<any>('/mapi/listEngines/');
         if (fallback.data && fallback.data.engines) {
           setEngines(fallback.data.engines);
         }
@@ -106,7 +107,8 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
         ...advancedConfig,
       };
 
-      const response = await apiClient.post('action/initiate/scan/', payload);
+      // Falling back to any because schema content is missing for initiate/scan
+      const response = await apiClient.post<any>('/mapi/action/initiate/scan/', payload);
 
       if (response.data && response.data.status) {
         TacticalHaptics.success();

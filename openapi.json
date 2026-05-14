@@ -104,6 +104,21 @@
             },
             "parameters": []
         },
+        "/mapi/action/note/delete/": {
+            "post": {
+                "operationId": "mapi_action_note_delete_create",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
         "/mapi/action/rows/delete/": {
             "post": {
                 "operationId": "mapi_action_rows_delete_create",
@@ -433,6 +448,78 @@
                 ]
             },
             "parameters": []
+        },
+        "/mapi/graph/node/{node_id}/": {
+            "get": {
+                "operationId": "mapi_graph_node_read",
+                "description": "Fetch detailed metadata for a specific graph node.",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "node_id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ]
+        },
+        "/mapi/graph/scan/{scan_id}/": {
+            "get": {
+                "operationId": "mapi_graph_scan_read",
+                "description": "Fetch Cytoscape-compatible graph data for a specific scan.",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "scan_id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ]
+        },
+        "/mapi/graph/target/{target_id}/": {
+            "get": {
+                "operationId": "mapi_graph_target_read",
+                "description": "Fetch Cytoscape-compatible graph data for an entire target.",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "target_id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ]
         },
         "/mapi/hackerone-programs/": {
             "get": {
@@ -3137,6 +3224,21 @@
             },
             "parameters": []
         },
+        "/mapi/media/": {
+            "get": {
+                "operationId": "mapi_media_list",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
         "/mapi/monitoring/": {
             "get": {
                 "operationId": "mapi_monitoring_list",
@@ -3633,6 +3735,294 @@
                 }
             ]
         },
+        "/mapi/osintStaging/": {
+            "get": {
+                "operationId": "mapi_osintStaging_list",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "count",
+                                        "results"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer"
+                                        },
+                                        "next": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "nullable": true
+                                        },
+                                        "previous": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "nullable": true
+                                        },
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/OsintStaging"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "post": {
+                "operationId": "mapi_osintStaging_create",
+                "description": "",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/OsintStaging"
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OsintStaging"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/osintStaging/bulk_discard/": {
+            "post": {
+                "operationId": "mapi_osintStaging_bulk_discard",
+                "description": "Bulk delete staging items.",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/OsintStaging"
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OsintStaging"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/osintStaging/bulk_promote/": {
+            "post": {
+                "operationId": "mapi_osintStaging_bulk_promote",
+                "description": "Bulk promote staging items to primary tables.",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/OsintStaging"
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OsintStaging"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/osintStaging/{id}/": {
+            "get": {
+                "operationId": "mapi_osintStaging_read",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OsintStaging"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "put": {
+                "operationId": "mapi_osintStaging_update",
+                "description": "",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/OsintStaging"
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OsintStaging"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "patch": {
+                "operationId": "mapi_osintStaging_partial_update",
+                "description": "",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/OsintStaging"
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OsintStaging"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "delete": {
+                "operationId": "mapi_osintStaging_delete",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this osint staging.",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ]
+        },
+        "/mapi/osintStaging/{id}/discard/": {
+            "post": {
+                "operationId": "mapi_osintStaging_discard",
+                "description": "Individual discard.",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/OsintStaging"
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OsintStaging"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this osint staging.",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ]
+        },
+        "/mapi/osintStaging/{id}/promote/": {
+            "post": {
+                "operationId": "mapi_osintStaging_promote",
+                "description": "Individual promote.",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/OsintStaging"
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OsintStaging"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this osint staging.",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ]
+        },
         "/mapi/plugins/": {
             "get": {
                 "operationId": "mapi_plugins_list",
@@ -3659,6 +4049,81 @@
             "post": {
                 "operationId": "mapi_plugins_create",
                 "description": "",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/Plugin"
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Plugin"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/plugins/marketplace/": {
+            "get": {
+                "operationId": "mapi_plugins_marketplace",
+                "description": "Returns available plugins from the marketplace.",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Plugin"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/plugins/marketplace/install/": {
+            "post": {
+                "operationId": "mapi_plugins_marketplace_marketplace_install",
+                "description": "Installs a plugin from the marketplace.",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/Plugin"
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Plugin"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/plugins/marketplace/refresh/": {
+            "post": {
+                "operationId": "mapi_plugins_marketplace_marketplace_refresh",
+                "description": "Force refreshes the marketplace cache.",
                 "requestBody": {
                     "$ref": "#/components/requestBodies/Plugin"
                 },
@@ -4259,6 +4724,48 @@
             },
             "parameters": []
         },
+        "/mapi/rengine/fetch-proxies/": {
+            "post": {
+                "operationId": "mapi_rengine_fetch-proxies_create",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/rengine/proxy-settings/": {
+            "get": {
+                "operationId": "mapi_rengine_proxy-settings_list",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "post": {
+                "operationId": "mapi_rengine_proxy-settings_create",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
         "/mapi/rengine/system-settings/": {
             "get": {
                 "operationId": "mapi_rengine_system-settings_list",
@@ -4606,6 +5113,174 @@
                 }
             ]
         },
+        "/mapi/screenshots/": {
+            "get": {
+                "operationId": "mapi_screenshots_list",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "count",
+                                        "results"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer"
+                                        },
+                                        "next": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "nullable": true
+                                        },
+                                        "previous": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "nullable": true
+                                        },
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Screenshot"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "post": {
+                "operationId": "mapi_screenshots_create",
+                "description": "",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/Screenshot"
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Screenshot"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/screenshots/{id}/": {
+            "get": {
+                "operationId": "mapi_screenshots_read",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Screenshot"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "put": {
+                "operationId": "mapi_screenshots_update",
+                "description": "",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/Screenshot"
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Screenshot"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "patch": {
+                "operationId": "mapi_screenshots_partial_update",
+                "description": "",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/Screenshot"
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Screenshot"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "delete": {
+                "operationId": "mapi_screenshots_delete",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this screenshot.",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ]
+        },
         "/mapi/search/": {
             "get": {
                 "operationId": "mapi_search_list",
@@ -4624,6 +5299,382 @@
         "/mapi/search/history/": {
             "get": {
                 "operationId": "mapi_search_history_list",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/secretLeaks/": {
+            "get": {
+                "operationId": "mapi_secretLeaks_list",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "count",
+                                        "results"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer"
+                                        },
+                                        "next": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "nullable": true
+                                        },
+                                        "previous": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "nullable": true
+                                        },
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SecretLeak"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "post": {
+                "operationId": "mapi_secretLeaks_create",
+                "description": "",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/SecretLeak"
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SecretLeak"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/secretLeaks/{id}/": {
+            "get": {
+                "operationId": "mapi_secretLeaks_read",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SecretLeak"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "put": {
+                "operationId": "mapi_secretLeaks_update",
+                "description": "",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/SecretLeak"
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SecretLeak"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "patch": {
+                "operationId": "mapi_secretLeaks_partial_update",
+                "description": "",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/SecretLeak"
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SecretLeak"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "delete": {
+                "operationId": "mapi_secretLeaks_delete",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this secret leak.",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ]
+        },
+        "/mapi/soc-settings/": {
+            "get": {
+                "operationId": "mapi_soc-settings_list",
+                "description": "ViewSet for managing global SOC configuration.",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "count",
+                                        "results"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer"
+                                        },
+                                        "next": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "nullable": true
+                                        },
+                                        "previous": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "nullable": true
+                                        },
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SOCConfiguration"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "post": {
+                "operationId": "mapi_soc-settings_create",
+                "description": "ViewSet for managing global SOC configuration.",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/SOCConfiguration"
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SOCConfiguration"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/soc-settings/toggle_streaming/": {
+            "post": {
+                "operationId": "mapi_soc-settings_toggle_streaming",
+                "description": "ViewSet for managing global SOC configuration.",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/SOCConfiguration"
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SOCConfiguration"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/soc-settings/{id}/": {
+            "get": {
+                "operationId": "mapi_soc-settings_read",
+                "description": "ViewSet for managing global SOC configuration.",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SOCConfiguration"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "put": {
+                "operationId": "mapi_soc-settings_update",
+                "description": "ViewSet for managing global SOC configuration.",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/SOCConfiguration"
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SOCConfiguration"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "patch": {
+                "operationId": "mapi_soc-settings_partial_update",
+                "description": "ViewSet for managing global SOC configuration.",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/SOCConfiguration"
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SOCConfiguration"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "delete": {
+                "operationId": "mapi_soc-settings_delete",
+                "description": "ViewSet for managing global SOC configuration.",
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this SOC Configuration.",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ]
+        },
+        "/mapi/stress-testing/history/": {
+            "get": {
+                "operationId": "mapi_stress-testing_history_list",
                 "description": "",
                 "responses": {
                     "200": {
@@ -4878,6 +5929,36 @@
                 }
             ]
         },
+        "/mapi/system/health/": {
+            "get": {
+                "operationId": "mapi_system_health_list",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/system/logs/": {
+            "get": {
+                "operationId": "mapi_system_logs_list",
+                "description": "Fetch the tail of the system logs. Restricted to SysAdmins.",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
         "/mapi/target-summary/{slug}/{id}/": {
             "get": {
                 "operationId": "mapi_target-summary_read",
@@ -4913,6 +5994,51 @@
         "/mapi/toggle-bug-bounty-mode/": {
             "post": {
                 "operationId": "mapi_toggle-bug-bounty-mode_create",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/toggle/monitoring/": {
+            "post": {
+                "operationId": "mapi_toggle_monitoring_create",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/toggle/note/importance/": {
+            "post": {
+                "operationId": "mapi_toggle_note_importance_create",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "mapi"
+                ]
+            },
+            "parameters": []
+        },
+        "/mapi/toggle/note/status/": {
+            "post": {
+                "operationId": "mapi_toggle_note_status_create",
                 "description": "",
                 "responses": {
                     "201": {
@@ -5543,6 +6669,26 @@
                 },
                 "required": true
             },
+            "SecretLeak": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/SecretLeak"
+                        }
+                    }
+                },
+                "required": true
+            },
+            "Screenshot": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Screenshot"
+                        }
+                    }
+                },
+                "required": true
+            },
             "EndPointChanges": {
                 "content": {
                     "application/json": {
@@ -5643,6 +6789,16 @@
                 },
                 "required": true
             },
+            "OsintStaging": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/OsintStaging"
+                        }
+                    }
+                },
+                "required": true
+            },
             "Plugin": {
                 "content": {
                     "application/json": {
@@ -5658,6 +6814,16 @@
                     "application/json": {
                         "schema": {
                             "$ref": "#/components/schemas/Project"
+                        }
+                    }
+                },
+                "required": true
+            },
+            "SOCConfiguration": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/SOCConfiguration"
                         }
                     }
                 },
@@ -6037,6 +7203,11 @@
                         "items": {
                             "$ref": "#/components/schemas/Port"
                         }
+                    },
+                    "geo_iso_name": {
+                        "title": "Geo iso name",
+                        "type": "string",
+                        "readOnly": true
                     },
                     "address": {
                         "title": "Address",
@@ -7187,6 +8358,11 @@
                         "type": "string",
                         "maxLength": 200,
                         "nullable": true
+                    },
+                    "is_spiderfoot_running": {
+                        "title": "Is spiderfoot running",
+                        "type": "string",
+                        "readOnly": true
                     }
                 }
             },
@@ -7379,6 +8555,16 @@
                     },
                     "vuln_count": {
                         "title": "Vuln count",
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "subdomain_count": {
+                        "title": "Subdomain count",
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "vulnerability_count": {
+                        "title": "Vulnerability count",
                         "type": "string",
                         "readOnly": true
                     },
@@ -8254,604 +9440,604 @@
                                         "description": "Timezone to Run the Cron Schedule on. Default is UTC.",
                                         "type": "string",
                                         "enum": [
-                                            "Asia/Macau",
-                                            "America/Recife",
-                                            "Africa/Bissau",
-                                            "America/Mendoza",
-                                            "GMT0",
-                                            "America/St_Vincent",
-                                            "Australia/Broken_Hill",
-                                            "America/Ensenada",
-                                            "Asia/Kolkata",
-                                            "Europe/San_Marino",
-                                            "US/Mountain",
-                                            "Pacific/Johnston",
-                                            "America/Thule",
-                                            "America/Bogota",
-                                            "America/Porto_Velho",
-                                            "Asia/Hong_Kong",
-                                            "Antarctica/Rothera",
-                                            "Asia/Tbilisi",
-                                            "Indian/Cocos",
-                                            "Asia/Urumqi",
-                                            "America/Belize",
-                                            "Indian/Chagos",
-                                            "EET",
-                                            "Pacific/Norfolk",
-                                            "America/Indiana/Petersburg",
-                                            "Europe/Kaliningrad",
-                                            "America/Cordoba",
-                                            "Pacific/Guam",
-                                            "Canada/Mountain",
-                                            "Africa/Abidjan",
-                                            "America/Rainy_River",
-                                            "Asia/Thimbu",
-                                            "America/Caracas",
-                                            "America/Denver",
-                                            "Asia/Kuching",
-                                            "Asia/Magadan",
-                                            "Asia/Manila",
-                                            "Pacific/Marquesas",
-                                            "Israel",
-                                            "Etc/GMT+6",
-                                            "Africa/Asmera",
-                                            "Africa/Mbabane",
-                                            "Asia/Yangon",
-                                            "Europe/London",
-                                            "Atlantic/Bermuda",
-                                            "America/Ojinaga",
-                                            "Asia/Barnaul",
-                                            "America/Monterrey",
-                                            "America/Fort_Nelson",
-                                            "Europe/Saratov",
-                                            "America/St_Kitts",
-                                            "Asia/Jayapura",
-                                            "America/Moncton",
-                                            "America/Miquelon",
-                                            "Asia/Yekaterinburg",
-                                            "Asia/Dacca",
-                                            "Pacific/Wake",
-                                            "Etc/GMT-10",
-                                            "Europe/Bucharest",
-                                            "Etc/GMT+7",
-                                            "Eire",
-                                            "America/Buenos_Aires",
-                                            "Asia/Kuala_Lumpur",
-                                            "Europe/Busingen",
-                                            "Australia/Adelaide",
-                                            "Indian/Christmas",
-                                            "America/Boise",
-                                            "Pacific/Honolulu",
-                                            "Indian/Mauritius",
-                                            "Etc/GMT",
-                                            "Australia/Perth",
-                                            "Pacific/Samoa",
-                                            "America/Halifax",
-                                            "Europe/Helsinki",
-                                            "Antarctica/McMurdo",
-                                            "Asia/Damascus",
-                                            "Asia/Oral",
-                                            "Canada/Pacific",
-                                            "Europe/Athens",
-                                            "Africa/Kigali",
-                                            "US/Indiana-Starke",
-                                            "Asia/Bishkek",
-                                            "Asia/Colombo",
-                                            "Asia/Kashgar",
-                                            "America/Chihuahua",
-                                            "Asia/Tokyo",
-                                            "America/Port-au-Prince",
-                                            "Pacific/Tahiti",
-                                            "America/Anguilla",
-                                            "Asia/Harbin",
-                                            "America/Rio_Branco",
-                                            "Asia/Gaza",
-                                            "Atlantic/Cape_Verde",
-                                            "Asia/Vladivostok",
-                                            "America/Resolute",
-                                            "Africa/Mogadishu",
-                                            "Chile/Continental",
-                                            "Europe/Malta",
-                                            "Asia/Ho_Chi_Minh",
-                                            "Canada/Newfoundland",
-                                            "Asia/Choibalsan",
-                                            "America/Whitehorse",
-                                            "America/Cancun",
-                                            "Asia/Pontianak",
-                                            "Europe/Ljubljana",
-                                            "America/Grenada",
-                                            "America/Santa_Isabel",
-                                            "Arctic/Longyearbyen",
-                                            "Pacific/Yap",
-                                            "America/Swift_Current",
-                                            "US/Alaska",
-                                            "Asia/Kuwait",
-                                            "Europe/Warsaw",
-                                            "America/Phoenix",
-                                            "America/Porto_Acre",
-                                            "America/Kentucky/Louisville",
-                                            "Africa/Freetown",
-                                            "GMT",
-                                            "US/Pacific",
-                                            "Australia/Hobart",
-                                            "Africa/Bujumbura",
-                                            "Etc/GMT-14",
-                                            "America/Creston",
-                                            "Pacific/Majuro",
-                                            "Asia/Chita",
-                                            "Australia/LHI",
-                                            "America/Lower_Princes",
-                                            "Asia/Ujung_Pandang",
-                                            "America/Cayman",
-                                            "Pacific/Ponape",
-                                            "Europe/Budapest",
-                                            "America/Los_Angeles",
-                                            "Asia/Khandyga",
-                                            "Asia/Yakutsk",
-                                            "Africa/Dakar",
-                                            "America/Noronha",
-                                            "Cuba",
-                                            "America/Paramaribo",
-                                            "America/Nipigon",
-                                            "Etc/GMT0",
-                                            "America/Rosario",
-                                            "America/Indiana/Marengo",
-                                            "America/Grand_Turk",
-                                            "Europe/Zurich",
-                                            "Europe/Minsk",
-                                            "America/Cuiaba",
-                                            "Africa/Maputo",
-                                            "America/Vancouver",
-                                            "EST",
-                                            "Etc/GMT-9",
-                                            "Australia/Brisbane",
-                                            "Etc/GMT-8",
-                                            "America/Menominee",
-                                            "Etc/GMT-1",
-                                            "Africa/Harare",
-                                            "Africa/Lagos",
-                                            "America/Regina",
-                                            "Etc/GMT-4",
-                                            "Portugal",
-                                            "Pacific/Pitcairn",
-                                            "Brazil/Acre",
-                                            "MST7MDT",
-                                            "America/Cambridge_Bay",
-                                            "America/Argentina/Salta",
-                                            "America/Barbados",
-                                            "America/Santiago",
-                                            "Australia/Tasmania",
-                                            "US/Michigan",
-                                            "America/Nome",
-                                            "America/Eirunepe",
-                                            "Etc/UCT",
-                                            "Asia/Istanbul",
-                                            "Africa/El_Aaiun",
-                                            "UTC",
-                                            "America/Panama",
-                                            "Europe/Chisinau",
-                                            "Asia/Makassar",
-                                            "America/Punta_Arenas",
-                                            "Europe/Rome",
-                                            "Etc/GMT+12",
-                                            "Atlantic/South_Georgia",
-                                            "America/Sao_Paulo",
-                                            "Asia/Rangoon",
-                                            "America/Manaus",
-                                            "America/Argentina/Jujuy",
-                                            "Brazil/East",
-                                            "EST5EDT",
-                                            "Asia/Chungking",
-                                            "America/Louisville",
-                                            "Africa/Gaborone",
-                                            "Asia/Taipei",
-                                            "GMT+0",
-                                            "Antarctica/Syowa",
-                                            "Australia/Sydney",
-                                            "Europe/Lisbon",
-                                            "Canada/Central",
-                                            "Iran",
-                                            "Africa/Libreville",
-                                            "Asia/Shanghai",
-                                            "Asia/Pyongyang",
-                                            "Atlantic/Stanley",
-                                            "America/Belem",
-                                            "Europe/Sofia",
-                                            "America/Mazatlan",
-                                            "Etc/GMT-12",
-                                            "Pacific/Palau",
-                                            "Europe/Guernsey",
-                                            "Australia/Eucla",
-                                            "Australia/Darwin",
-                                            "Etc/Zulu",
-                                            "Africa/Banjul",
-                                            "Atlantic/Reykjavik",
-                                            "Europe/Tiraspol",
-                                            "America/Asuncion",
-                                            "Europe/Riga",
-                                            "Brazil/West",
-                                            "Indian/Antananarivo",
-                                            "America/Nassau",
-                                            "Africa/Ndjamena",
-                                            "America/Atikokan",
-                                            "Antarctica/Vostok",
-                                            "Europe/Brussels",
-                                            "America/Argentina/San_Luis",
-                                            "America/Indiana/Tell_City",
-                                            "Europe/Prague",
-                                            "Pacific/Port_Moresby",
-                                            "America/Aruba",
-                                            "America/Montserrat",
-                                            "Europe/Isle_of_Man",
-                                            "America/Guatemala",
-                                            "Etc/GMT-2",
-                                            "America/Yakutat",
-                                            "Antarctica/Macquarie",
-                                            "America/Argentina/Tucuman",
-                                            "Pacific/Kiritimati",
-                                            "Africa/Timbuktu",
-                                            "Asia/Beirut",
-                                            "US/Central",
-                                            "Etc/GMT-5",
-                                            "America/Indiana/Vevay",
-                                            "America/Mexico_City",
-                                            "Asia/Baku",
-                                            "Europe/Paris",
-                                            "US/Eastern",
-                                            "Asia/Aden",
-                                            "Africa/Dar_es_Salaam",
-                                            "Asia/Tomsk",
-                                            "America/Tegucigalpa",
-                                            "America/St_Thomas",
-                                            "Africa/Niamey",
-                                            "America/Tijuana",
-                                            "Asia/Dili",
-                                            "America/Fort_Wayne",
-                                            "Asia/Dubai",
-                                            "Asia/Tel_Aviv",
-                                            "Africa/Algiers",
-                                            "Pacific/Enderbury",
-                                            "Asia/Atyrau",
-                                            "America/Jamaica",
-                                            "Asia/Dushanbe",
-                                            "Africa/Addis_Ababa",
-                                            "Australia/NSW",
-                                            "Africa/Cairo",
-                                            "Asia/Brunei",
-                                            "America/Puerto_Rico",
-                                            "Asia/Riyadh",
-                                            "Africa/Lubumbashi",
-                                            "Asia/Almaty",
-                                            "America/Rankin_Inlet",
-                                            "Canada/Atlantic",
-                                            "Poland",
-                                            "Indian/Maldives",
-                                            "WET",
-                                            "Antarctica/Casey",
-                                            "Europe/Berlin",
-                                            "Pacific/Pohnpei",
-                                            "America/Lima",
-                                            "Etc/GMT-7",
-                                            "America/Nuuk",
-                                            "Pacific/Bougainville",
-                                            "Europe/Samara",
-                                            "Africa/Casablanca",
-                                            "Europe/Podgorica",
-                                            "Asia/Hebron",
-                                            "America/Argentina/San_Juan",
-                                            "Pacific/Tongatapu",
-                                            "Australia/Melbourne",
-                                            "Asia/Karachi",
-                                            "America/Dominica",
-                                            "America/Glace_Bay",
-                                            "America/Danmarkshavn",
-                                            "Atlantic/St_Helena",
-                                            "Asia/Krasnoyarsk",
-                                            "Europe/Simferopol",
-                                            "Europe/Sarajevo",
-                                            "Etc/GMT+1",
-                                            "Atlantic/Canary",
-                                            "GB-Eire",
-                                            "Japan",
-                                            "Europe/Kiev",
-                                            "Etc/UTC",
-                                            "America/Sitka",
-                                            "Europe/Kyiv",
-                                            "Asia/Nicosia",
-                                            "Australia/South",
-                                            "Pacific/Pago_Pago",
-                                            "US/East-Indiana",
-                                            "Etc/GMT-11",
-                                            "Pacific/Gambier",
-                                            "Africa/Lusaka",
-                                            "America/Guadeloupe",
-                                            "Europe/Oslo",
-                                            "America/Goose_Bay",
-                                            "Africa/Sao_Tome",
-                                            "Asia/Kathmandu",
-                                            "Africa/Conakry",
-                                            "Asia/Baghdad",
-                                            "Antarctica/Davis",
-                                            "Singapore",
-                                            "Navajo",
-                                            "Europe/Vienna",
-                                            "ROK",
-                                            "Pacific/Nauru",
-                                            "Greenwich",
-                                            "PST8PDT",
-                                            "Etc/GMT+3",
-                                            "America/Yellowknife",
-                                            "America/Thunder_Bay",
-                                            "Europe/Istanbul",
-                                            "Pacific/Guadalcanal",
-                                            "Etc/Universal",
-                                            "Africa/Bangui",
-                                            "Europe/Ulyanovsk",
-                                            "Australia/ACT",
-                                            "Antarctica/Mawson",
-                                            "America/Bahia_Banderas",
-                                            "Libya",
-                                            "America/Matamoros",
-                                            "Asia/Ashkhabad",
-                                            "Asia/Sakhalin",
-                                            "America/Toronto",
-                                            "Pacific/Midway",
-                                            "Pacific/Galapagos",
-                                            "Pacific/Kwajalein",
-                                            "NZ-CHAT",
-                                            "America/Indianapolis",
-                                            "America/Virgin",
-                                            "America/Martinique",
-                                            "Asia/Muscat",
-                                            "Asia/Hovd",
-                                            "US/Samoa",
-                                            "CET",
-                                            "America/Indiana/Knox",
-                                            "Canada/Yukon",
-                                            "Asia/Kabul",
-                                            "Pacific/Funafuti",
-                                            "America/St_Barthelemy",
-                                            "Asia/Jerusalem",
-                                            "America/Santo_Domingo",
-                                            "America/Coyhaique",
-                                            "Asia/Chongqing",
-                                            "Africa/Accra",
-                                            "Asia/Omsk",
-                                            "US/Arizona",
-                                            "Australia/Lord_Howe",
-                                            "Indian/Reunion",
-                                            "Indian/Kerguelen",
-                                            "Africa/Lome",
-                                            "America/New_York",
-                                            "Africa/Bamako",
-                                            "Jamaica",
-                                            "Asia/Anadyr",
-                                            "Pacific/Apia",
-                                            "Africa/Porto-Novo",
-                                            "America/Araguaina",
-                                            "Pacific/Niue",
-                                            "Europe/Dublin",
-                                            "Etc/GMT+10",
-                                            "Etc/GMT+5",
-                                            "Europe/Skopje",
-                                            "America/North_Dakota/New_Salem",
-                                            "Asia/Ulan_Bator",
-                                            "Zulu",
-                                            "UCT",
-                                            "Indian/Comoro",
-                                            "America/Hermosillo",
-                                            "Etc/Greenwich",
-                                            "America/Indiana/Winamac",
-                                            "Pacific/Kosrae",
-                                            "Africa/Ouagadougou",
-                                            "America/Atka",
-                                            "Pacific/Tarawa",
-                                            "Mexico/BajaSur",
-                                            "America/Merida",
-                                            "Asia/Aqtobe",
-                                            "Europe/Nicosia",
-                                            "Pacific/Auckland",
-                                            "America/Bahia",
-                                            "NZ",
-                                            "Africa/Malabo",
-                                            "GMT-0",
-                                            "Europe/Bratislava",
-                                            "America/Catamarca",
-                                            "America/North_Dakota/Center",
-                                            "Europe/Volgograd",
-                                            "Asia/Srednekolymsk",
-                                            "Asia/Aqtau",
-                                            "Etc/GMT-0",
-                                            "America/Ciudad_Juarez",
-                                            "Africa/Douala",
-                                            "America/St_Johns",
-                                            "Canada/Eastern",
-                                            "Asia/Qyzylorda",
-                                            "America/Boa_Vista",
-                                            "Pacific/Wallis",
-                                            "Asia/Amman",
-                                            "Europe/Madrid",
-                                            "America/Maceio",
-                                            "America/Jujuy",
-                                            "Asia/Yerevan",
-                                            "America/Pangnirtung",
-                                            "Atlantic/Faroe",
-                                            "Asia/Samarkand",
-                                            "Etc/GMT+0",
-                                            "Europe/Gibraltar",
-                                            "America/Indiana/Indianapolis",
-                                            "Egypt",
-                                            "Australia/Victoria",
-                                            "Europe/Vaduz",
-                                            "America/Kentucky/Monticello",
-                                            "Asia/Singapore",
-                                            "Africa/Blantyre",
-                                            "Chile/EasterIsland",
-                                            "America/Costa_Rica",
-                                            "Europe/Moscow",
-                                            "America/Havana",
-                                            "Asia/Bahrain",
-                                            "America/Indiana/Vincennes",
-                                            "Canada/Saskatchewan",
-                                            "Europe/Belgrade",
-                                            "Europe/Amsterdam",
-                                            "GB",
-                                            "America/Argentina/Cordoba",
-                                            "Africa/Windhoek",
-                                            "Asia/Qatar",
-                                            "Mexico/General",
-                                            "Africa/Brazzaville",
-                                            "Africa/Luanda",
-                                            "Pacific/Chatham",
-                                            "Australia/Queensland",
-                                            "HST",
-                                            "Africa/Maseru",
-                                            "Asia/Novokuznetsk",
-                                            "Asia/Qostanay",
-                                            "Europe/Copenhagen",
-                                            "PRC",
-                                            "Antarctica/DumontDUrville",
-                                            "Etc/GMT+8",
-                                            "Europe/Vilnius",
-                                            "America/Godthab",
-                                            "Atlantic/Faeroe",
-                                            "America/Edmonton",
-                                            "America/Fortaleza",
-                                            "Asia/Bangkok",
-                                            "Pacific/Rarotonga",
-                                            "America/Argentina/ComodRivadavia",
-                                            "America/Argentina/Catamarca",
-                                            "Africa/Nairobi",
-                                            "Asia/Thimphu",
-                                            "Asia/Ulaanbaatar",
-                                            "Australia/Yancowinna",
-                                            "Africa/Djibouti",
-                                            "Europe/Tallinn",
-                                            "Indian/Mayotte",
-                                            "America/Cayenne",
-                                            "Asia/Ust-Nera",
-                                            "Europe/Stockholm",
-                                            "Pacific/Saipan",
-                                            "Africa/Monrovia",
-                                            "Antarctica/Palmer",
-                                            "America/Detroit",
-                                            "Africa/Nouakchott",
-                                            "Europe/Zagreb",
-                                            "Europe/Mariehamn",
-                                            "America/North_Dakota/Beulah",
-                                            "Europe/Belfast",
-                                            "Australia/West",
-                                            "CST6CDT",
-                                            "US/Hawaii",
-                                            "Etc/GMT-13",
-                                            "America/Chicago",
-                                            "Europe/Andorra",
-                                            "America/Iqaluit",
-                                            "Australia/Currie",
-                                            "Asia/Ashgabat",
-                                            "Antarctica/South_Pole",
-                                            "Pacific/Fakaofo",
-                                            "America/Adak",
-                                            "America/La_Paz",
-                                            "Europe/Kirov",
-                                            "America/Argentina/La_Rioja",
-                                            "Pacific/Chuuk",
-                                            "Pacific/Easter",
-                                            "Africa/Tripoli",
-                                            "Pacific/Kanton",
-                                            "America/Santarem",
-                                            "Atlantic/Jan_Mayen",
-                                            "America/Blanc-Sablon",
-                                            "Pacific/Noumea",
-                                            "Europe/Astrakhan",
-                                            "America/Shiprock",
-                                            "Africa/Asmara",
-                                            "Asia/Dhaka",
-                                            "Africa/Khartoum",
-                                            "ROC",
-                                            "Africa/Kinshasa",
-                                            "Australia/North",
-                                            "Etc/GMT+11",
-                                            "Etc/GMT-3",
-                                            "Atlantic/Azores",
-                                            "Asia/Tashkent",
-                                            "America/Coral_Harbour",
-                                            "Asia/Vientiane",
-                                            "Universal",
-                                            "Europe/Uzhgorod",
-                                            "Iceland",
-                                            "Asia/Calcutta",
-                                            "Turkey",
-                                            "America/Dawson_Creek",
-                                            "Europe/Monaco",
-                                            "MST",
-                                            "America/Port_of_Spain",
-                                            "Asia/Irkutsk",
-                                            "Asia/Kamchatka",
-                                            "Mexico/BajaNorte",
-                                            "America/Tortola",
-                                            "Asia/Phnom_Penh",
                                             "Australia/Lindeman",
-                                            "America/Dawson",
-                                            "Etc/GMT+2",
-                                            "Africa/Kampala",
-                                            "Europe/Luxembourg",
-                                            "America/El_Salvador",
-                                            "Asia/Famagusta",
-                                            "Asia/Tehran",
-                                            "America/Guayaquil",
-                                            "America/Argentina/Rio_Gallegos",
-                                            "America/Curacao",
-                                            "America/Kralendijk",
-                                            "Asia/Novosibirsk",
-                                            "W-SU",
-                                            "Africa/Ceuta",
-                                            "US/Aleutian",
-                                            "Indian/Mahe",
-                                            "America/Argentina/Mendoza",
-                                            "Asia/Jakarta",
-                                            "MET",
-                                            "Asia/Macao",
-                                            "Africa/Johannesburg",
-                                            "America/Metlakatla",
-                                            "Brazil/DeNoronha",
-                                            "Europe/Zaporozhye",
-                                            "America/Scoresbysund",
+                                            "Pacific/Guadalcanal",
+                                            "Asia/Tel_Aviv",
+                                            "Africa/Cairo",
+                                            "America/Aruba",
+                                            "America/Blanc-Sablon",
+                                            "Asia/Thimbu",
+                                            "Asia/Baghdad",
+                                            "America/Vancouver",
+                                            "Indian/Comoro",
+                                            "Antarctica/Vostok",
+                                            "Europe/Vilnius",
+                                            "US/Samoa",
+                                            "Europe/Riga",
+                                            "Asia/Jayapura",
+                                            "GMT-0",
                                             "Asia/Katmandu",
-                                            "Etc/GMT+9",
-                                            "Pacific/Efate",
-                                            "Pacific/Fiji",
-                                            "America/Montevideo",
-                                            "Europe/Tirane",
-                                            "Antarctica/Troll",
-                                            "Asia/Saigon",
-                                            "Africa/Juba",
-                                            "America/Argentina/Buenos_Aires",
-                                            "Africa/Tunis",
-                                            "Etc/GMT-6",
+                                            "US/Mountain",
+                                            "America/Merida",
                                             "Kwajalein",
-                                            "America/Knox_IN",
-                                            "America/Inuvik",
                                             "America/Juneau",
-                                            "America/Argentina/Ushuaia",
-                                            "Hongkong",
-                                            "America/Guyana",
-                                            "America/Montreal",
+                                            "Pacific/Pohnpei",
+                                            "Chile/Continental",
+                                            "Asia/Pyongyang",
+                                            "Pacific/Wake",
+                                            "Africa/Khartoum",
+                                            "Europe/Nicosia",
                                             "Europe/Jersey",
-                                            "America/Campo_Grande",
-                                            "Europe/Vatican",
-                                            "Australia/Canberra",
-                                            "Pacific/Truk",
+                                            "Africa/Lusaka",
+                                            "Asia/Ulaanbaatar",
+                                            "MST",
+                                            "Etc/GMT0",
+                                            "Zulu",
+                                            "America/Mexico_City",
+                                            "Asia/Yangon",
+                                            "Etc/GMT",
+                                            "America/Goose_Bay",
+                                            "Asia/Kuwait",
+                                            "Australia/Eucla",
+                                            "Pacific/Kanton",
+                                            "Etc/GMT+9",
+                                            "America/Cayenne",
+                                            "Africa/Addis_Ababa",
+                                            "Etc/GMT+12",
+                                            "Australia/Victoria",
+                                            "GB-Eire",
+                                            "Pacific/Nauru",
+                                            "Asia/Sakhalin",
+                                            "CST6CDT",
+                                            "America/Havana",
+                                            "Europe/Tallinn",
+                                            "America/Port-au-Prince",
+                                            "US/East-Indiana",
+                                            "America/Dawson",
+                                            "America/Eirunepe",
+                                            "America/Porto_Acre",
+                                            "Africa/Maseru",
+                                            "America/St_Kitts",
+                                            "Asia/Ho_Chi_Minh",
+                                            "Asia/Khandyga",
+                                            "Asia/Ujung_Pandang",
+                                            "Africa/Libreville",
+                                            "America/Belem",
+                                            "Asia/Kolkata",
+                                            "Pacific/Yap",
+                                            "America/Maceio",
+                                            "Asia/Dili",
+                                            "GMT0",
+                                            "Africa/Lome",
+                                            "Asia/Hovd",
+                                            "America/Santo_Domingo",
+                                            "America/Yellowknife",
+                                            "EET",
                                             "America/St_Lucia",
-                                            "Etc/GMT+4",
-                                            "America/Marigot",
-                                            "localtime",
-                                            "America/Managua",
-                                            "Asia/Seoul",
-                                            "America/Antigua",
-                                            "America/Winnipeg",
+                                            "Asia/Gaza",
+                                            "Asia/Brunei",
+                                            "Asia/Pontianak",
+                                            "Brazil/East",
+                                            "Europe/Sarajevo",
+                                            "America/Adak",
+                                            "Asia/Qatar",
+                                            "Asia/Phnom_Penh",
+                                            "America/Jujuy",
+                                            "America/Cancun",
+                                            "America/Thunder_Bay",
+                                            "America/Resolute",
+                                            "Europe/Sofia",
+                                            "America/Monterrey",
+                                            "America/Virgin",
+                                            "Atlantic/Faeroe",
+                                            "Africa/Dakar",
+                                            "US/Arizona",
+                                            "America/Santiago",
+                                            "Europe/Minsk",
+                                            "Pacific/Guam",
+                                            "America/Godthab",
+                                            "America/Boise",
+                                            "Indian/Kerguelen",
+                                            "Pacific/Kosrae",
+                                            "Australia/Melbourne",
+                                            "Indian/Christmas",
+                                            "America/Whitehorse",
+                                            "Atlantic/Bermuda",
+                                            "GMT+0",
+                                            "Asia/Srednekolymsk",
+                                            "America/Lower_Princes",
+                                            "Europe/London",
+                                            "America/Indiana/Petersburg",
+                                            "Iceland",
+                                            "Hongkong",
+                                            "Atlantic/South_Georgia",
+                                            "Pacific/Apia",
+                                            "Etc/GMT-1",
+                                            "Europe/Monaco",
+                                            "America/Kentucky/Monticello",
+                                            "Europe/Guernsey",
+                                            "Atlantic/Stanley",
+                                            "Pacific/Chuuk",
+                                            "America/Noronha",
+                                            "America/Coyhaique",
+                                            "Europe/Kyiv",
+                                            "Pacific/Ponape",
+                                            "America/Panama",
+                                            "America/Indiana/Winamac",
+                                            "Asia/Bahrain",
+                                            "Africa/Freetown",
+                                            "Asia/Tokyo",
+                                            "America/Atka",
+                                            "Africa/Malabo",
+                                            "Greenwich",
+                                            "Pacific/Noumea",
+                                            "America/Porto_Velho",
+                                            "Pacific/Saipan",
+                                            "Canada/Yukon",
+                                            "Etc/GMT+2",
+                                            "Etc/UCT",
+                                            "Europe/Isle_of_Man",
+                                            "US/Hawaii",
+                                            "America/Moncton",
+                                            "Pacific/Auckland",
+                                            "W-SU",
+                                            "EST5EDT",
+                                            "Cuba",
+                                            "Europe/Gibraltar",
+                                            "Asia/Makassar",
+                                            "Africa/Juba",
+                                            "Asia/Macau",
+                                            "Africa/Mbabane",
+                                            "Etc/GMT-2",
+                                            "America/Indiana/Knox",
+                                            "Africa/El_Aaiun",
+                                            "America/Scoresbysund",
+                                            "Africa/Gaborone",
+                                            "America/Anguilla",
+                                            "Africa/Ceuta",
+                                            "Europe/Malta",
+                                            "Asia/Almaty",
+                                            "Africa/Niamey",
+                                            "America/Boa_Vista",
+                                            "Europe/Warsaw",
+                                            "America/St_Barthelemy",
+                                            "ROC",
+                                            "Pacific/Norfolk",
+                                            "Africa/Timbuktu",
+                                            "Europe/Madrid",
+                                            "Europe/Uzhgorod",
+                                            "Antarctica/Troll",
+                                            "Singapore",
+                                            "America/La_Paz",
+                                            "Europe/San_Marino",
+                                            "Africa/Ndjamena",
+                                            "Europe/Ulyanovsk",
+                                            "Australia/Perth",
+                                            "Asia/Istanbul",
+                                            "Asia/Aden",
                                             "America/Anchorage",
-                                            "Atlantic/Madeira"
+                                            "America/St_Johns",
+                                            "Indian/Mahe",
+                                            "Europe/Astrakhan",
+                                            "Europe/Ljubljana",
+                                            "America/Santarem",
+                                            "Etc/GMT-0",
+                                            "Asia/Barnaul",
+                                            "Asia/Karachi",
+                                            "America/Inuvik",
+                                            "America/Dominica",
+                                            "Africa/Ouagadougou",
+                                            "Etc/GMT+3",
+                                            "America/Fort_Wayne",
+                                            "Canada/Newfoundland",
+                                            "America/Paramaribo",
+                                            "Pacific/Galapagos",
+                                            "America/Coral_Harbour",
+                                            "America/Edmonton",
+                                            "Africa/Windhoek",
+                                            "Africa/Bissau",
+                                            "Universal",
+                                            "Atlantic/Canary",
+                                            "Etc/GMT-8",
+                                            "Atlantic/Cape_Verde",
+                                            "Pacific/Fakaofo",
+                                            "NZ",
+                                            "Pacific/Tarawa",
+                                            "Antarctica/Syowa",
+                                            "Indian/Maldives",
+                                            "Asia/Ust-Nera",
+                                            "Asia/Aqtau",
+                                            "Mexico/BajaSur",
+                                            "America/Danmarkshavn",
+                                            "UCT",
+                                            "America/Kralendijk",
+                                            "Etc/GMT+1",
+                                            "America/Swift_Current",
+                                            "Pacific/Efate",
+                                            "Asia/Oral",
+                                            "Etc/GMT-11",
+                                            "Asia/Chongqing",
+                                            "America/Campo_Grande",
+                                            "America/Mendoza",
+                                            "America/Cambridge_Bay",
+                                            "Etc/GMT-12",
+                                            "America/Rainy_River",
+                                            "US/Alaska",
+                                            "Asia/Kashgar",
+                                            "Australia/Currie",
+                                            "Asia/Yerevan",
+                                            "America/Regina",
+                                            "Africa/Kampala",
+                                            "Etc/GMT+6",
+                                            "Indian/Mauritius",
+                                            "Africa/Asmara",
+                                            "Europe/Athens",
+                                            "Europe/Belfast",
+                                            "Brazil/West",
+                                            "Asia/Chita",
+                                            "EST",
+                                            "US/Michigan",
+                                            "Etc/GMT-9",
+                                            "Iran",
+                                            "Europe/Amsterdam",
+                                            "America/Managua",
+                                            "America/Atikokan",
+                                            "WET",
+                                            "America/Indiana/Vincennes",
+                                            "Asia/Kathmandu",
+                                            "Etc/Universal",
+                                            "Asia/Kuching",
+                                            "America/Cayman",
+                                            "America/Marigot",
+                                            "Europe/Moscow",
+                                            "Asia/Calcutta",
+                                            "Europe/Lisbon",
+                                            "Antarctica/Palmer",
+                                            "America/St_Thomas",
+                                            "America/Bahia",
+                                            "America/Grand_Turk",
+                                            "Asia/Samarkand",
+                                            "Asia/Novosibirsk",
+                                            "America/Argentina/Buenos_Aires",
+                                            "America/Montserrat",
+                                            "Atlantic/Azores",
+                                            "America/Chicago",
+                                            "America/Manaus",
+                                            "US/Aleutian",
+                                            "NZ-CHAT",
+                                            "Etc/GMT-10",
+                                            "Antarctica/Davis",
+                                            "Africa/Dar_es_Salaam",
+                                            "America/Louisville",
+                                            "Europe/Kiev",
+                                            "America/Sao_Paulo",
+                                            "America/Pangnirtung",
+                                            "Asia/Saigon",
+                                            "Africa/Djibouti",
+                                            "Asia/Ulan_Bator",
+                                            "America/Argentina/Rio_Gallegos",
+                                            "Africa/Accra",
+                                            "America/Matamoros",
+                                            "Asia/Amman",
+                                            "Australia/Lord_Howe",
+                                            "Antarctica/Casey",
+                                            "Indian/Chagos",
+                                            "Europe/Stockholm",
+                                            "Asia/Magadan",
+                                            "Australia/LHI",
+                                            "America/Tortola",
+                                            "Europe/Kirov",
+                                            "Africa/Casablanca",
+                                            "Pacific/Samoa",
+                                            "Etc/GMT+0",
+                                            "Asia/Omsk",
+                                            "Europe/Tiraspol",
+                                            "Pacific/Bougainville",
+                                            "Atlantic/St_Helena",
+                                            "Pacific/Fiji",
+                                            "America/Lima",
+                                            "America/Argentina/Catamarca",
+                                            "Asia/Vientiane",
+                                            "Europe/Vaduz",
+                                            "Australia/Queensland",
+                                            "Europe/Vienna",
+                                            "Europe/Busingen",
+                                            "Africa/Luanda",
+                                            "Chile/EasterIsland",
+                                            "Europe/Skopje",
+                                            "Asia/Riyadh",
+                                            "Asia/Seoul",
+                                            "America/Argentina/Mendoza",
+                                            "Africa/Johannesburg",
+                                            "America/Chihuahua",
+                                            "America/Phoenix",
+                                            "Mexico/BajaNorte",
+                                            "Europe/Copenhagen",
+                                            "Asia/Bangkok",
+                                            "Pacific/Honolulu",
+                                            "America/Asuncion",
+                                            "Australia/Darwin",
+                                            "Pacific/Pitcairn",
+                                            "Asia/Irkutsk",
+                                            "Antarctica/McMurdo",
+                                            "America/North_Dakota/Beulah",
+                                            "Europe/Andorra",
+                                            "Antarctica/Rothera",
+                                            "America/Guayaquil",
+                                            "America/Martinique",
+                                            "America/Guatemala",
+                                            "America/Barbados",
+                                            "America/Metlakatla",
+                                            "Europe/Prague",
+                                            "America/Guyana",
+                                            "America/Nassau",
+                                            "Africa/Algiers",
+                                            "Pacific/Funafuti",
+                                            "Asia/Taipei",
+                                            "America/Argentina/San_Juan",
+                                            "America/Detroit",
+                                            "America/Los_Angeles",
+                                            "Etc/GMT-6",
+                                            "Africa/Bamako",
+                                            "America/Nipigon",
+                                            "Europe/Istanbul",
+                                            "Africa/Monrovia",
+                                            "Europe/Samara",
+                                            "Europe/Vatican",
+                                            "Pacific/Rarotonga",
+                                            "Pacific/Niue",
+                                            "America/Fort_Nelson",
+                                            "Africa/Lubumbashi",
+                                            "Pacific/Marquesas",
+                                            "Asia/Krasnoyarsk",
+                                            "America/North_Dakota/Center",
+                                            "Asia/Qostanay",
+                                            "Asia/Urumqi",
+                                            "Etc/GMT-7",
+                                            "Europe/Zurich",
+                                            "PRC",
+                                            "America/Argentina/ComodRivadavia",
+                                            "America/Cuiaba",
+                                            "Africa/Douala",
+                                            "America/Yakutat",
+                                            "Pacific/Easter",
+                                            "Canada/Pacific",
+                                            "Turkey",
+                                            "America/Montreal",
+                                            "Asia/Nicosia",
+                                            "Asia/Aqtobe",
+                                            "America/Indiana/Indianapolis",
+                                            "America/St_Vincent",
+                                            "Asia/Kamchatka",
+                                            "CET",
+                                            "Asia/Baku",
+                                            "Pacific/Palau",
+                                            "Indian/Reunion",
+                                            "UTC",
+                                            "Pacific/Wallis",
+                                            "Europe/Berlin",
+                                            "Asia/Kabul",
+                                            "Australia/Yancowinna",
+                                            "Libya",
+                                            "PST8PDT",
+                                            "Navajo",
+                                            "Africa/Brazzaville",
+                                            "Canada/Atlantic",
+                                            "Atlantic/Reykjavik",
+                                            "Pacific/Enderbury",
+                                            "Europe/Kaliningrad",
+                                            "Australia/North",
+                                            "Pacific/Kiritimati",
+                                            "Canada/Eastern",
+                                            "Indian/Cocos",
+                                            "America/Indianapolis",
+                                            "Asia/Bishkek",
+                                            "America/Toronto",
+                                            "Asia/Tbilisi",
+                                            "America/Jamaica",
+                                            "America/Shiprock",
+                                            "America/Argentina/San_Luis",
+                                            "Etc/GMT-3",
+                                            "America/Fortaleza",
+                                            "Africa/Abidjan",
+                                            "America/Mazatlan",
+                                            "Etc/GMT+8",
+                                            "Africa/Conakry",
+                                            "Europe/Rome",
+                                            "America/Tegucigalpa",
+                                            "Asia/Atyrau",
+                                            "Europe/Brussels",
+                                            "America/Curacao",
+                                            "Antarctica/DumontDUrville",
+                                            "Europe/Zagreb",
+                                            "Asia/Dubai",
+                                            "Africa/Nairobi",
+                                            "Europe/Belgrade",
+                                            "Atlantic/Madeira",
+                                            "Canada/Central",
+                                            "Asia/Ashgabat",
+                                            "America/Port_of_Spain",
+                                            "Africa/Mogadishu",
+                                            "Japan",
+                                            "America/Halifax",
+                                            "America/Ojinaga",
+                                            "Australia/Broken_Hill",
+                                            "America/Hermosillo",
+                                            "Antarctica/Mawson",
+                                            "Asia/Hong_Kong",
+                                            "America/Buenos_Aires",
+                                            "Australia/Adelaide",
+                                            "Europe/Tirane",
+                                            "Pacific/Port_Moresby",
+                                            "America/Dawson_Creek",
+                                            "Asia/Choibalsan",
+                                            "Europe/Zaporozhye",
+                                            "Asia/Yekaterinburg",
+                                            "Pacific/Truk",
+                                            "Africa/Bangui",
+                                            "America/Argentina/La_Rioja",
+                                            "America/Ciudad_Juarez",
+                                            "Asia/Rangoon",
+                                            "America/Argentina/Jujuy",
+                                            "Atlantic/Jan_Mayen",
+                                            "Asia/Hebron",
+                                            "Asia/Yakutsk",
+                                            "Europe/Dublin",
+                                            "America/New_York",
+                                            "America/Tijuana",
+                                            "Antarctica/South_Pole",
+                                            "Asia/Qyzylorda",
+                                            "America/Nome",
+                                            "Europe/Oslo",
+                                            "America/Argentina/Tucuman",
+                                            "America/Argentina/Cordoba",
+                                            "Asia/Thimphu",
+                                            "Asia/Tomsk",
+                                            "Asia/Famagusta",
+                                            "America/Guadeloupe",
+                                            "Asia/Ashkhabad",
+                                            "US/Pacific",
+                                            "Indian/Mayotte",
+                                            "Asia/Shanghai",
+                                            "Egypt",
+                                            "America/Indiana/Tell_City",
+                                            "Antarctica/Macquarie",
+                                            "MST7MDT",
+                                            "America/Knox_IN",
+                                            "Africa/Blantyre",
+                                            "Pacific/Midway",
+                                            "America/El_Salvador",
+                                            "America/Rosario",
+                                            "Australia/Canberra",
+                                            "Asia/Macao",
+                                            "Africa/Tripoli",
+                                            "US/Eastern",
+                                            "America/Argentina/Ushuaia",
+                                            "Asia/Harbin",
+                                            "Etc/GMT-13",
+                                            "Etc/GMT-4",
+                                            "Etc/GMT+11",
+                                            "Pacific/Tongatapu",
+                                            "America/Santa_Isabel",
+                                            "Atlantic/Faroe",
+                                            "Etc/Greenwich",
+                                            "Europe/Paris",
+                                            "Australia/Brisbane",
+                                            "America/Argentina/Salta",
+                                            "America/Creston",
+                                            "Africa/Bujumbura",
+                                            "Europe/Bucharest",
+                                            "localtime",
+                                            "America/Bahia_Banderas",
+                                            "America/North_Dakota/New_Salem",
+                                            "Pacific/Tahiti",
+                                            "Europe/Luxembourg",
+                                            "Etc/UTC",
+                                            "America/Rankin_Inlet",
+                                            "Australia/ACT",
+                                            "Australia/NSW",
+                                            "Africa/Harare",
+                                            "Asia/Damascus",
+                                            "Africa/Porto-Novo",
+                                            "Europe/Chisinau",
+                                            "Etc/GMT-14",
+                                            "Africa/Sao_Tome",
+                                            "America/Menominee",
+                                            "America/Antigua",
+                                            "Brazil/DeNoronha",
+                                            "Pacific/Kwajalein",
+                                            "America/Indiana/Marengo",
+                                            "America/Recife",
+                                            "America/Rio_Branco",
+                                            "Pacific/Gambier",
+                                            "America/Puerto_Rico",
+                                            "Mexico/General",
+                                            "Etc/GMT+4",
+                                            "Africa/Kigali",
+                                            "America/Thule",
+                                            "Australia/South",
+                                            "Pacific/Chatham",
+                                            "Europe/Bratislava",
+                                            "Indian/Antananarivo",
+                                            "ROK",
+                                            "Asia/Dhaka",
+                                            "Etc/Zulu",
+                                            "Asia/Manila",
+                                            "Europe/Podgorica",
+                                            "Asia/Singapore",
+                                            "MET",
+                                            "Asia/Tashkent",
+                                            "America/Sitka",
+                                            "America/Indiana/Vevay",
+                                            "US/Indiana-Starke",
+                                            "America/Iqaluit",
+                                            "Asia/Vladivostok",
+                                            "US/Central",
+                                            "Asia/Jakarta",
+                                            "Canada/Mountain",
+                                            "Africa/Maputo",
+                                            "America/Nuuk",
+                                            "Africa/Banjul",
+                                            "Africa/Tunis",
+                                            "America/Winnipeg",
+                                            "Asia/Dushanbe",
+                                            "Asia/Jerusalem",
+                                            "Europe/Saratov",
+                                            "Australia/Hobart",
+                                            "America/Miquelon",
+                                            "America/Montevideo",
+                                            "America/Araguaina",
+                                            "Asia/Kuala_Lumpur",
+                                            "Australia/Tasmania",
+                                            "America/Cordoba",
+                                            "Europe/Mariehamn",
+                                            "America/Kentucky/Louisville",
+                                            "America/Ensenada",
+                                            "Pacific/Johnston",
+                                            "America/Caracas",
+                                            "Asia/Novokuznetsk",
+                                            "Etc/GMT+5",
+                                            "Europe/Helsinki",
+                                            "Europe/Simferopol",
+                                            "Etc/GMT+10",
+                                            "Brazil/Acre",
+                                            "America/Belize",
+                                            "Europe/Budapest",
+                                            "America/Grenada",
+                                            "Poland",
+                                            "Etc/GMT-5",
+                                            "Portugal",
+                                            "GMT",
+                                            "Etc/GMT+7",
+                                            "Jamaica",
+                                            "Asia/Beirut",
+                                            "Asia/Muscat",
+                                            "Asia/Chungking",
+                                            "America/Costa_Rica",
+                                            "Pacific/Pago_Pago",
+                                            "Africa/Nouakchott",
+                                            "Pacific/Majuro",
+                                            "Canada/Saskatchewan",
+                                            "Australia/West",
+                                            "America/Denver",
+                                            "Arctic/Longyearbyen",
+                                            "Africa/Lagos",
+                                            "America/Bogota",
+                                            "Africa/Asmera",
+                                            "Australia/Sydney",
+                                            "Eire",
+                                            "Asia/Tehran",
+                                            "Africa/Kinshasa",
+                                            "HST",
+                                            "America/Glace_Bay",
+                                            "Europe/Volgograd",
+                                            "Israel",
+                                            "America/Catamarca",
+                                            "Asia/Dacca",
+                                            "Asia/Anadyr",
+                                            "Asia/Colombo",
+                                            "America/Punta_Arenas",
+                                            "GB"
                                         ]
                                     }
                                 },
@@ -11581,6 +12767,89 @@
                     }
                 }
             },
+            "OsintStaging": {
+                "required": [
+                    "osint_type",
+                    "content",
+                    "source",
+                    "scan_history",
+                    "target_domain"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "discovered_date_humanized": {
+                        "title": "Discovered date humanized",
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "target_domain_name": {
+                        "title": "Target domain name",
+                        "type": "string",
+                        "readOnly": true,
+                        "minLength": 1
+                    },
+                    "scan_history_id": {
+                        "title": "Scan history id",
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "osint_type": {
+                        "title": "Osint type",
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                    },
+                    "content": {
+                        "title": "Content",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "source": {
+                        "title": "Source",
+                        "type": "string",
+                        "maxLength": 200,
+                        "minLength": 1
+                    },
+                    "confidence": {
+                        "title": "Confidence",
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": -2147483648
+                    },
+                    "metadata": {
+                        "title": "Metadata",
+                        "type": "object"
+                    },
+                    "status": {
+                        "title": "Status",
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "validated",
+                            "ignored"
+                        ]
+                    },
+                    "discovered_date": {
+                        "title": "Discovered date",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "scan_history": {
+                        "title": "Scan history",
+                        "type": "integer"
+                    },
+                    "target_domain": {
+                        "title": "Target domain",
+                        "type": "integer"
+                    }
+                }
+            },
             "Plugin": {
                 "required": [
                     "name",
@@ -11779,6 +13048,90 @@
                         "type": "string",
                         "format": "date-time",
                         "readOnly": true
+                    }
+                }
+            },
+            "SecretLeak": {
+                "required": [
+                    "tool_name",
+                    "secret_type",
+                    "source_url",
+                    "match_content",
+                    "scan_history"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "tool_name": {
+                        "title": "Tool name",
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                    },
+                    "secret_type": {
+                        "title": "Secret type",
+                        "type": "string",
+                        "maxLength": 200,
+                        "minLength": 1
+                    },
+                    "source_url": {
+                        "title": "Source url",
+                        "type": "string",
+                        "maxLength": 5000,
+                        "minLength": 1
+                    },
+                    "match_content": {
+                        "title": "Match content",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "status": {
+                        "title": "Status",
+                        "type": "string",
+                        "enum": [
+                            "unverified",
+                            "verified",
+                            "false_positive"
+                        ]
+                    },
+                    "discovered_date": {
+                        "title": "Discovered date",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "scan_history": {
+                        "title": "Scan history",
+                        "type": "integer"
+                    },
+                    "subdomain": {
+                        "title": "Subdomain",
+                        "type": "integer",
+                        "nullable": true
+                    }
+                }
+            },
+            "SOCConfiguration": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "title": "ID",
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "enable_live_log_streaming": {
+                        "title": "Enable live log streaming",
+                        "type": "boolean"
+                    },
+                    "log_retention_count": {
+                        "title": "Log retention count",
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": -2147483648
                     }
                 }
             },

@@ -1,8 +1,15 @@
 import apiClient from './client';
+import { paths } from '../types/api';
 
-export const triggerGptVulnerabilityReport = async (vulnerabilityId: number) => {
+type TriggerGptVulnerabilityReportResponse = paths['/mapi/tools/gpt_vulnerability_report/']['get']['responses']['200']['content']['application/json'];
+type TriggerAiInsightsResponse = paths['/mapi/apme/trigger/']['post']['responses']['201']['content']['application/json'];
+type GetAttackPathsResponse = paths['/mapi/apme/paths/']['get']['responses']['200']['content']['application/json'];
+type ReportStatusResponse = any;
+type CreateReportResponse = any;
+
+export const triggerGptVulnerabilityReport = async (vulnerabilityId: number): Promise<TriggerGptVulnerabilityReportResponse> => {
   const params = { id: vulnerabilityId };
-  const response = await apiClient.get('api/tools/gpt_vulnerability_report/', { params });
+  const response = await apiClient.get<TriggerGptVulnerabilityReportResponse>('/mapi/tools/gpt_vulnerability_report/', { params });
   return response.data;
 };
 
@@ -18,22 +25,24 @@ export const createScanReport = async (scanId: number, options: {
     ignore_info_vuln: options.ignoreInfoVuln ? 'True' : 'False',
     include_attack_surface_map: options.includeAttackSurfaceMap ? 'True' : 'False',
   };
-  const response = await apiClient.get(`scan/create_report/${scanId}`, { params });
+  // Note: This endpoint is not currently in the OpenAPI spec under mapi
+  const response = await apiClient.get(`/scan/create_report/${scanId}`, { params });
   return response.data;
 };
 
 export const getReportStatus = async (reportId: number) => {
-  const response = await apiClient.get(`scan/report/status/${reportId}`);
+  // Note: This endpoint is not currently in the OpenAPI spec under mapi
+  const response = await apiClient.get(`/scan/report/status/${reportId}`);
   return response.data;
 };
 
-export const triggerAiInsights = async (scanId: number) => {
-  const response = await apiClient.post('api/apme/trigger/', { scan_id: scanId });
+export const triggerAiInsights = async (scanId: number): Promise<TriggerAiInsightsResponse> => {
+  const response = await apiClient.post<TriggerAiInsightsResponse>('/mapi/apme/trigger/', { scan_id: scanId });
   return response.data;
 };
 
-export const getAttackPaths = async (scanId: number) => {
+export const getAttackPaths = async (scanId: number): Promise<GetAttackPathsResponse> => {
   const params = { scan_id: scanId };
-  const response = await apiClient.get('api/apme/paths/', { params });
+  const response = await apiClient.get<GetAttackPathsResponse>('/mapi/apme/paths/', { params });
   return response.data;
 };
