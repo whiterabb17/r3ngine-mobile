@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { LogOut, Server, Shield, Bell, Info } from 'lucide-react-native';
+import { LogOut, Server, Shield, Bell, Info, Activity, Database, Globe } from 'lucide-react-native';
 import { Theme } from '../../src/constants/Theme';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
@@ -45,6 +45,24 @@ export default function SettingsScreen() {
           <View style={styles.card}>
             <SettingRow icon={Server} label="Server URL" value={serverIp} />
             <SettingRow icon={Shield} label="Security" value="JWT Enabled" />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Infrastructure</Text>
+          <View style={styles.card}>
+            <SettingRow 
+              icon={Database} 
+              label="System Assets" 
+              value="Engines & Tools" 
+              onPress={() => router.push('/control' as any)} 
+            />
+            <SettingRow 
+              icon={Globe} 
+              label="Proxy Control" 
+              value="Traffic Routing" 
+              onPress={() => router.push('/system/proxies' as any)} 
+            />
           </View>
         </View>
 

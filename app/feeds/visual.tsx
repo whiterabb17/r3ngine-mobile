@@ -49,7 +49,7 @@ export default function VisualReconFeed() {
       setScreenshots(response.data.results || response.data || []);
     } catch (err) {
       console.error('Failed to fetch screenshots:', err);
-      TacticalHaptics.trigger('error');
+      TacticalHaptics.error();
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -62,12 +62,12 @@ export default function VisualReconFeed() {
 
   const onRefresh = () => {
     setRefreshing(true);
-    TacticalHaptics.trigger('soft');
+    TacticalHaptics.soft();
     fetchScreenshots();
   };
 
   const handleImagePress = (item: Screenshot) => {
-    TacticalHaptics.trigger('trigger');
+    TacticalHaptics.trigger();
     setSelectedImage(item);
   };
 
@@ -104,7 +104,9 @@ export default function VisualReconFeed() {
           title: 'VISUAL RECON', 
           headerStyle: { backgroundColor: Theme.colors.background }, 
           headerTintColor: '#fff',
-          headerTitleStyle: { fontFamily: 'Bangers', letterSpacing: 1 }
+          headerTitleStyle: {
+            fontFamily: 'Bangers',
+          },
         }} 
       />
 

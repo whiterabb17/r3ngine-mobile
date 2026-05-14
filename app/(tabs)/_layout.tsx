@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { LayoutDashboard, Shield, Settings, Activity } from 'lucide-react-native';
+import { LayoutDashboard, Shield, Settings, Activity, Wrench } from 'lucide-react-native';
 import { Theme } from '../../src/constants/Theme';
 
 export default function TabLayout() {
@@ -43,6 +43,13 @@ export default function TabLayout() {
         options={{
           title: 'Targets',
           tabBarIcon: ({ color }) => <Shield size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="tools"
+        options={{
+          title: 'Tools',
+          tabBarIcon: ({ color }) => <Wrench size={24} color={color} />,
         }}
       />
       <Tabs.Screen

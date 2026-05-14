@@ -209,11 +209,14 @@ export default function ScanDetailScreen() {
         )}
 
         {activeTab === 'SUMMARY' && data && (
-           <SummaryTab data={data} />
+           <SummaryTab data={data} scanId={Number(id)} />
         )}
         
         {activeTab === 'SUBDOMAINS' && data && (
-           <SubdomainsTab subdomains={data.subdomains} />
+           <SubdomainsTab 
+             subdomains={data.subdomains} 
+             onRefresh={fetchScanDetail}
+           />
         )}
 
         {activeTab === 'VULNERABILITIES' && data && (

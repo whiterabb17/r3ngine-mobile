@@ -14,13 +14,14 @@ import {
   Timer,
   FileText,
   X,
-  Camera
+  Camera,
+  Star
 } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { getMediaSource } from '../../api/client';
+import apiClient, { getMediaSource } from '../../api/client';
 import SubtaskModal from './SubtaskModal';
 
 interface Port {
@@ -50,14 +51,16 @@ interface Subdomain {
   low_count: number;
   info_count: number;
   content_length: number;
+  is_important: boolean;
   ip_addresses: IpAddress[];
 }
 
 interface SubdomainsTabProps {
   subdomains: Subdomain[];
+  onRefresh?: () => void;
 }
 
-export default function SubdomainsTab({ subdomains = [] }: SubdomainsTabProps) {
+export default function SubdomainsTab({ subdomains = [], onRefresh }: SubdomainsTabProps) {
   const [search, setSearch] = useState('');
   const [selectedScreenshot, setSelectedScreenshot] = useState<string | null>(null);
   const [subtaskModalVisible, setSubtaskModalVisible] = useState(false);
@@ -74,6 +77,17 @@ export default function SubdomainsTab({ subdomains = [] }: SubdomainsTabProps) {
       (s.origin_ip && s.origin_ip.includes(search))
     );
   }, [subdomains, search]);
+
+  const handleToggleImportant = async (subdomainId: number) => {
+    try {
+      const response = await apiClient.post('toggle/subdomain/important/', { subdomain_id: subdomainId });
+      if (response.data.status) {
+        onRefresh?.();
+      }
+    } catch (error) {
+      console.error('Failed to toggle important status', error);
+    }
+  };
 
   const getStatusColor = (status: number) => {
     if (status >= 200 && status < 300) return Theme.colors.success;
@@ -181,6 +195,16 @@ export default function SubdomainsTab({ subdomains = [] }: SubdomainsTabProps) {
             }}
           >
             <Zap size={16} color={Theme.colors.warning} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.actionBtn}
+            onPress={() => handleToggleImportant(item.id)}
+          >
+            <Star 
+              size={16} 
+              color={item.is_important ? Theme.colors.warning : Theme.colors.textMuted} 
+              fill={item.is_important ? Theme.colors.warning : 'transparent'} 
+            />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn}>
             <ExternalLink size={16} color={Theme.colors.textMuted} />

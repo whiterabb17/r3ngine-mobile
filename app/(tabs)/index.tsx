@@ -216,7 +216,7 @@ export default function DashboardScreen() {
           <View style={styles.headerRightContainer}>
             <TouchableOpacity
               style={styles.notificationIcon}
-              onPress={() => router.push('/notifications')}
+              onPress={() => router.push('/notifications' as any)}
             >
               <Bell size={22} color="#fff" />
               {unreadCount > 0 && (
@@ -884,13 +884,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 1,
   },
-  kpiTitle: {
+  kpiTitleTactical: {
     fontFamily: 'Bangers',
   },
-  sectionTitle: {
+  sectionTitleTactical: {
     fontFamily: 'Bangers',
   },
-  headerTitleText: {
+  headerTitleTextTactical: {
     fontFamily: 'Bangers',
   },
   intelligenceGrid: {

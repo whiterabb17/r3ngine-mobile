@@ -12,19 +12,87 @@ import {
   Cpu,
   Timer,
   Search,
-  FileText
+  FileText,
+  Brain,
+  Download,
+  FileDown,
+  ChevronRight
 } from 'lucide-react-native';
+import { Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { createScanReport, getReportStatus, triggerAiInsights } from '../../api/reports';
+import { useRouter } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
 
 interface SummaryTabProps {
   data: any;
+  scanId: number;
 }
 
-export default function SummaryTab({ data }: SummaryTabProps) {
+export default function SummaryTab({ data, scanId }: SummaryTabProps) {
   const { width } = useWindowDimensions();
+  const router = useRouter();
+  const [isExporting, setIsExporting] = React.useState(false);
   const cardWidth = (width - Theme.spacing.md * 3) / 2;
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const response = await createScanReport(scanId);
+      if (response.status && response.report_id) {
+        pollReportStatus(response.report_id);
+      } else {
+        throw new Error('Failed to initiate report generation');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to generate report');
+      setIsExporting(false);
+    }
+  };
+
+  const pollReportStatus = async (reportId: number) => {
+    try {
+      const statusResponse = await getReportStatus(reportId);
+      if (statusResponse.status === 1) { // Completed
+        setIsExporting(false);
+        Alert.alert(
+          'Report Ready',
+          'Your SOC report has been generated. You can download it now.',
+          [
+            { text: 'Later' },
+            { text: 'Download', onPress: () => {/* Open URL */} }
+          ]
+        );
+      } else if (statusResponse.status === -2) { // Failed
+        throw new Error('Report generation failed');
+      } else {
+        // Poll again in 3 seconds
+        setTimeout(() => pollReportStatus(reportId), 3000);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to generate report');
+      setIsExporting(false);
+    }
+  };
+
+  const handleAiInsights = async () => {
+    try {
+      const response = await triggerAiInsights(scanId);
+      if (response.status === 'triggered') {
+        Alert.alert(
+          'AI Task Triggered',
+          'AI Strategic Insights modeling has started. This may take a few minutes.',
+          [
+            { text: 'View Explorer', onPress: () => router.push('/intelligence/attack-paths' as any) },
+            { text: 'Wait Here', style: 'cancel' }
+          ]
+        );
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to trigger AI insights');
+    }
+  };
 
   const KpiCard = ({ title, value, subtitle, color, icon: Icon }: any) => (
     <View style={[styles.kpiCard, { width: cardWidth }]}>
@@ -146,6 +214,48 @@ export default function SummaryTab({ data }: SummaryTabProps) {
           <InfoRow label="OSINT RESULTS" value={data.osint_count} />
         </View>
       </View>
+
+      {/* Quick Actions */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Activity size={16} color={Theme.colors.primary} />
+          <Text style={styles.sectionTitle}>QUICK ACTIONS</Text>
+        </View>
+        <View style={styles.sectionContent}>
+          <TouchableOpacity 
+            style={styles.actionButton} 
+            onPress={handleExport}
+            disabled={isExporting}
+          >
+            <View style={styles.actionIconBox}>
+              {isExporting ? (
+                <ActivityIndicator size="small" color={Theme.colors.primary} />
+              ) : (
+                <FileDown size={20} color={Theme.colors.primary} />
+              )}
+            </View>
+            <View style={styles.actionTextContent}>
+              <Text style={styles.actionTitle}>GENERATE SOC REPORT</Text>
+              <Text style={styles.actionSubtitle}>PDF/HTML tactical export</Text>
+            </View>
+            <ChevronRight size={16} color={Theme.colors.textMuted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={handleAiInsights}
+          >
+            <View style={[styles.actionIconBox, { backgroundColor: Theme.colors.secondary + '15' }]}>
+              <Brain size={20} color={Theme.colors.secondary} />
+            </View>
+            <View style={styles.actionTextContent}>
+              <Text style={[styles.actionTitle, { color: Theme.colors.secondary }]}>AI STRATEGIC INSIGHTS</Text>
+              <Text style={styles.actionSubtitle}>GPT analysis of attack surface</Text>
+            </View>
+            <ChevronRight size={16} color={Theme.colors.textMuted} />
+          </TouchableOpacity>
+        </View>
+      </View>
     </ScrollView>
   );
 }
@@ -157,6 +267,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: Theme.spacing.md,
+    paddingBottom: 40,
   },
   grid: {
     flexDirection: 'row',
@@ -211,7 +322,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: Theme.spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Theme.colors.border,
+    borderBottomColor: Theme.colors.border + '33',
     gap: 8,
     backgroundColor: Theme.colors.surface,
   },
@@ -275,5 +386,40 @@ const styles = StyleSheet.create({
   barFill: {
     height: '100%',
     borderRadius: 3,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Theme.spacing.md,
+    backgroundColor: Theme.colors.background,
+    borderRadius: 8,
+    marginBottom: Theme.spacing.md,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+  },
+  actionIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: Theme.colors.primary + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  actionTextContent: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  actionTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: Theme.colors.primary,
+    fontFamily: 'Bangers',
+    letterSpacing: 0.5,
+  },
+  actionSubtitle: {
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+    marginTop: 2,
   }
 });

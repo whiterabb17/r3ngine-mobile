@@ -48,7 +48,7 @@ export default function SystemHealthDashboard() {
     } catch (err) {
       console.error('Failed to fetch health:', err);
       setError('Tactical link to backend severed.');
-      TacticalHaptics.trigger('error');
+      TacticalHaptics.error();
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -63,7 +63,7 @@ export default function SystemHealthDashboard() {
 
   const onRefresh = () => {
     setRefreshing(true);
-    TacticalHaptics.trigger('soft');
+    TacticalHaptics.soft();
     fetchHealth();
   };
 
@@ -98,7 +98,7 @@ export default function SystemHealthDashboard() {
           title: 'SYSTEM HEALTH', 
           headerStyle: { backgroundColor: Theme.colors.background }, 
           headerTintColor: '#fff',
-          headerTitleStyle: { fontFamily: 'Bangers', letterSpacing: 1 }
+          headerTitleStyle: { fontFamily: 'Bangers' }
         }} 
       />
 

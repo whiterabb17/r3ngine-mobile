@@ -83,7 +83,7 @@ export const getMediaSource = (path: string) => {
   console.log(`[getMediaSource] Constructed URI: ${uri}`);
   return {
     uri,
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    headers: token ? { Authorization: `Bearer ${token}` } : ({} as Record<string, string>),
   };
 };
 
