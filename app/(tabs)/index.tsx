@@ -404,6 +404,19 @@ export default function DashboardScreen() {
             <Text style={styles.intelLabel}>Visual Recon</Text>
             <Text style={[styles.intelCount, { color: Theme.colors.info }]}>FEED</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.intelCard}
+            onPress={() => router.push('/intelligence/staging' as any)}
+          >
+            <View style={[styles.intelIconBox, { backgroundColor: Theme.colors.primary + '22' }]}>
+              <Inbox size={20} color={Theme.colors.primary} />
+            </View>
+            <Text style={styles.intelLabel}>OSINT Staging</Text>
+            <Text style={[styles.intelCount, { color: Theme.colors.primary }]}>REVIEW</Text>
+          </TouchableOpacity>
+
+          <View style={{ flex: 1, backgroundColor: 'transparent' }} />
         </View>
 
         {/* Most Vulnerable Targets */}
