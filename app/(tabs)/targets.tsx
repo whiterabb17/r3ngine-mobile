@@ -33,6 +33,8 @@ interface TargetItem {
   insert_date: string;
 }
 
+import OrgPicker from '../../src/components/Target/OrgPicker';
+
 export default function TargetsScreen() {
   const router = useRouter();
   const { currentProject } = useProjectStore();
@@ -42,6 +44,7 @@ export default function TargetsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
   
   // Modals state
   const [addModalVisible, setAddModalVisible] = useState(false);
@@ -55,7 +58,11 @@ export default function TargetsScreen() {
   const fetchTargets = useCallback(async () => {
     try {
       setError(null);
-      const response = await apiClient.get('listTargets/');
+      let url = 'listTargets/';
+      if (selectedOrgId) {
+        url += `?organization_id=${selectedOrgId}`;
+      }
+      const response = await apiClient.get(url);
       const data = Array.isArray(response.data) ? response.data : (response.data.results || []);
       setTargets(data);
     } catch (err: any) {
@@ -65,7 +72,7 @@ export default function TargetsScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [selectedOrgId]);
 
   useEffect(() => {
     fetchTargets();
@@ -194,6 +201,11 @@ export default function TargetsScreen() {
           </TouchableOpacity>
         )}
       </View>
+
+      <OrgPicker 
+        selectedOrgId={selectedOrgId} 
+        onOrgChange={setSelectedOrgId} 
+      />
 
       {error && (
         <View style={styles.errorContainer}>

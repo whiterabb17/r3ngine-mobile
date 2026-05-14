@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { LogOut, Server, Shield, Bell, Info, Activity, Database, Globe } from 'lucide-react-native';
+import { LogOut, Server, Shield, Bell, Info, Activity, Database, Globe, Clock } from 'lucide-react-native';
 import { Theme } from '../../src/constants/Theme';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
@@ -49,6 +49,18 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Tactical Feeds</Text>
+          <View style={styles.card}>
+            <SettingRow 
+              icon={Activity} 
+              label="ReconX Feed" 
+              value="Live Discovery" 
+              onPress={() => router.push('/feeds/monitoring' as any)} 
+            />
+          </View>
+        </View>
+
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Infrastructure</Text>
           <View style={styles.card}>
             <SettingRow 
@@ -62,6 +74,18 @@ export default function SettingsScreen() {
               label="Proxy Control" 
               value="Traffic Routing" 
               onPress={() => router.push('/system/proxies' as any)} 
+            />
+            <SettingRow 
+              icon={Shield} 
+              label="Monitoring Hub" 
+              value="Continuous Discovery" 
+              onPress={() => router.push('/system/monitoring-control' as any)} 
+            />
+            <SettingRow 
+              icon={Clock} 
+              label="Scan Schedules" 
+              value="Automation Pipeline" 
+              onPress={() => router.push('/system/schedules' as any)} 
             />
           </View>
         </View>

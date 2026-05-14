@@ -12,7 +12,8 @@ import {
   Zap,
   Target,
   AlertTriangle,
-  Square
+  Square,
+  Folder
 } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
@@ -23,8 +24,9 @@ import SummaryTab from '../../src/components/Scan/SummaryTab';
 import SubdomainsTab from '../../src/components/Scan/SubdomainsTab';
 import VulnerabilitiesTab from '../../src/components/Scan/VulnerabilitiesTab';
 import TimelineTab from '../../src/components/Scan/TimelineTab';
+import DirectoriesTab from '../../src/components/Scan/DirectoriesTab';
 
-type TabType = 'SUMMARY' | 'SUBDOMAINS' | 'VULNERABILITIES' | 'TIMELINE';
+type TabType = 'SUMMARY' | 'SUBDOMAINS' | 'DIRECTORIES' | 'VULNERABILITIES' | 'TIMELINE';
 
 export default function ScanDetailScreen() {
   const { id, slug } = useLocalSearchParams();
@@ -176,7 +178,7 @@ export default function ScanDetailScreen() {
 
       {/* Tab Bar */}
       <View style={styles.tabBar}>
-        {(['SUMMARY', 'SUBDOMAINS', 'VULNERABILITIES', 'TIMELINE'] as TabType[]).map((tab) => (
+        {(['SUMMARY', 'SUBDOMAINS', 'DIRECTORIES', 'VULNERABILITIES', 'TIMELINE'] as TabType[]).map((tab) => (
           <TouchableOpacity 
             key={tab}
             onPress={() => setActiveTab(tab)}
@@ -184,6 +186,7 @@ export default function ScanDetailScreen() {
           >
             {tab === 'SUMMARY' && <Activity size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'SUBDOMAINS' && <Globe size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'DIRECTORIES' && <Folder size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'VULNERABILITIES' && <ShieldAlert size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'TIMELINE' && <History size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             <Text style={[styles.tabLabel, activeTab === tab && styles.tabLabelActive]}>
@@ -217,6 +220,10 @@ export default function ScanDetailScreen() {
              subdomains={data.subdomains} 
              onRefresh={fetchScanDetail}
            />
+        )}
+
+        {activeTab === 'DIRECTORIES' && (
+           <DirectoriesTab scanId={Number(id)} />
         )}
 
         {activeTab === 'VULNERABILITIES' && data && (

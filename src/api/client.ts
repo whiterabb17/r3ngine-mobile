@@ -24,9 +24,15 @@ apiClient.interceptors.request.use(async (config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
+  // Security: Mask token in logs and only log essential info
+  const logHeaders = { ...config.headers };
+  if (logHeaders.Authorization) {
+    logHeaders.Authorization = 'Bearer [MASKED]';
+  }
+
   console.log(`[API Request] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`, {
-    headers: config.headers,
-    data: config.data
+    headers: logHeaders,
+    data: config.data ? 'Data payload present' : 'No data'
   });
 
   return config;
@@ -34,14 +40,15 @@ apiClient.interceptors.request.use(async (config) => {
 
 apiClient.interceptors.response.use(
   (response) => {
-    console.log(`[API Response] ${response.status} ${response.config.url}`, response.data);
+    // Only log success status to avoid data exposure
+    console.log(`[API Response] ${response.status} ${response.config.url}`);
     return response;
   },
   async (error) => {
     if (error.response) {
-      console.log(`[API Error Response] ${error.response.status} ${error.config.url}`, error.response.data);
+      console.log(`[API Error Response] ${error.response.status} ${error.config.url}`);
     } else if (error.request) {
-      console.log(`[API Error Request] No response received for ${error.config.url}`, error.request);
+      console.log(`[API Error Request] No response received for ${error.config.url}`);
     } else {
       console.log(`[API Error Message] ${error.message}`);
     }
