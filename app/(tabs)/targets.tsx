@@ -58,9 +58,9 @@ export default function TargetsScreen() {
   const fetchTargets = useCallback(async () => {
     try {
       setError(null);
-      let url = 'listTargets/';
+      let url = `/mapi/listTargets/?slug=${currentProject}`;
       if (selectedOrgId) {
-        url += `?organization_id=${selectedOrgId}`;
+        url += `&organization_id=${selectedOrgId}`;
       }
       const response = await apiClient.get(url);
       const data = Array.isArray(response.data) ? response.data : (response.data.results || []);
@@ -72,7 +72,7 @@ export default function TargetsScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [selectedOrgId]);
+  }, [selectedOrgId, currentProject]);
 
   useEffect(() => {
     fetchTargets();
@@ -95,7 +95,7 @@ export default function TargetsScreen() {
 
     setIsAdding(true);
     try {
-      const response = await apiClient.post('add/target/', {
+      const response = await apiClient.post('/mapi/add/target/', {
         domain_name: newTargetName,
         project_slug: currentProject
       });

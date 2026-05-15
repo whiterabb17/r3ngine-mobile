@@ -32,7 +32,7 @@ export default function OrganizationDetailScreen() {
   const fetchDetail = async () => {
     try {
       setError(null);
-      const response = await apiClient.get(`/api/queryTargetsInOrganization/?organization_id=${id}`);
+      const response = await apiClient.get(`/mapi/queryTargetsInOrganization/?organization_id=${id}`);
       // The API returns {'organization': [data], 'domains': [targets]}
       setOrg(response.data.organization[0]);
       setTargets(response.data.domains || []);

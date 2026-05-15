@@ -18,7 +18,7 @@ export default function EngineEditorScreen() {
 
   const fetchEngineDetails = async () => {
     try {
-      const response = await apiClient.get(`action/engine/get/?engine_id=${id}`);
+      const response = await apiClient.get(`/mapi/action/engine/get/?engine_id=${id}`);
       if (response.data.status) {
         setEngineName(response.data.engine_name);
         setYamlConfig(response.data.yaml_configuration);
@@ -45,7 +45,7 @@ export default function EngineEditorScreen() {
     TacticalHaptics.success();
     
     try {
-      const response = await apiClient.post('action/engine/update/', {
+      const response = await apiClient.post('/mapi/action/engine/update/', {
         engine_id: id,
         engine_name: engineName,
         yaml_configuration: yamlConfig

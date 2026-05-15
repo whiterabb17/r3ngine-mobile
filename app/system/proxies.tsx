@@ -29,7 +29,7 @@ export default function ProxySettingsScreen() {
   const fetchSettings = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get('rengine/proxy-settings/');
+      const response = await apiClient.get('/mapi/rengine/proxy-settings/');
       setSettings(response.data);
     } catch (err) {
       console.error('Failed to fetch proxy settings:', err);
@@ -47,7 +47,7 @@ export default function ProxySettingsScreen() {
     try {
       setSaving(true);
       TacticalHaptics.soft();
-      await apiClient.post('rengine/proxy-settings/', settings);
+      await apiClient.post('/mapi/rengine/proxy-settings/', settings);
       TacticalHaptics.success();
       Alert.alert('Success', 'Proxy settings updated successfully.');
     } catch (err) {
@@ -63,7 +63,7 @@ export default function ProxySettingsScreen() {
     try {
       setFetching(true);
       TacticalHaptics.trigger();
-      const response = await apiClient.post('rengine/fetch-proxies/');
+      const response = await apiClient.post('/mapi/rengine/fetch-proxies/');
       if (response.data.status) {
         Alert.alert(
           'Task Started', 

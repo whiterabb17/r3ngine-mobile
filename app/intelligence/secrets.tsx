@@ -17,7 +17,7 @@ export default function SecretLeakExplorer() {
   const fetchLeaks = useCallback(async () => {
     if (!currentProject) return;
     try {
-      const response = await apiClient.get(`secretLeaks/?project=${currentProject}`);
+      const response = await apiClient.get(`/mapi/secretLeaks/?project=${currentProject}`);
       const data = response.data.results || response.data;
       setLeaks(data);
     } catch (error) {

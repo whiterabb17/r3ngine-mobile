@@ -20,7 +20,7 @@ export default function SettingsScreen() {
 
   const fetchSocSettings = async () => {
     try {
-      const response = await apiClient.get('soc-settings/');
+      const response = await apiClient.get('/mapi/soc-settings/');
       setSocEnabled(response.data.enable_live_log_streaming);
     } catch (err) {
       console.error('Failed to fetch SOC settings:', err);
@@ -33,7 +33,7 @@ export default function SettingsScreen() {
     const newValue = !socEnabled;
     setSocEnabled(newValue); // Optimistic update
     try {
-      await apiClient.post('soc-settings/toggle_streaming/');
+      await apiClient.post('/mapi/soc-settings/toggle_streaming/');
     } catch (err) {
       console.error('Failed to toggle SOC streaming:', err);
       setSocEnabled(!newValue); // Revert

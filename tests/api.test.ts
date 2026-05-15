@@ -101,6 +101,34 @@ describe('Mobile API (/mapi/) Integration Tests', () => {
     });
   });
 
+  describe('Dashboard & Projects', () => {
+    it('should fetch projects correctly', async () => {
+      mock.onGet('/mapi/projects/').reply(200, [
+        { name: 'Default Project', slug: 'default' }
+      ]);
+      
+      const response = await apiClient.get('/mapi/projects/');
+      expect(response.status).toBe(200);
+      expect(response.data).toHaveLength(1);
+      expect(response.data[0].slug).toBe('default');
+    });
+
+    it('should fetch dashboard data correctly', async () => {
+      mock.onGet('/mapi/dashboard/default/').reply(200, {
+        kpis: {
+          domain_count: 10,
+          subdomain_count: 50,
+          endpoint_count: 100,
+          vulnerability_count: 5
+        }
+      });
+      
+      const response = await apiClient.get('/mapi/dashboard/default/');
+      expect(response.status).toBe(200);
+      expect(response.data.kpis.domain_count).toBe(10);
+    });
+  });
+
   describe('Error Handling', () => {
     it('should handle unauthorized access', async () => {
       mock.onGet('/mapi/scans/configuration/').reply(401, { detail: 'Unauthorized' });

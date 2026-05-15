@@ -37,7 +37,7 @@ export default function SystemHealthDashboard() {
 
   const fetchHealth = async () => {
     try {
-      const response = await apiClient.get('/api/system/health/');
+      const response = await apiClient.get('/mapi/system/health/');
       setData(response.data);
       setError(null);
       

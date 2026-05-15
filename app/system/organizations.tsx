@@ -25,7 +25,7 @@ export default function OrganizationsScreen() {
   const fetchOrganizations = async () => {
     try {
       setError(null);
-      const response = await apiClient.get('/api/listOrganizations/');
+      const response = await apiClient.get('/mapi/listOrganizations/');
       setOrganizations(response.data.organizations || []);
     } catch (err) {
       console.error('Failed to fetch organizations:', err);

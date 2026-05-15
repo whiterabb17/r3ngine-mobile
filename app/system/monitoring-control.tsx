@@ -12,10 +12,10 @@ export default function MonitoringControlScreen() {
 
   const fetchTargets = async () => {
     try {
-      const response = await apiClient.get('projects/');
+      const response = await apiClient.get('/mapi/projects/');
       // Projects usually contain targets, or we can fetch targets directly if endpoint exists
       // Let's assume listTargets exists based on grep
-      const targetsResponse = await apiClient.get('listTargets/');
+      const targetsResponse = await apiClient.get('/mapi/listTargets/');
       setTargets(targetsResponse.data.results || targetsResponse.data);
     } catch (err) {
       console.error('Failed to fetch targets:', err);
@@ -31,7 +31,7 @@ export default function MonitoringControlScreen() {
   const toggleMonitoring = async (targetId: number, currentStatus: boolean) => {
     try {
       TacticalHaptics.soft();
-      const response = await apiClient.post('toggle/monitoring/', { domain_id: targetId });
+      const response = await apiClient.post('/mapi/toggle/monitoring/', { domain_id: targetId });
       
       if (response.data.status) {
         setTargets(prev => prev.map(t => 

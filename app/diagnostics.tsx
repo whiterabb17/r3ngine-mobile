@@ -21,7 +21,7 @@ export default function Diagnostics() {
     try {
       const baseUrl = serverIp ? (serverIp.includes('://') ? serverIp : `http://${serverIp}`) : '';
       if (!baseUrl) throw new Error('No IP');
-      await axios.get(`${baseUrl}/api/auth/token/refresh/`, { timeout: 5000 });
+      await axios.get(`${baseUrl}/mapi/projects/`, { timeout: 5000 });
       setPingStatus('online');
     } catch (e) {
       setPingStatus('offline');

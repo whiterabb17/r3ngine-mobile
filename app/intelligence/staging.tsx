@@ -21,7 +21,7 @@ export default function OsintStagingScreen() {
   const fetchStagingItems = useCallback(async () => {
     try {
       setError(null);
-      const response = await apiClient.get('osintStaging/');
+      const response = await apiClient.get('/mapi/osintStaging/');
       setItems(response.data);
     } catch (err: any) {
       console.error('Error fetching OSINT staging:', err);
@@ -51,7 +51,7 @@ export default function OsintStagingScreen() {
   const handlePromote = async (id: number) => {
     try {
       TacticalHaptics.impact();
-      await apiClient.post(`osintStaging/${id}/promote/`);
+      await apiClient.post(`/mapi/osintStaging/${id}/promote/`);
       setItems(prev => prev.filter(item => item.id !== id));
       TacticalHaptics.success();
     } catch (err) {
@@ -62,7 +62,7 @@ export default function OsintStagingScreen() {
   const handleDiscard = async (id: number) => {
     try {
       TacticalHaptics.impact();
-      await apiClient.post(`osintStaging/${id}/discard/`);
+      await apiClient.post(`/mapi/osintStaging/${id}/discard/`);
       setItems(prev => prev.filter(item => item.id !== id));
     } catch (err) {
       Alert.alert('Discard Failed', 'Failed to remove staging item.');
@@ -80,7 +80,7 @@ export default function OsintStagingScreen() {
           onPress: async () => {
             try {
               setLoading(true);
-              await apiClient.post('osintStaging/bulk_promote/', { ids: selectedIds });
+              await apiClient.post('/mapi/osintStaging/bulk_promote/', { ids: selectedIds });
               setItems(prev => prev.filter(item => !selectedIds.includes(item.id)));
               setSelectedIds([]);
               TacticalHaptics.success();
@@ -107,7 +107,7 @@ export default function OsintStagingScreen() {
           onPress: async () => {
             try {
               setLoading(true);
-              await apiClient.post('osintStaging/bulk_discard/', { ids: selectedIds });
+              await apiClient.post('/mapi/osintStaging/bulk_discard/', { ids: selectedIds });
               setItems(prev => prev.filter(item => !selectedIds.includes(item.id)));
               setSelectedIds([]);
               TacticalHaptics.impact();

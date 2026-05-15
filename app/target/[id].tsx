@@ -52,7 +52,7 @@ export default function TargetDetailScreen() {
       setError(null);
       
       // Fetch summary
-      const summaryRes = await apiClient.get(`target-summary/${currentProject}/${id}/`);
+      const summaryRes = await apiClient.get(`/mapi/target-summary/${currentProject}/${id}/`);
       setSummaryData(summaryRes.data);
 
       // We'll fetch full lists only when tabs are switched to save resources
@@ -70,15 +70,15 @@ export default function TargetDetailScreen() {
     if (!id) return;
     try {
       if (tab === 'SUBDOMAINS' && subdomains.length === 0) {
-        const res = await apiClient.get(`querySubdomains/?target_id=${id}`);
+        const res = await apiClient.get(`/mapi/querySubdomains/?target_id=${id}`);
         setSubdomains(res.data.subdomains || []);
       } else if (tab === 'VULNERABILITIES' && vulnerabilities.length === 0) {
-        const res = await apiClient.get(`listVulnerability/?target_id=${id}`);
+        const res = await apiClient.get(`/mapi/listVulnerability/?target_id=${id}`);
         const data = Array.isArray(res.data) ? res.data : (res.data.results || []);
         setVulnerabilities(data);
       } else if (tab === 'NOTES' && notes.length === 0) {
         setLoadingNotes(true);
-        const res = await apiClient.get(`listTodoNotes/?target_id=${id}`);
+        const res = await apiClient.get(`/mapi/listTodoNotes/?target_id=${id}`);
         setNotes(res.data.notes || []);
         setLoadingNotes(false);
       }
@@ -220,15 +220,15 @@ export default function TargetDetailScreen() {
                   key={note.id} 
                   note={note} 
                   onToggleStatus={async (nid) => {
-                    await apiClient.post('toggle/note/status/', { id: nid });
+                    await apiClient.post('/mapi/toggle/note/status/', { id: nid });
                     setNotes(prev => prev.map(n => n.id === nid ? { ...n, is_done: !n.is_done } : n));
                   }}
                   onToggleImportance={async (nid) => {
-                    await apiClient.post('toggle/note/importance/', { id: nid });
+                    await apiClient.post('/mapi/toggle/note/importance/', { id: nid });
                     setNotes(prev => prev.map(n => n.id === nid ? { ...n, is_important: !n.is_important } : n));
                   }}
                   onDelete={async (nid) => {
-                    await apiClient.post('action/note/delete/', { id: nid });
+                    await apiClient.post('/mapi/action/note/delete/', { id: nid });
                     setNotes(prev => prev.filter(n => n.id !== nid));
                   }}
                 />

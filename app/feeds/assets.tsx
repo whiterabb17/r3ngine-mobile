@@ -38,7 +38,7 @@ export default function GlobalAssetFeed() {
   const fetchAssets = useCallback(async () => {
     if (!currentProject) return;
     try {
-      const response = await apiClient.get(`listSubdomains/?project=${currentProject}`);
+      const response = await apiClient.get(`/mapi/listDatatableSubdomain/?project=${currentProject}`);
       const data = response.data.results || response.data;
       setAssets(data);
     } catch (error) {

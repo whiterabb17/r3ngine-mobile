@@ -21,7 +21,7 @@ export default function EngineListScreen() {
 
   const fetchEngines = async () => {
     try {
-      const response = await apiClient.get('listEngines/');
+      const response = await apiClient.get('/mapi/listEngines/');
       setEngines(response.data.engines || []);
     } catch (err) {
       console.error('Failed to fetch engines:', err);

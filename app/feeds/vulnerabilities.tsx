@@ -31,7 +31,7 @@ export default function GlobalVulnerabilityFeed() {
   const fetchVulns = useCallback(async () => {
     if (!currentProject) return;
     try {
-      const response = await apiClient.get(`listVulnerability/?project=${currentProject}`);
+      const response = await apiClient.get(`/mapi/listVulnerability/?project=${currentProject}`);
       const data = Array.isArray(response.data) ? response.data : (response.data.results || []);
       setVulns(data);
     } catch (error) {

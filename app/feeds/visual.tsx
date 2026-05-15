@@ -45,7 +45,7 @@ export default function VisualReconFeed() {
       const params: any = {};
       if (currentProject) params.project = currentProject;
       
-      const response = await apiClient.get('screenshots/', { params });
+      const response = await apiClient.get('/mapi/screenshots/', { params });
       setScreenshots(response.data.results || response.data || []);
     } catch (err) {
       console.error('Failed to fetch screenshots:', err);

@@ -71,6 +71,19 @@ export default function AdvancedOptions({ data, onChange }: AdvancedOptionsProps
               onChangeText={(text) => onChange('startingPointPath', text)}
             />
           </View>
+          <View style={[styles.inputGroup, { flex: 1 }]}>
+            <View style={styles.labelRow}>
+              <ShieldAlert size={14} color={Theme.colors.warning} />
+              <Text style={styles.label}>Exclude Paths</Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              placeholder="/api/v1/*"
+              placeholderTextColor={Theme.colors.textMuted}
+              value={data.excludedPaths}
+              onChangeText={(text) => onChange('excludedPaths', text)}
+            />
+          </View>
         </View>
 
         {/* Toggles */}

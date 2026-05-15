@@ -101,10 +101,24 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
   const handleInitiate = async () => {
     setSubmitting(true);
     try {
+      // Sanitize multi-line inputs into arrays for backend parity
+      const sanitizedConfig = {
+        ...advancedConfig,
+        importSubdomainTextArea: advancedConfig.importSubdomainTextArea
+          ? advancedConfig.importSubdomainTextArea.split('\n').map(s => s.trim()).filter(s => s !== '')
+          : [],
+        outOfScopeSubdomainTextarea: advancedConfig.outOfScopeSubdomainTextarea
+          ? advancedConfig.outOfScopeSubdomainTextarea.split('\n').map(s => s.trim()).filter(s => s !== '')
+          : [],
+        excludedPaths: advancedConfig.excludedPaths
+          ? advancedConfig.excludedPaths.split('\n').map(s => s.trim()).filter(s => s !== '')
+          : [],
+      };
+
       const payload = {
         engine_id: selectedEngineId,
         domain_id: targetId,
-        ...advancedConfig,
+        ...sanitizedConfig,
       };
 
       // Falling back to any because schema content is missing for initiate/scan

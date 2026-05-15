@@ -38,7 +38,7 @@ export default function StressDashboardScreen() {
 
   const fetchTelemetry = async (isFirstLoad = false) => {
     try {
-      const response = await apiClient.get(`/api/stress-testing/${id}/`);
+      const response = await apiClient.get(`/mapi/stress-testing/${id}/`);
       if (response.data.status) {
         const results = response.data.results || [];
         setTelemetry(results);

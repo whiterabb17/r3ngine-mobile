@@ -14,7 +14,7 @@ export default function MonitoringFeedScreen() {
 
   const fetchDiscoveries = async () => {
     try {
-      const response = await apiClient.get('monitoring/');
+      const response = await apiClient.get('/mapi/monitoring/');
       // Handling potential pagination or direct list
       const data = response.data.results || response.data;
       setDiscoveries(data);

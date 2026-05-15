@@ -91,7 +91,7 @@ export default function DashboardScreen() {
   const fetchDashboard = useCallback(async (slug: string) => {
     try {
       setError(null);
-      const response = await apiClient.get(`dashboard/${slug}/`);
+      const response = await apiClient.get(`/mapi/dashboard/${slug}/`);
       setKpis(response.data.kpis);
       setVulnerabilities(response.data.vulnerability_feed || []);
       setTechnologies(response.data.most_used_tech || []);
@@ -110,7 +110,7 @@ export default function DashboardScreen() {
   const fetchProjects = useCallback(async () => {
     try {
       setError(null);
-      const response = await apiClient.get('projects/');
+      const response = await apiClient.get('/mapi/projects/');
       const projectList = (response.data && Array.isArray(response.data))
         ? response.data
         : (response.data?.results || []);

@@ -23,7 +23,7 @@ export default function ReconNotesScreen() {
   const fetchNotes = useCallback(async () => {
     if (!currentProject) return;
     try {
-      const response = await apiClient.get(`listTodoNotes/?project=${currentProject}`);
+      const response = await apiClient.get(`/mapi/listTodoNotes/?project=${currentProject}`);
       setNotes(response.data.notes || []);
     } catch (error) {
       console.error('Failed to fetch recon notes', error);
@@ -39,7 +39,7 @@ export default function ReconNotesScreen() {
 
   const handleToggleStatus = async (id: number) => {
     try {
-      const response = await apiClient.post('toggle/note/status/', { id });
+      const response = await apiClient.post('/mapi/toggle/note/status/', { id });
       if (response.data.status) {
         setNotes(prev => prev.map(note => 
           note.id === id ? { ...note, is_done: response.data.is_done } : note
@@ -53,7 +53,7 @@ export default function ReconNotesScreen() {
 
   const handleToggleImportance = async (id: number) => {
     try {
-      const response = await apiClient.post('toggle/note/importance/', { id });
+      const response = await apiClient.post('/mapi/toggle/note/importance/', { id });
       if (response.data.status) {
         setNotes(prev => prev.map(note => 
           note.id === id ? { ...note, is_important: response.data.is_important } : note
@@ -76,7 +76,7 @@ export default function ReconNotesScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              const response = await apiClient.post('action/note/delete/', { id });
+              const response = await apiClient.post('/mapi/action/note/delete/', { id });
               if (response.data.status) {
                 setNotes(prev => prev.filter(note => note.id !== id));
               }
@@ -98,7 +98,7 @@ export default function ReconNotesScreen() {
     
     setIsSubmitting(true);
     try {
-      const response = await apiClient.post('add/recon_note/', {
+      const response = await apiClient.post('/mapi/add/recon_note/', {
         title: newTitle,
         description: newDescription,
         project: currentProject

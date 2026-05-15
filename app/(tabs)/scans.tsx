@@ -33,9 +33,9 @@ export default function ScansScreen() {
     try {
       setLoading(true);
       setError(null);
-      let url = 'listScans/';
+      let url = `/mapi/listScans/?project=${currentProject}`;
       if (targetId) {
-        url += `?target_id=${targetId}`;
+        url += `&target_id=${targetId}`;
       }
       const response = await apiClient.get(url);
       const data = Array.isArray(response.data) ? response.data : (response.data.results || []);
@@ -51,7 +51,7 @@ export default function ScansScreen() {
 
   useEffect(() => {
     fetchScans();
-  }, [targetId]);
+  }, [targetId, currentProject]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -69,7 +69,7 @@ export default function ScansScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              const response = await apiClient.post('action/stop/scan/', { scan_ids: [scanId] });
+              const response = await apiClient.post('/mapi/action/stop/scan/', { scan_ids: [scanId] });
               if (response.data && response.data.status) {
                 Alert.alert("Success", "Scan stop request sent.");
                 fetchScans();

@@ -29,7 +29,7 @@ export default function EndpointExplorer() {
   const fetchEndpoints = useCallback(async () => {
     if (!currentProject) return;
     try {
-      const response = await apiClient.get(`listEndpoints/?project=${currentProject}`);
+      const response = await apiClient.get(`/mapi/listEndpoints/?project=${currentProject}`);
       const data = response.data.results || response.data;
       setEndpoints(data);
     } catch (error) {

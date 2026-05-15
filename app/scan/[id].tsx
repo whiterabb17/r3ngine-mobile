@@ -46,7 +46,7 @@ export default function ScanDetailScreen() {
     if (!id || !slug) return;
     try {
       setError(null);
-      const response = await apiClient.get(`scan-summary/${slug}/${id}/`);
+      const response = await apiClient.get(`/mapi/scan-summary/${slug}/${id}/`);
       setData(response.data);
     } catch (err: any) {
       console.error('Error fetching scan detail:', err);
@@ -77,7 +77,7 @@ export default function ScanDetailScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              const response = await apiClient.post('action/stop/scan/', { scan_ids: [id] });
+              const response = await apiClient.post('/mapi/action/stop/scan/', { scan_ids: [id] });
               if (response.data && response.data.status) {
                 Alert.alert("Success", "Scan stop request sent.");
                 fetchScanDetail();

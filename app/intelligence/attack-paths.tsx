@@ -19,7 +19,7 @@ export default function AttackPathExplorer() {
     if (!currentProject) return;
     try {
       // Use the updated endpoint that supports project filtering
-      const response = await apiClient.get(`apme/paths/?project=${currentProject}`);
+      const response = await apiClient.get(`/mapi/apme/paths/?project=${currentProject}`);
       setPaths(response.data.paths || []);
     } catch (error) {
       console.error('Failed to fetch attack paths', error);

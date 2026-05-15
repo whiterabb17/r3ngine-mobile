@@ -12,7 +12,7 @@ export default function ScheduledScansScreen() {
 
   const fetchSchedules = async () => {
     try {
-      const response = await apiClient.get('scheduledScans/');
+      const response = await apiClient.get('/mapi/scheduledScans/');
       setSchedules(response.data.results || response.data);
     } catch (err) {
       console.error('Failed to fetch schedules:', err);
@@ -28,7 +28,7 @@ export default function ScheduledScansScreen() {
   const toggleSchedule = async (id: number, currentStatus: boolean) => {
     try {
       TacticalHaptics.soft();
-      const response = await apiClient.post(`scheduledScans/${id}/toggle/`);
+      const response = await apiClient.post(`/mapi/scheduledScans/${id}/toggle/`);
       if (response.data.status) {
         setSchedules(prev => prev.map(s => 
           s.id === id ? { ...s, enabled: !currentStatus } : s

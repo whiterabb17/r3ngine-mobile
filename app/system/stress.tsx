@@ -23,7 +23,7 @@ export default function StressHistoryScreen() {
   const fetchStressHistory = async () => {
     try {
       setError(null);
-      const response = await apiClient.get('/api/stress-testing/history/');
+      const response = await apiClient.get('/mapi/stress-testing/history/');
       // Map response to our internal interface
       const mappedScans = (response.data.scans || []).map((s: any) => ({
         id: s.id,
