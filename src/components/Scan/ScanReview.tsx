@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView, View, Text } from 'react-native';
 import { CheckCircle2, Shield, Settings, Info } from 'lucide-react-native';
-import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
 
 interface ScanReviewProps {

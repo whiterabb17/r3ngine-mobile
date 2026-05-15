@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet, TextInput, Switch, ScrollView } from 'react-native';
+import { StyleSheet, TextInput, Switch, ScrollView, View, Text } from 'react-native';
 import { Target, Globe, ShieldAlert, Bug, Cpu } from 'lucide-react-native';
-import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
 
 interface AdvancedOptionsProps {

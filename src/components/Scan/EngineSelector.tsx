@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, View, Text } from 'react-native';
 import { Shield, Zap, Info } from 'lucide-react-native';
-import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
 
 interface Engine {

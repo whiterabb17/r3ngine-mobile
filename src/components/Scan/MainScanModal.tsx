@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Modal, TouchableOpacity, ActivityIndicator, Alert, Animated } from 'react-native';
+import { StyleSheet, Modal, TouchableOpacity, ActivityIndicator, Alert, Animated, View, Text } from 'react-native';
 import { X, ChevronRight, ChevronLeft, Play } from 'lucide-react-native';
 import { TacticalHaptics } from '../../utils/haptics';
-import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
 import apiClient from '../../api/client';
 import EngineSelector from './EngineSelector';
@@ -283,22 +282,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   stepDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: Theme.colors.border,
   },
   activeDot: {
     backgroundColor: Theme.colors.primary,
-    width: 20,
+    width: 24,
   },
   stepText: {
-    fontSize: 11,
+    fontSize: 12,
     color: Theme.colors.textMuted,
-    fontWeight: '700',
-    marginLeft: 4,
+    fontWeight: '800',
+    marginLeft: 8,
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 1.2,
   },
   closeBtn: {
     padding: 4,

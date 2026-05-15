@@ -101,9 +101,8 @@ export default function VisualReconFeed() {
     <View style={styles.container}>
       <Stack.Screen 
         options={{ 
-          title: 'VISUAL RECON', 
-          headerStyle: { backgroundColor: Theme.colors.background }, 
-          headerTintColor: '#fff',
+          title: 'VISUAL RECON FEED', 
+          headerTitleAlign: 'center',
           headerTitleStyle: {
             fontFamily: 'Bangers',
           },

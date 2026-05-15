@@ -71,6 +71,7 @@ export default function MonitoringFeedScreen() {
       <Stack.Screen 
         options={{ 
           title: 'RECONX DISCOVERY',
+          headerTitleAlign: 'center',
           headerTitleStyle: { fontFamily: 'Bangers' }
         }} 
       />

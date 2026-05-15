@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { StyleSheet, TouchableOpacity, ScrollView, Alert, View, Text } from 'react-native';
 import { Key, ShieldAlert, ExternalLink, Code, CheckCircle, AlertTriangle, Eye, EyeOff } from 'lucide-react-native';
-import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
 
 interface SecretLeak {
@@ -96,8 +95,8 @@ export default function SecretLeakViewer({ leaks, onRefresh }: SecretLeakViewerP
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       {leaks.length === 0 ? (
         <View style={styles.emptyState}>
-          <ShieldAlert size={48} color={Theme.colors.surface} />
-          <Text style={styles.emptyText}>No Secrets Leaked</Text>
+          <ShieldAlert size={48} color={Theme.colors.border} />
+          <Text style={styles.emptyText}>NO SECRETS DETECTED</Text>
           <Text style={styles.emptySubtext}>Your infrastructure seems clean of exposed credentials.</Text>
         </View>
       ) : (
@@ -254,10 +253,10 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     marginTop: 16,
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: Theme.colors.text,
-    fontFamily: 'Orbitron',
+    color: Theme.colors.primary,
+    fontFamily: 'Bangers',
   },
   emptySubtext: {
     marginTop: 8,

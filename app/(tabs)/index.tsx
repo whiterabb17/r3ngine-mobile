@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, ScrollView, RefreshControl, TouchableOpacity, useWindowDimensions, Modal } from 'react-native';
+import { StyleSheet, ScrollView, RefreshControl, TouchableOpacity, useWindowDimensions, Modal, View, Text } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import {
   Target,
@@ -20,7 +20,7 @@ import {
   Inbox,
 } from 'lucide-react-native';
 
-import { Text, View } from '@/components/Themed';
+
 import { Theme } from '../../src/constants/Theme';
 import apiClient from '../../src/api/client';
 import { useProjectStore } from '../../src/store/useProjectStore';
@@ -416,8 +416,6 @@ export default function DashboardScreen() {
             <Text style={styles.intelLabel}>OSINT Staging</Text>
             <Text style={[styles.intelCount, { color: Theme.colors.primary }]}>REVIEW</Text>
           </TouchableOpacity>
-
-          <View style={{ flex: 1, backgroundColor: 'transparent' }} />
         </View>
 
         {/* Most Vulnerable Targets */}
@@ -936,6 +934,7 @@ const styles = StyleSheet.create({
     color: Theme.colors.textMuted,
     fontWeight: '700',
     marginBottom: 4,
+    textAlign: 'center',
   },
   intelCount: {
     fontSize: 18,

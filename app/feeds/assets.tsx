@@ -114,7 +114,10 @@ export default function GlobalAssetFeed() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Global Assets' }} />
+      <Stack.Screen options={{ 
+        title: 'Global Assets',
+        headerTitleAlign: 'center'
+      }} />
       
       <View style={styles.searchBarContainer}>
         <View style={styles.searchBar}>

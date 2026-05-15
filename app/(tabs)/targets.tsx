@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, FlatList, RefreshControl, TouchableOpacity, TextInput, Modal, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, FlatList, RefreshControl, TouchableOpacity, TextInput, Modal, ActivityIndicator, Alert, View, Text } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { 
   Target, 
@@ -15,7 +15,7 @@ import {
   Biohazard
 } from 'lucide-react-native';
 
-import { Text, View } from '@/components/Themed';
+
 import { Theme } from '../../src/constants/Theme';
 import apiClient from '../../src/api/client';
 import { useProjectStore } from '../../src/store/useProjectStore';

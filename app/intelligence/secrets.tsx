@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
 import { Stack } from 'expo-router';
 import { ShieldAlert } from 'lucide-react-native';
-import { Text, View } from '@/components/Themed';
+import { View, Text } from 'react-native';
 import { Theme } from '../../src/constants/Theme';
 import apiClient from '../../src/api/client';
 import { useProjectStore } from '../../src/store/useProjectStore';
@@ -34,7 +34,10 @@ export default function SecretLeakExplorer() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Secret Leak Explorer' }} />
+      <Stack.Screen options={{ 
+        title: 'Secret Leak Explorer',
+        headerTitleAlign: 'center'
+      }} />
       
       {loading && !refreshing ? (
         <View style={styles.center}>

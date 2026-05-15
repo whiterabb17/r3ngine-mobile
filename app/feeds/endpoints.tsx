@@ -83,7 +83,10 @@ export default function EndpointExplorer() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Endpoint Explorer' }} />
+      <Stack.Screen options={{ 
+        title: 'Project Endpoints',
+        headerTitleAlign: 'center'
+      }} />
       
       <View style={styles.searchBarContainer}>
         <View style={styles.searchBar}>

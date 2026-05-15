@@ -102,7 +102,10 @@ export default function GlobalVulnerabilityFeed() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Tactical Vuln Feed' }} />
+      <Stack.Screen options={{ 
+        title: 'Tactical Vuln Feed',
+        headerTitleAlign: 'center'
+      }} />
       
       <View style={styles.searchBarContainer}>
         <View style={styles.searchBar}>
