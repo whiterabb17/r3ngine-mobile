@@ -100,7 +100,7 @@ export default function SystemLogViewer() {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
-          <Terminal size={20} color={Theme.colors.primary} />
+          <Terminal size={20} color={Theme.colors.secondary} />
           <Text style={styles.title}>SYSTEM-WIDE LOGS</Text>
         </View>
         <View style={styles.actions}>
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    color: Theme.colors.primary,
+    color: Theme.colors.secondary,
     fontFamily: 'Bangers',
     fontSize: 18,
     marginLeft: 10,
@@ -222,15 +222,16 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 8,
+    paddingBottom: 28, // Added padding for home indicator
     backgroundColor: Theme.colors.surface,
     borderTopWidth: 1,
     borderTopColor: Theme.colors.border,
     alignItems: 'center',
   },
   footerText: {
-    color: Theme.colors.primary,
+    color: Theme.colors.secondary,
     fontSize: 9,
     fontFamily: 'monospace',
-    opacity: 0.7,
+    opacity: 0.8,
   }
 });

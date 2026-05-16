@@ -102,7 +102,14 @@ const ControlScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Infrastructure Hub' }} />
+      <Stack.Screen 
+        options={{ 
+          title: 'INFRASTRUCTURE HUB',
+          headerStyle: { backgroundColor: Theme.colors.surface },
+          headerTintColor: Theme.colors.primary,
+          headerTitleStyle: { fontFamily: 'Bangers' }
+        }} 
+      />
       
       <View style={styles.tabBar}>
         <TouchableOpacity 

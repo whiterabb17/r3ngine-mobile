@@ -1,7 +1,8 @@
 export const Theme = {
   colors: {
-    primary: '#4F46E5', // Indigo
-    secondary: '#7C3AED', // Violet
+    primary: '#D7621E', // Indigo
+    secondary: '#c5ae31ff', // Tactical Orange
+    accent: '#8a5cff', // Neon Purple
     background: '#0F172A', // Slate 900
     surface: '#1E293B', // Slate 800
     text: '#F8FAFC', // Slate 50

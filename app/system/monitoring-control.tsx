@@ -75,6 +75,8 @@ export default function MonitoringControlScreen() {
       <Stack.Screen 
         options={{ 
           title: 'MONITORING CONTROL',
+          headerStyle: { backgroundColor: Theme.colors.surface },
+          headerTintColor: Theme.colors.primary,
           headerTitleStyle: { fontFamily: 'Bangers' }
         }} 
       />

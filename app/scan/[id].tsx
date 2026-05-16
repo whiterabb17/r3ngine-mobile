@@ -126,44 +126,34 @@ export default function ScanDetailScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ 
-        title: 'Scan Detail',
-        headerStyle: { backgroundColor: Theme.colors.surface },
-        headerTintColor: Theme.colors.text,
-        headerLeft: () => (
-          <TouchableOpacity 
-            onPress={() => router.back()} 
-            style={{ marginLeft: -10, paddingLeft: 10, paddingRight: 15 }}
-          >
-            <ChevronLeft size={24} color={Theme.colors.text} />
-          </TouchableOpacity>
-        ),
-        headerRight: () => (
-          <View style={{ flexDirection: 'row', backgroundColor: 'transparent', alignItems: 'center', gap: 10, marginRight: 10 }}>
+      <Stack.Screen options={{ headerShown: false }} />
+
+      {/* Sticky Progress Header */}
+      <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'transparent', flex: 1 }}>
+            <TouchableOpacity 
+              onPress={() => router.back()} 
+              style={styles.backBtn}
+            >
+              <ChevronLeft size={28} color={Theme.colors.text} />
+            </TouchableOpacity>
+            
+            <View style={{ backgroundColor: 'transparent', flex: 1 }}>
+              <Text style={styles.targetName} numberOfLines={1}>{data?.target_info?.name || 'Target'}</Text>
+              <Text style={styles.scanMeta}>ID: {id} • {data?.scan_info?.engine_name || 'Scan Engine'}</Text>
+            </View>
+          </View>
+
+          <View style={styles.badgeContainer}>
             {data?.scan_info?.scan_status === 1 && (
               <TouchableOpacity 
                 onPress={() => router.push(`/system/logs/${id}` as any)}
                 style={styles.liveLogsBtn}
               >
-                <Terminal size={18} color={Theme.colors.primary} />
-                <Text style={styles.liveLogsText}>LIVE LOGS</Text>
+                <Terminal size={14} color={Theme.colors.primary} />
               </TouchableOpacity>
             )}
-            <TouchableOpacity>
-              <MoreVertical size={20} color={Theme.colors.text} />
-            </TouchableOpacity>
-          </View>
-        )
-      }} />
-
-      {/* Sticky Progress Header */}
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <View style={{ backgroundColor: 'transparent' }}>
-            <Text style={styles.targetName} numberOfLines={1}>{data?.target_info?.name || 'Target'}</Text>
-            <Text style={styles.scanMeta}>ID: {id} • {data?.scan_info?.engine_name || 'Scan Engine'}</Text>
-          </View>
-          <View style={styles.badgeContainer}>
             <View style={[styles.statusBadge, { borderColor: getStatusColor(data?.scan_info?.scan_status) }]}>
               <Text style={[styles.statusLabel, { color: getStatusColor(data?.scan_info?.scan_status) }]}>
                 {getStatusLabel(data?.scan_info?.scan_status)}
@@ -171,7 +161,7 @@ export default function ScanDetailScreen() {
             </View>
             {data?.scan_info?.scan_status === 1 && (
               <TouchableOpacity onPress={handleStopScan} style={styles.stopBtn}>
-                <Square size={16} color={Theme.colors.error} fill={Theme.colors.error} />
+                <Square size={14} color={Theme.colors.error} fill={Theme.colors.error} />
               </TouchableOpacity>
             )}
           </View>
@@ -280,6 +270,7 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: Theme.spacing.md,
+    paddingTop: 50, // Added space for status bar
     backgroundColor: Theme.colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: Theme.colors.border,
@@ -408,17 +399,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Theme.colors.primary + '15',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
+    padding: 6,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: Theme.colors.primary + '33',
-    gap: 6,
   },
-  liveLogsText: {
-    color: Theme.colors.primary,
-    fontSize: 10,
-    fontFamily: 'Bangers',
-    letterSpacing: 0.5,
+  backBtn: {
+    marginLeft: -10,
+    marginRight: 10,
+    padding: 10,
+    backgroundColor: 'transparent',
+  },
+  moreBtn: {
+    padding: 4,
+    backgroundColor: 'transparent',
   }
 });
