@@ -164,8 +164,8 @@ export default function OsintStagingScreen() {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Theme.colors.primary} />
           }
           ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <ShieldCheck size={48} color={Theme.colors.success + '44'} />
+            <View style={[styles.emptyContainer, { backgroundColor: 'transparent' }]}>
+              <ShieldCheck size={64} color={Theme.colors.success} opacity={0.5} />
               <Text style={styles.emptyTitle}>ALL CLEAR</Text>
               <Text style={styles.emptySubtitle}>No pending OSINT items requiring review.</Text>
             </View>

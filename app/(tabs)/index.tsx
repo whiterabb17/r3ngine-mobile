@@ -293,7 +293,7 @@ export default function DashboardScreen() {
           </View>
           <View style={styles.card}>
             {trends ? (
-              <View style={[styles.trendChartContainer, { marginTop: 10, marginBottom: 10 }]}>
+              <View style={[styles.trendChartContainer, { marginTop: 20, marginBottom: 10 }]}>
                 <View style={styles.trendBarsRow}>
                   {trends.vulns_in_last_week.map((val, i) => {
                     const maxVal = Math.max(...trends.vulns_in_last_week, 1);
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontFamily: "Bangers",
     letterSpacing: 2,
-    color: "rgba(215, 98, 30, 1)",
+    color: Theme.colors.primary,
     fontSize: 24,
     textTransform: 'uppercase'
   },
@@ -864,7 +864,7 @@ const styles = StyleSheet.create({
   },
   techBarFill: {
     height: 8,
-    backgroundColor: Theme.colors.secondary + '66',
+    backgroundColor: Theme.colors.primary                                                                  ,
     borderRadius: 4,
   },
   techCount: {

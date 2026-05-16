@@ -75,6 +75,8 @@ export default function ScheduledScansScreen() {
       <Stack.Screen 
         options={{ 
           title: 'SCAN SCHEDULES',
+          headerStyle: { backgroundColor: Theme.colors.surface },
+          headerTintColor: Theme.colors.primary,
           headerTitleStyle: { fontFamily: 'Bangers' }
         }} 
       />

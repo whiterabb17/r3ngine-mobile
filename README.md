@@ -58,6 +58,19 @@ The mobile app isn't just a viewer; it's a portable command center synchronized 
 
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
 
+## 📸 Visual Interface
+
+<p align="center">
+  <img src=".github/screenshots/mobile_interface.gif" width="300px" alt="r3ngine Mobile Interface Walkthrough" />
+</p>
+
+| Dashboard | Geo-Tactical Map | Scan Details | Scan Orchestration |
+| :---: | :---: | :---: | :---: |
+| <img src=".github/screenshots/dashboard.png" width="200px" /> | <img src=".github/screenshots/geomap.png" width="200px" /> | <img src=".github/screenshots/scan_details.png" width="200px" /> | <img src=".github/screenshots/scan_drawer.png" width="200px" /> |
+
+
+![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
+
 ## 🛠️ Technology Stack
 
 Built with a "Safety-First" philosophy, the mobile app leverages a modern, high-performance stack:
@@ -112,11 +125,7 @@ r3ngine Mobile acts as a thin client to the **r3ngine Core API**. It utilizes th
 
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
 
-## 📸 Screenshots (Coming Soon)
 
-*   **Cyberpunk Dashboard**: Interactive KPI grid and GeoMap.
-*   **Asset Inventory**: List view of subdomains with technology badges.
-*   **Scan Details**: Real-time progress bars and tool execution logs.
 
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
 

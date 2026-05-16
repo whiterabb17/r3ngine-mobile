@@ -75,7 +75,14 @@ const GenericToolScreen: React.FC<GenericToolScreenProps> = ({
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title }} />
+      <Stack.Screen 
+        options={{ 
+          title: title.toUpperCase(),
+          headerStyle: { backgroundColor: Theme.colors.surface },
+          headerTintColor: Theme.colors.primary,
+          headerTitleStyle: { fontFamily: 'Bangers' }
+        }} 
+      />
       
       <View style={styles.header}>
         <Text style={styles.description}>{description}</Text>

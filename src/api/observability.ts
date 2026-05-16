@@ -9,6 +9,7 @@ export interface GraphNode {
   severity: number;
   criticalVulnCount?: number;
   highVulnCount?: number;
+  members?: string[];
 }
 
 export interface GraphEdge {

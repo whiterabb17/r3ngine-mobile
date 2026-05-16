@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, Dimensions, Animated, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, Dimensions, Animated, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Activity, Database, Cpu, HardDrive, ShieldCheck, AlertTriangle, Zap, Terminal } from 'lucide-react-native';
 import apiClient from '../../src/api/client';
@@ -86,7 +86,7 @@ export default function SystemHealthDashboard() {
   if (loading && !refreshing) {
     return (
       <View style={styles.loadingContainer}>
-        <Activity color={Theme.colors.primary} size="large" />
+        <ActivityIndicator color={Theme.colors.primary} size="large" />
         <Text style={styles.loadingText}>SYNCHRONIZING TACTICAL DATA...</Text>
       </View>
     );

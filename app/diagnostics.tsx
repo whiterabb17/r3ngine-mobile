@@ -19,12 +19,17 @@ export default function Diagnostics() {
   const checkConnectivity = async () => {
     setPingStatus('checking');
     try {
-      const baseUrl = serverIp ? (serverIp.includes('://') ? serverIp : `http://${serverIp}`) : '';
-      if (!baseUrl) throw new Error('No IP');
-      await axios.get(`${baseUrl}/mapi/projects/`, { timeout: 5000 });
+      // Use apiClient which has the auth token and base URL interceptors
+      await apiClient.get('/mapi/projects/', { timeout: 5000 });
       setPingStatus('online');
-    } catch (e) {
-      setPingStatus('offline');
+    } catch (e: any) {
+      // If we get any response from the server, it's technically 'online'
+      // even if it's a 401 Unauthorized or 403 Forbidden
+      if (e.response) {
+        setPingStatus('online');
+      } else {
+        setPingStatus('offline');
+      }
     }
     setLastCheck(new Date());
     setRefreshing(false);

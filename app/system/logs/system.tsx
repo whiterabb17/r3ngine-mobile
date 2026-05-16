@@ -10,7 +10,7 @@ export default function SystemLogsScreen() {
         options={{
           headerTitle: 'SYSTEM OBSERVABILITY',
           headerStyle: { backgroundColor: Theme.colors.surface },
-          headerTintColor: Theme.colors.primary,
+          headerTintColor: Theme.colors.secondary,
           headerTitleStyle: { fontFamily: 'Bangers' },
         }} 
       />

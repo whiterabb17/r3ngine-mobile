@@ -121,8 +121,8 @@ export default function ReconNotesScreen() {
   };
 
   const renderEmpty = () => (
-    <View style={styles.emptyState}>
-      <StickyNote size={48} color={Theme.colors.surface} />
+    <View style={[styles.emptyState, { backgroundColor: 'transparent' }]}>
+      <StickyNote size={64} color={Theme.colors.primary} opacity={0.5} />
       <Text style={styles.emptyText}>No Recon Notes</Text>
       <Text style={styles.emptySubtext}>
         Keep track of manual findings, TO-DOs, and observations during your engagement.
@@ -276,12 +276,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   emptyText: {
-    marginTop: 16,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: Theme.colors.text,
-    fontFamily: 'Bangers',
+    marginTop: 20,
+    fontSize: 18,
+    fontWeight: '900',
+    color: Theme.colors.primary,
+    fontFamily: 'Orbitron',
     textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
   },
   emptySubtext: {
     marginTop: 8,

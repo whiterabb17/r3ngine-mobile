@@ -95,6 +95,8 @@ export default function ProxySettingsScreen() {
       <Stack.Screen 
         options={{ 
           title: 'PROXY CONTROL',
+          headerStyle: { backgroundColor: Theme.colors.surface },
+          headerTintColor: Theme.colors.primary,
           headerTitleStyle: { fontFamily: 'Bangers' }
         }} 
       />

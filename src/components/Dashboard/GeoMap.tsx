@@ -18,16 +18,16 @@ interface GeoMapProps {
 }
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const MAP_WIDTH = SCREEN_WIDTH - 64; 
-const MAP_HEIGHT = MAP_WIDTH * 0.55; 
+const MAP_WIDTH = SCREEN_WIDTH - 64;
+const MAP_HEIGHT = MAP_WIDTH * 0.55;
 
-const LAT_OFFSET = 18; 
-const LON_OFFSET = -5;
+const LAT_OFFSET = -5;
+const LON_OFFSET = -26;
 
 export default function GeoMap({ data }: GeoMapProps) {
   const router = useRouter();
   const [selectedCountry, setSelectedCountry] = useState<CountryData | null>(null);
-  
+
   const sortedData = [...data].sort((a, b) => b.count - a.count);
   const top5 = sortedData.slice(0, 5);
   const maxCount = sortedData.length > 0 ? sortedData[0].count : 1;
@@ -35,11 +35,11 @@ export default function GeoMap({ data }: GeoMapProps) {
   const getCoordinates = (iso: string) => {
     const centroid = countryCentroids[iso.toUpperCase()];
     if (!centroid) return null;
-    
+
     const [lat, lon] = centroid;
     const x = ((lon + 180 + LON_OFFSET) * (MAP_WIDTH / 360));
     const y = ((90 - lat + LAT_OFFSET) * (MAP_HEIGHT / 180));
-    
+
     return { x, y };
   };
 
@@ -56,7 +56,7 @@ export default function GeoMap({ data }: GeoMapProps) {
       </View>
 
       <View style={styles.mapContainer}>
-        <ImageBackground 
+        <ImageBackground
           source={require('../../../assets/images/world_map.png')}
           style={styles.mapImage}
           resizeMode="stretch"
@@ -66,15 +66,15 @@ export default function GeoMap({ data }: GeoMapProps) {
           {data.map((country) => {
             const coords = getCoordinates(country.iso);
             if (!coords) return null;
-            
+
             const size = Math.max(8, Math.min(14, (country.count / maxCount) * 14));
             const isSelected = selectedCountry?.iso === country.iso;
-            
+
             return (
-              <TouchableOpacity 
-                key={`marker-${country.iso}`} 
+              <TouchableOpacity
+                key={`marker-${country.iso}`}
                 style={[
-                  styles.markerContainer, 
+                  styles.markerContainer,
                   { left: coords.x, top: coords.y, zIndex: isSelected ? 100 : 1 }
                 ]}
                 onPress={() => handleMarkerPress(country)}
@@ -82,7 +82,7 @@ export default function GeoMap({ data }: GeoMapProps) {
               >
                 <View style={[styles.pulse, { width: size * 3, height: size * 3, borderRadius: size * 1.5 }]} />
                 <View style={[
-                  styles.marker, 
+                  styles.marker,
                   { width: size, height: size, borderRadius: size / 2 },
                   isSelected && { borderColor: '#fff', borderWidth: 2 }
                 ]} />
@@ -105,7 +105,7 @@ export default function GeoMap({ data }: GeoMapProps) {
                   <Text style={styles.tooltipLabel}>Assets Discovered</Text>
                   <Text style={styles.tooltipCount}>{selectedCountry.count}</Text>
                 </View>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.viewAssetsBtn}
                   onPress={() => {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -127,8 +127,8 @@ export default function GeoMap({ data }: GeoMapProps) {
 
       <View style={styles.statsContainer}>
         {top5.map((item, index) => (
-          <TouchableOpacity 
-            key={item.iso} 
+          <TouchableOpacity
+            key={item.iso}
             style={[styles.countryRow, selectedCountry?.iso === item.iso && styles.activeCountryRow]}
             onPress={() => handleMarkerPress(item)}
           >
@@ -137,11 +137,11 @@ export default function GeoMap({ data }: GeoMapProps) {
               <Text style={styles.isoCode}>{item.iso}</Text>
             </View>
             <View style={styles.barContainer}>
-              <View 
+              <View
                 style={[
-                  styles.bar, 
+                  styles.bar,
                   { width: `${(item.count / maxCount) * 100}%`, backgroundColor: Theme.colors.primary }
-                ]} 
+                ]}
               />
             </View>
             <Text style={styles.countText}>{item.count}</Text>
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '900',
-    color: '#00f3ff', // Cyan to match web branding
+    color: '#cdd1d6ff', // Cyan to match web branding
     fontFamily: 'Orbitron',
     letterSpacing: 2,
     textTransform: 'uppercase',
