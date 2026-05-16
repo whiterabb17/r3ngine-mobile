@@ -60,9 +60,11 @@ The mobile app isn't just a viewer; it's a portable command center synchronized 
 
 ## 📸 Visual Interface
 
+<!-- 
 <p align="center">
   <img src=".github/screenshots/mobile_interface.gif" width="300px" alt="r3ngine Mobile Interface Walkthrough" />
 </p>
+-->
 
 | Dashboard | Geo-Tactical Map | Scan Details | Scan Orchestration |
 | :---: | :---: | :---: | :---: |
