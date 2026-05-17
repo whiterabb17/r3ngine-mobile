@@ -7,12 +7,24 @@ import NotificationCard from '../../src/components/Notifications/NotificationCar
 import { Theme } from '../../src/constants/Theme';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 
+/**
+ * NotificationsScreen Component
+ * 
+ * Renders the notification center (scan history drawer/component) with a dark theme header.
+ * Fetches, displays, marks read, and clears in-app notifications.
+ *
+ * @returns {React.ReactElement} The styled Notifications screen.
+ */
 const NotificationsScreen = () => {
   const [notifications, setNotifications] = useState<InAppNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
+  /**
+   * Fetches all in-app notifications from the backend API.
+   * Updates state with the retrieved items and handles load state.
+   */
   const fetchNotifications = async () => {
     try {
       const data = await getNotifications();
@@ -29,11 +41,18 @@ const NotificationsScreen = () => {
     fetchNotifications();
   }, []);
 
+  /**
+   * Triggers a manual refresh when pulling down on the notifications list.
+   */
   const onRefresh = () => {
     setRefreshing(true);
     fetchNotifications();
   };
 
+  /**
+   * Marks all current notifications as read.
+   * Sends a request to the backend API and refreshes the list on success.
+   */
   const handleMarkAllRead = async () => {
     try {
       await markAllRead();
@@ -43,6 +62,10 @@ const NotificationsScreen = () => {
     }
   };
 
+  /**
+   * Clears all in-app notifications.
+   * Prompts the user via an alert dialog, then calls the backend API to delete notifications on approval.
+   */
   const handleClearAll = () => {
     Alert.alert(
       'Clear Notifications',
@@ -65,6 +88,12 @@ const NotificationsScreen = () => {
     );
   };
 
+  /**
+   * Handles a press event on a single notification.
+   * Marks the specific notification as read, and optionally processes redirections.
+   *
+   * @param {InAppNotification} notification - The clicked notification object.
+   */
   const handleNotificationPress = async (notification: InAppNotification) => {
     if (!notification.is_read) {
       try {
@@ -85,6 +114,11 @@ const NotificationsScreen = () => {
     }
   };
 
+  /**
+   * Renders the empty state view when no notifications are found.
+   *
+   * @returns {React.ReactElement} The styled empty notifications component.
+   */
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
       <BellOff size={64} color="#334155" />
@@ -98,14 +132,18 @@ const NotificationsScreen = () => {
       <Stack.Screen 
         options={{
           title: 'Notification Center',
+          headerStyle: {
+            backgroundColor: Theme.colors.surface,
+          },
+          headerTintColor: Theme.colors.text,
           headerTitleStyle: {
             fontFamily: 'Bangers',
             fontSize: 20,
-            color: '#fff',
+            color: Theme.colors.primary,
           },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={styles.headerButton}>
-              <ArrowLeft size={24} color="#fff" />
+              <ArrowLeft size={24} color={Theme.colors.text} />
             </TouchableOpacity>
           ),
           headerRight: () => (
@@ -113,10 +151,10 @@ const NotificationsScreen = () => {
               {notifications.length > 0 && (
                 <>
                   <TouchableOpacity onPress={handleMarkAllRead} style={styles.headerButton}>
-                    <CheckCheck size={22} color="#fff" />
+                    <CheckCheck size={22} color={Theme.colors.text} />
                   </TouchableOpacity>
                   <TouchableOpacity onPress={handleClearAll} style={styles.headerButton}>
-                    <Trash2 size={22} color="#ef4444" />
+                    <Trash2 size={22} color={Theme.colors.error} />
                   </TouchableOpacity>
                 </>
               )}
