@@ -83,8 +83,16 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Settings' }} />
-      
+      <Stack.Screen options={{
+        title: 'Settings',
+        headerStyle: { backgroundColor: Theme.colors.surface },
+        headerTintColor: Theme.colors.primary,
+        headerTitleStyle: {
+          fontFamily: 'Bangers',
+          fontSize: 24,
+        }
+      }} />
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Connection</Text>
@@ -97,11 +105,11 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Tactical Feeds</Text>
           <View style={styles.card}>
-            <SettingRow 
-              icon={Activity} 
-              label="ReconX Feed" 
-              value="Live Discovery" 
-              onPress={() => router.push('/feeds/monitoring' as any)} 
+            <SettingRow
+              icon={Activity}
+              label="ReconX Feed"
+              value="Live Discovery"
+              onPress={() => router.push('/feeds/monitoring' as any)}
             />
           </View>
         </View>
@@ -109,35 +117,35 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Infrastructure</Text>
           <View style={styles.card}>
-            <SettingRow 
-              icon={Cpu} 
-              label="Scan Engines" 
-              value="Tactical YAML" 
-              onPress={() => router.push('/system/engines' as any)} 
+            <SettingRow
+              icon={Cpu}
+              label="Scan Engines"
+              value="Tactical YAML"
+              onPress={() => router.push('/system/engines' as any)}
             />
-            <SettingRow 
-              icon={Database} 
-              label="System Assets" 
-              value="Engines & Tools" 
-              onPress={() => router.push('/control' as any)} 
+            <SettingRow
+              icon={Database}
+              label="System Assets"
+              value="Engines & Tools"
+              onPress={() => router.push('/control' as any)}
             />
-            <SettingRow 
-              icon={Globe} 
-              label="Proxy Control" 
-              value="Traffic Routing" 
-              onPress={() => router.push('/system/proxies' as any)} 
+            <SettingRow
+              icon={Globe}
+              label="Proxy Control"
+              value="Traffic Routing"
+              onPress={() => router.push('/system/proxies' as any)}
             />
-            <SettingRow 
-              icon={Shield} 
-              label="Monitoring Hub" 
-              value="Continuous Discovery" 
-              onPress={() => router.push('/system/monitoring-control' as any)} 
+            <SettingRow
+              icon={Shield}
+              label="Monitoring Hub"
+              value="Continuous Discovery"
+              onPress={() => router.push('/system/monitoring-control' as any)}
             />
-            <SettingRow 
-              icon={Clock} 
-              label="Scan Schedules" 
-              value="Automation Pipeline" 
-              onPress={() => router.push('/system/schedules' as any)} 
+            <SettingRow
+              icon={Clock}
+              label="Scan Schedules"
+              value="Automation Pipeline"
+              onPress={() => router.push('/system/schedules' as any)}
             />
           </View>
         </View>
@@ -146,10 +154,10 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>Preferences</Text>
           <View style={styles.card}>
             <SettingRow icon={Bell} label="Notifications" value="Push Disabled" />
-            <SwitchRow 
-              icon={Terminal} 
-              label="Live Log Streaming" 
-              value={socEnabled} 
+            <SwitchRow
+              icon={Terminal}
+              label="Live Log Streaming"
+              value={socEnabled}
               onValueChange={toggleSocStreaming}
               color={socEnabled ? Theme.colors.primary : Theme.colors.textMuted}
               disabled={loadingSoc}
@@ -160,17 +168,17 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Diagnostics</Text>
           <View style={styles.card}>
-            <SettingRow 
-              icon={Activity} 
-              label="System Health" 
-              value="Tactical Status" 
-              onPress={() => router.push('/system/health' as any)} 
+            <SettingRow
+              icon={Activity}
+              label="System Health"
+              value="Tactical Status"
+              onPress={() => router.push('/system/health' as any)}
             />
-            <SettingRow 
-              icon={Info} 
-              label="App Diagnostics" 
-              value="Technical Info" 
-              onPress={() => router.push('/diagnostics' as any)} 
+            <SettingRow
+              icon={Info}
+              label="App Diagnostics"
+              value="Technical Info"
+              onPress={() => router.push('/diagnostics' as any)}
             />
           </View>
         </View>

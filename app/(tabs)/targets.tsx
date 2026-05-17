@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, FlatList, RefreshControl, TouchableOpacity, TextInput, Modal, ActivityIndicator, Alert, View, Text } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { 
-  Target, 
-  Search, 
-  Plus, 
-  Zap, 
-  History, 
-  ChevronRight, 
-  Globe, 
+import {
+  Target,
+  Search,
+  Plus,
+  Zap,
+  History,
+  ChevronRight,
+  Globe,
   ShieldAlert,
   AlertTriangle,
   X,
@@ -38,19 +38,19 @@ import OrgPicker from '../../src/components/Target/OrgPicker';
 export default function TargetsScreen() {
   const router = useRouter();
   const { currentProject } = useProjectStore();
-  
+
   const [targets, setTargets] = useState<TargetItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
-  
+
   // Modals state
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [scanModalVisible, setScanModalVisible] = useState(false);
   const [selectedTarget, setSelectedTarget] = useState<TargetItem | null>(null);
-  
+
   // Add Target form state
   const [newTargetName, setNewTargetName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
@@ -99,7 +99,7 @@ export default function TargetsScreen() {
         domain_name: newTargetName,
         project_slug: currentProject
       });
-      
+
       if (response.data && response.data.status) {
         Alert.alert('Success', 'Target added successfully');
         setAddModalVisible(false);
@@ -116,21 +116,21 @@ export default function TargetsScreen() {
     }
   };
 
-  const filteredTargets = targets.filter(t => 
+  const filteredTargets = targets.filter(t =>
     t.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const renderItem = ({ item }: { item: TargetItem }) => (
     <View style={styles.targetCard}>
       <View style={styles.cardHeader}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.targetInfo}
           onPress={() => router.push(`/target/${item.id}` as any)}
         >
           <Text style={styles.targetName}>{item.name}</Text>
           <Text style={styles.projectLabel}>{item.project?.name || 'No Project'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.scanBtn}
           onPress={() => {
             setSelectedTarget(item);
@@ -155,7 +155,7 @@ export default function TargetsScreen() {
       </View>
 
       <View style={styles.cardFooter}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.historyBtn}
           onPress={() => {
             router.push({
@@ -174,11 +174,17 @@ export default function TargetsScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ 
+      <Stack.Screen options={{
         title: 'Targets',
+        headerStyle: { backgroundColor: Theme.colors.surface },
+        headerTintColor: Theme.colors.primary,
+        headerTitleStyle: {
+          fontFamily: 'Bangers',
+          fontSize: 24,
+        },
         headerRight: () => (
-          <TouchableOpacity 
-            style={styles.headerPlus} 
+          <TouchableOpacity
+            style={styles.headerPlus}
             onPress={() => setAddModalVisible(true)}
           >
             <Plus size={24} color={Theme.colors.primary} />
@@ -202,9 +208,9 @@ export default function TargetsScreen() {
         )}
       </View>
 
-      <OrgPicker 
-        selectedOrgId={selectedOrgId} 
-        onOrgChange={setSelectedOrgId} 
+      <OrgPicker
+        selectedOrgId={selectedOrgId}
+        onOrgChange={setSelectedOrgId}
       />
 
       {error && (
@@ -223,10 +229,10 @@ export default function TargetsScreen() {
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContent}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
-            onRefresh={onRefresh} 
-            tintColor={Theme.colors.primary} 
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Theme.colors.primary}
           />
         }
         ListEmptyComponent={
@@ -235,7 +241,7 @@ export default function TargetsScreen() {
               <Target size={48} color={Theme.colors.border} />
               <Text style={styles.emptyTitle}>No Targets Found</Text>
               <Text style={styles.emptySub}>Add your first target to start scanning.</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.emptyAddBtn}
                 onPress={() => setAddModalVisible(true)}
               >
@@ -265,7 +271,7 @@ export default function TargetsScreen() {
                 <X size={24} color={Theme.colors.text} />
               </TouchableOpacity>
             </View>
-            
+
             <View style={styles.modalBody}>
               <Text style={styles.inputLabel}>Domain or Name</Text>
               <TextInput
@@ -282,14 +288,14 @@ export default function TargetsScreen() {
             </View>
 
             <View style={styles.modalFooter}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.modalCancelBtn}
                 onPress={() => setAddModalVisible(false)}
                 disabled={isAdding}
               >
                 <Text style={styles.modalCancelText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.modalAddBtn, isAdding && { opacity: 0.7 }]}
                 onPress={handleAddTarget}
                 disabled={isAdding}

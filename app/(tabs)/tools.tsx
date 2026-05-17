@@ -88,7 +88,7 @@ const ToolsScreen = () => {
     <View style={styles.container}>
       <Stack.Screen 
         options={{
-          title: 'TACTICAL TOOLS',
+          title: 'TOOLS',
           headerStyle: { backgroundColor: Theme.colors.surface },
           headerTintColor: Theme.colors.primary,
           headerTitleStyle: {

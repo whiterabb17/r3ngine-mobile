@@ -22,7 +22,7 @@ export default function ScansScreen() {
   const params = useLocalSearchParams();
   const targetId = params.targetId as string;
   const targetName = params.targetName as string;
-  
+
   const { currentProject } = useProjectStore();
   const [scans, setScans] = useState<Scan[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -64,8 +64,8 @@ export default function ScansScreen() {
       `Are you sure you want to stop the scan for ${domainName}?`,
       [
         { text: "Cancel", style: "cancel" },
-        { 
-          text: "Stop Scan", 
+        {
+          text: "Stop Scan",
           style: "destructive",
           onPress: async () => {
             try {
@@ -114,8 +114,8 @@ export default function ScansScreen() {
   };
 
   const renderItem = ({ item }: { item: Scan }) => (
-    <TouchableOpacity 
-      style={styles.scanCard} 
+    <TouchableOpacity
+      style={styles.scanCard}
       activeOpacity={0.7}
       onPress={() => {
         if (currentProject) {
@@ -135,7 +135,7 @@ export default function ScansScreen() {
             </Text>
           </View>
           {item.scan_status === 1 && (
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.stopBtn}
               onPress={() => handleStopScan(item.id, item.domain?.name)}
             >
@@ -144,7 +144,7 @@ export default function ScansScreen() {
           )}
         </View>
       </View>
-      
+
       <View style={styles.detailsRow}>
         <Text style={styles.engineLabel}>{item.engine_name}</Text>
       </View>
@@ -165,8 +165,16 @@ export default function ScansScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: targetName ? `Scans: ${targetName}` : 'Scan History' }} />
-      
+      <Stack.Screen options={{
+        title: targetName ? `Scans: ${targetName}` : 'Scan History',
+        headerStyle: { backgroundColor: Theme.colors.surface },
+        headerTintColor: Theme.colors.primary,
+        headerTitleStyle: {
+          fontFamily: 'Bangers',
+          fontSize: 24,
+        }
+      }} />
+
       {targetId && (
         <View style={styles.filterHeader}>
           <Text style={styles.filterText}>Filtering by Target: {targetName || targetId}</Text>

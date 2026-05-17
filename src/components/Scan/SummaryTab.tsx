@@ -16,7 +16,8 @@ import {
   Brain,
   Download,
   FileDown,
-  ChevronRight
+  ChevronRight,
+  Zap
 } from 'lucide-react-native';
 import { Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { createScanReport, getReportStatus, triggerAiInsights } from '../../api/reports';
@@ -254,6 +255,25 @@ export default function SummaryTab({ data, scanId }: SummaryTabProps) {
             </View>
             <ChevronRight size={16} color={Theme.colors.textMuted} />
           </TouchableOpacity>
+
+          {data.scan_info?.engine_name === 'Stress Testing' && (
+            <TouchableOpacity 
+              style={[styles.actionButton, { borderColor: Theme.colors.accent + '44' }]}
+              onPress={() => router.push({
+                pathname: '/scan/stress/[id]' as any,
+                params: { id: scanId }
+              })}
+            >
+              <View style={[styles.actionIconBox, { backgroundColor: Theme.colors.accent + '15' }]}>
+                <Zap size={20} color={Theme.colors.accent} />
+              </View>
+              <View style={styles.actionTextContent}>
+                <Text style={[styles.actionTitle, { color: Theme.colors.accent }]}>STRESS TELEMETRY COCKPIT</Text>
+                <Text style={styles.actionSubtitle}>Real-time load & saturation charts</Text>
+              </View>
+              <ChevronRight size={16} color={Theme.colors.textMuted} />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </ScrollView>
