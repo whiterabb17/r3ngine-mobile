@@ -8,6 +8,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "build": "npx eas build -p android --profile development",
+    "checksum": "bash generate-checksum.sh",
     "generate-api": "npx openapi-typescript openapi.json -o src/types/api.ts",
     "test": "jest"
   },
