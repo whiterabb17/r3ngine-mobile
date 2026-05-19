@@ -22,6 +22,7 @@ import {
 import { Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { createScanReport, getReportStatus, triggerAiInsights } from '../../api/reports';
 import { useRouter } from 'expo-router';
+import { queryWhois } from '../../api/tools';
 
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
@@ -29,12 +30,35 @@ import { Theme } from '../../constants/Theme';
 interface SummaryTabProps {
   data: any;
   scanId: number;
+  onRefresh?: () => void;
 }
 
-export default function SummaryTab({ data, scanId }: SummaryTabProps) {
+export default function SummaryTab({ data, scanId, onRefresh }: SummaryTabProps) {
   const { width } = useWindowDimensions();
   const router = useRouter();
   const [isExporting, setIsExporting] = React.useState(false);
+  const [isWhoisReloading, setIsWhoisReloading] = React.useState(false);
+
+  const handleRefreshWhois = async () => {
+    const domainName = data.target_info?.name;
+    if (!domainName) {
+      Alert.alert('Error', 'Domain name not found in target information.');
+      return;
+    }
+    setIsWhoisReloading(true);
+    try {
+      await queryWhois(domainName, true);
+      Alert.alert('Success', 'WHOIS information refreshed successfully!');
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error: any) {
+      console.error('Failed to refresh WHOIS data:', error);
+      Alert.alert('Error', `Failed to refresh WHOIS information: ${error.message || error}`);
+    } finally {
+      setIsWhoisReloading(false);
+    }
+  };
   const cardWidth = (width - Theme.spacing.md * 3) / 2;
 
   const handleExport = async () => {
@@ -161,9 +185,28 @@ export default function SummaryTab({ data, scanId }: SummaryTabProps) {
 
       {/* Target Information */}
       <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Search size={16} color={Theme.colors.primary} />
-          <Text style={styles.sectionTitle}>TARGET INFORMATION</Text>
+        <View style={[styles.sectionHeader, { justifyContent: 'space-between' }]}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'transparent' }}>
+            <Search size={16} color={Theme.colors.primary} />
+            <Text style={styles.sectionTitle}>TARGET INFORMATION</Text>
+          </View>
+          <TouchableOpacity 
+            onPress={handleRefreshWhois} 
+            disabled={isWhoisReloading}
+            style={{ 
+              padding: 6, 
+              borderRadius: 6, 
+              backgroundColor: isWhoisReloading ? 'transparent' : Theme.colors.primary + '22',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            {isWhoisReloading ? (
+              <ActivityIndicator size="small" color={Theme.colors.primary} />
+            ) : (
+              <Zap size={14} color={Theme.colors.primary} />
+            )}
+          </TouchableOpacity>
         </View>
         <View style={styles.sectionContent}>
           <InfoRow label="DOMAIN" value={data.target_info?.name} color={Theme.colors.error} />
@@ -256,7 +299,7 @@ export default function SummaryTab({ data, scanId }: SummaryTabProps) {
             <ChevronRight size={16} color={Theme.colors.textMuted} />
           </TouchableOpacity>
 
-          {data.scan_info?.engine_name === 'Stress Testing' && (
+          {(data.endpoint_count > 0 || data.scan_info?.engine_name === 'Stress Testing') && (
             <TouchableOpacity 
               style={[styles.actionButton, { borderColor: Theme.colors.accent + '44' }]}
               onPress={() => router.push({

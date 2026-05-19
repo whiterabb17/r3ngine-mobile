@@ -217,7 +217,7 @@ export default function ScanDetailScreen() {
         )}
 
         {activeTab === 'SUMMARY' && data && (
-           <SummaryTab data={data} scanId={Number(id)} />
+           <SummaryTab data={data} scanId={Number(id)} onRefresh={fetchScanDetail} />
         )}
         
         {activeTab === 'SUBDOMAINS' && data && (

@@ -4,7 +4,7 @@ import { paths, components } from '../types/api';
 export type InAppNotification = components['schemas']['InAppNotification'];
 
 type GetNotificationsResponse = paths['/mapi/notifications/']['get']['responses']['200']['content']['application/json'];
-type UnreadCountResponse = paths['/mapi/notifications/unread_count/']['get']['responses']['200']['content']['application/json'];
+type UnreadCountResponse = { count: number };
 
 export const getNotifications = async (projectSlug?: string): Promise<GetNotificationsResponse> => {
   const params = projectSlug ? { project_slug: projectSlug } : {};

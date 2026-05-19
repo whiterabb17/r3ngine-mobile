@@ -1,11 +1,35 @@
 import apiClient from './client';
 import { paths } from '../types/api';
 
-type ListEnginesResponse = paths['/mapi/listEngines/']['get']['responses']['200']['content']['application/json'];
-type GetEngineDetailsResponse = paths['/mapi/action/engine/get/']['post']['responses']['201']['content']['application/json'];
-type ListExternalToolsResponse = paths['/mapi/external/tool/get_current_release/']['get']['responses']['200']['content']['application/json'];
-type ListWordlistsResponse = paths['/mapi/listWordlists/']['get']['responses']['200']['content']['application/json'];
-type GetWordlistContentResponse = paths['/mapi/action/wordlist/read/']['get']['responses']['200']['content']['application/json'];
+export interface Engine {
+  id: number;
+  engine_name: string;
+  tasks?: string[];
+  yaml_configuration?: string;
+  default_engine?: boolean | null;
+}
+
+export interface ListEnginesResponse {
+  engines: Engine[];
+}
+
+export interface GetEngineDetailsResponse {
+  status: boolean;
+  engine: Engine;
+}
+
+export interface ListExternalToolsResponse {
+  tools: any[];
+}
+
+export interface ListWordlistsResponse {
+  wordlists: string[];
+}
+
+export interface GetWordlistContentResponse {
+  content: string;
+}
+
 
 // Engine Management
 export const listEngines = async (): Promise<ListEnginesResponse> => {

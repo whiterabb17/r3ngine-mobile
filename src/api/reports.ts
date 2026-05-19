@@ -1,9 +1,9 @@
 import apiClient from './client';
 import { paths } from '../types/api';
 
-type TriggerGptVulnerabilityReportResponse = paths['/mapi/tools/gpt_vulnerability_report/']['get']['responses']['200']['content']['application/json'];
-type TriggerAiInsightsResponse = paths['/mapi/apme/trigger/']['post']['responses']['201']['content']['application/json'];
-type GetAttackPathsResponse = paths['/mapi/apme/paths/']['get']['responses']['200']['content']['application/json'];
+export type TriggerGptVulnerabilityReportResponse = any;
+export type TriggerAiInsightsResponse = any;
+export type GetAttackPathsResponse = any;
 type ReportStatusResponse = any;
 type CreateReportResponse = any;
 
