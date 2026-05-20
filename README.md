@@ -1,6 +1,4 @@
-<p align="center">
-  <em>THIS IS AN <strong>ALPHA</strong> RELEASE AND MAY CONTAIN BUGS</em>
-</p>
+
 <p align="center">
 <a href="https://rengine.wiki"><img src="https://raw.githubusercontent.com/whiterabb17/r3ngine/main/frontend/public/img/banner.png" height="400px" width="520px" alt=""/></a>
 </p>
