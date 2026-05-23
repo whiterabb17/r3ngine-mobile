@@ -1,6 +1,4 @@
-<p align="center">
-  <em>THIS IS AN <strong>ALPHA</strong> RELEASE AND MAY CONTAIN BUGS</em>
-</p>
+
 <p align="center">
 <a href="https://rengine.wiki"><img src="https://raw.githubusercontent.com/whiterabb17/r3ngine/main/frontend/public/img/banner.png" height="400px" width="520px" alt=""/></a>
 </p>
@@ -11,12 +9,7 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/whiterabb17/r3ngine/releases" target="_blank"><img src="https://img.shields.io/badge/version-v1.0.0--alpha-informational?&logo=none" alt="r3ngine Mobile Version" /></a>&nbsp;<a href="https://www.gnu.org/licenses/gpl-3.0" target="_blank"><img src="https://img.shields.io/badge/License-GPLv3-red.svg?&logo=none" alt="License" /></a>&nbsp;<a href="https://expo.dev" target="_blank"><img src="https://img.shields.io/badge/Platform-Expo--iOS--Android-blue.svg?&logo=none" alt="Platform" /></a>
-</p>
-
-<p align="center">
-  <a href="https://rengine.wiki" target="_blank"><img src="https://img.shields.io/badge/Documentation-Wiki-success.svg?logo=none" alt="Documentation" /></a>&nbsp;
-  <a href="https://discord.gg/azv6fzhNCE" target="_blank"><img src="https://img.shields.io/badge/Community-Discord-blue.svg?logo=none" alt="Discord" /></a>
+<a href="https://github.com/whiterabb17/r3ngine-mobile/releases" target="_blank"><img src="https://img.shields.io/badge/version-v1.2.1--alpha-informational?&logo=none" alt="r3ngine Mobile Version" /></a>&nbsp;<a href="https://github.com/whiterabb17/r3ngine/releases" target="_blank"><img src="https://img.shields.io/badge/compatible_with-r3ngine_v3.1+-warning?&logo=none" alt="Compatible r3Ngine version" /></a><br/><a href="https://www.gnu.org/licenses/gpl-3.0" target="_blank"><img src="https://img.shields.io/badge/License-GPLv3-red.svg?&logo=none" alt="License" /></a>&nbsp;<a href="https://expo.dev" target="_blank"><img src="https://img.shields.io/badge/Platform-Expo--iOS--Android-blue.svg?&logo=none" alt="Platform" /></a>
 </p>
 
 <h4>r3ngine Mobile: Tactical Reconnaissance 3.0</h4>
@@ -60,9 +53,11 @@ The mobile app isn't just a viewer; it's a portable command center synchronized 
 
 ## 📸 Visual Interface
 
+<!-- 
 <p align="center">
   <img src=".github/screenshots/mobile_interface.gif" width="300px" alt="r3ngine Mobile Interface Walkthrough" />
 </p>
+-->
 
 | Dashboard | Geo-Tactical Map | Scan Details | Scan Orchestration |
 | :---: | :---: | :---: | :---: |
@@ -94,8 +89,8 @@ Built with a "Safety-First" philosophy, the mobile app leverages a modern, high-
 ### Setup
 1.  **Clone and Navigate**
     ```bash
-    git clone https://github.com/whiterabb17/r3ngine.git
-    cd r3ngine/r3ngine-mobile
+    git clone https://github.com/whiterabb17/r3ngine-mobile.git
+    cd r3ngine-mobile
     ```
 
 2.  **Install Dependencies**
