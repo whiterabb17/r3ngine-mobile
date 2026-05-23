@@ -3,883 +3,1027 @@ import {
   StyleSheet, 
   ScrollView, 
   TouchableOpacity, 
+  TextInput, 
   ActivityIndicator, 
   Alert, 
-  TextInput,
-  Clipboard,
+  FlatList,
   Dimensions,
-  SafeAreaView
+  Switch,
+  Modal
 } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { 
-  Zap, 
-  Square, 
-  Activity, 
-  AlertTriangle, 
   ChevronLeft, 
-  Terminal as TerminalIcon, 
-  Clock, 
-  FileText, 
-  Cpu,
-  Layers,
-  Sparkles,
-  ArrowDownCircle,
-  Copy,
-  Trash2
+  Play, 
+  Square, 
+  Settings, 
+  Activity, 
+  Zap, 
+  AlertTriangle, 
+  Terminal, 
+  Sliders, 
+  Globe, 
+  ShieldAlert, 
+  Clock,
+  Plus
 } from 'lucide-react-native';
-import Svg, { Path, Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
-import * as Haptics from 'expo-haptics';
+import Svg, { Path, Rect } from 'react-native-svg';
 
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../../src/constants/Theme';
-import apiClient from '../../../src/api/client';
+import { stressApi, StressConfig } from '../../../src/api/stress';
 import { useSettingsStore } from '../../../src/store/useSettingsStore';
 
-// Telemetry Interface aligning with the web dashboard
+const { width } = Dimensions.get('window');
+
 interface TelemetryPoint {
-  timestamp: number;
-  tool: string;
-  endpoint: string;
-  concurrency?: number;
-  latency?: number;
-  avg_latency?: number;
-  p95_latency?: number;
-  throughput_rps?: number;
-  error_rate?: number;
-  type?: 'command' | 'log' | 'metric';
-  command?: string;
+  type: string;
+  tool?: string;
   line?: string;
+  avg_latency?: number;
+  latency?: number;
+  throughput_rps?: number;
+  rps?: number;
+  error_rate?: number;
+  total_requests?: number;
+  timestamp: number;
 }
 
-export default function MobileStressTelemetryScreen() {
+export default function MobileStressCockpit() {
   const { id } = useLocalSearchParams();
+  const scanId = parseInt(Array.isArray(id) ? id[0] : id);
   const router = useRouter();
   const { serverIp } = useSettingsStore();
 
-  const [wsStatus, setWsStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected');
   const [isScanning, setIsScanning] = useState(false);
-  const [telemetry, setTelemetry] = useState<TelemetryPoint[]>([]);
-  const [consoleLogs, setConsoleLogs] = useState<string[]>([]);
-  const [filterText, setFilterText] = useState('');
-  const [isStopping, setIsStopping] = useState(false);
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [wsStatus, setWsStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
+
+  // Configuration States
+  const [concurrency, setConcurrency] = useState(50);
+  const [duration, setDuration] = useState('30s');
+  const [selectedTools, setSelectedTools] = useState<string[]>(['k6', 'wrk']);
+  
+  // Endpoint Selection Drawer/Modal
+  const [endpoints, setEndpoints] = useState<any[]>([]);
+  const [selectedEndpoints, setSelectedEndpoints] = useState<string[]>([]);
+  const [openSettingsModal, setOpenSettingsModal] = useState(false);
+  const [openEndpointsModal, setOpenEndpointsModal] = useState(false);
+
+  // Telemetry Metrics
+  const [logs, setLogs] = useState<string[]>([]);
+  const [latencyPoints, setLatencyPoints] = useState<{ x: number; y: number }[]>([]);
+  const [rpsValue, setRpsValue] = useState(0);
+  const [totalReqs, setTotalReqs] = useState(0);
+  const [errorRate, setErrorRate] = useState(0);
 
   const socketRef = useRef<WebSocket | null>(null);
-  const consoleScrollViewRef = useRef<ScrollView | null>(null);
+  const logsListRef = useRef<FlatList | null>(null);
 
-  // 1. Resolve & Establish WebSocket Connection
+  // Fetch initial scan settings & status
   useEffect(() => {
-    if (!id || !serverIp) return;
+    const init = async () => {
+      try {
+        setLoading(true);
+        // Load discovered endpoints
+        const fetchedEndpoints = await stressApi.getEndpoints('default', scanId);
+        setEndpoints(fetchedEndpoints);
 
-    let reconnectTimeout: ReturnType<typeof setTimeout>;
-    let isMounted = true;
-    let reconnectAttempts = 0;
-
-    const connect = () => {
-      if (!isMounted) return;
-
-      let cleanIp = serverIp.trim();
-      if (cleanIp.endsWith('/')) {
-        cleanIp = cleanIp.slice(0, -1);
-      }
-
-      let wsBase = '';
-      if (cleanIp.startsWith('https://')) {
-        wsBase = cleanIp.replace('https://', 'wss://');
-      } else if (cleanIp.startsWith('http://')) {
-        wsBase = cleanIp.replace('http://', 'ws://');
-      } else {
-        wsBase = `ws://${cleanIp}`;
-      }
-
-      const socketUrl = `${wsBase}/ws/stress/${id}/`;
-      console.log(`[Mobile WS] Connecting (Attempt ${reconnectAttempts + 1}): ${socketUrl}`);
-      setWsStatus('connecting');
-
-      const socket = new WebSocket(socketUrl);
-      socketRef.current = socket;
-
-      socket.onopen = () => {
-        if (!isMounted) return;
-        console.log('[Mobile WS] Telemetry Connected');
-        setWsStatus('connected');
-        reconnectAttempts = 0;
-      };
-
-      socket.onmessage = (event) => {
-        if (!isMounted) return;
-        try {
-          const packet = JSON.parse(event.data);
-          if (packet.type === 'telemetry_update' && packet.data) {
-            const dataPoint = packet.data as TelemetryPoint;
-            
-            // Add to metric telemetry
-            if (!dataPoint.type || dataPoint.type === 'metric') {
-              setTelemetry((prev) => {
-                const updated = [...prev, dataPoint];
-                return updated.length > 500 ? updated.slice(1) : updated;
-              });
-            }
-
-            // Stream to console logs if it is stdout/stderr log
-            if (dataPoint.type === 'log' || dataPoint.type === 'command') {
-              const logMsg = dataPoint.line || dataPoint.command || '';
-              if (logMsg.trim()) {
-                setConsoleLogs((prev) => {
-                  const updated = [...prev, logMsg];
-                  return updated.length > 1000 ? updated.slice(1) : updated;
-                });
-              }
-            }
-          } else if (packet.type === 'scan_status') {
-            setIsScanning(packet.status === 'running');
-          }
-        } catch (err) {
-          console.error('[Mobile WS] Message parse failed', err);
+        // Fetch status
+        const status = await stressApi.getStressStatus(scanId);
+        if (status.kill_switch_active === false) {
+          // If active in DB or stream is running, we can check if it's currently scanning
+          // Let's connect socket to find out
         }
-      };
-
-      socket.onclose = (event) => {
-        if (!isMounted) return;
-        console.log(`[Mobile WS] Disconnected: ${event.code}`);
-        setWsStatus('disconnected');
-
-        if (event.code !== 1000 && event.code !== 1001) {
-          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 20000);
-          reconnectAttempts++;
-          reconnectTimeout = setTimeout(connect, delay);
-        }
-      };
-
-      socket.onerror = (error) => {
-        if (!isMounted) return;
-        console.error('[Mobile WS] Error:', error);
-        setWsStatus('error');
-      };
+      } catch (err) {
+        console.error('Failed to initialize stress telemetry cockpit:', err);
+      } finally {
+        setLoading(false);
+      }
     };
-
-    connect();
+    init();
 
     return () => {
-      isMounted = false;
-      if (socketRef.current) {
-        socketRef.current.close(1000);
-      }
-      clearTimeout(reconnectTimeout);
+      disconnectWebSocket();
     };
-  }, [id, serverIp]);
+  }, [scanId]);
 
-  // 2. Stop Scan Trigger with Native Haptics Feedback
-  const handleStopScan = async () => {
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-    Alert.alert(
-      "ABORT SCAN ENGINE",
-      "Are you sure you want to stop this stress test immediately? This will terminate all active load tools.",
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "ABORT ENGINE", 
-          style: "destructive",
-          onPress: async () => {
-            setIsStopping(true);
-            try {
-              const response = await apiClient.post('/mapi/action/stop/scan/', { scan_ids: [Number(id)] });
-              if (response.data && response.data.status) {
-                await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                Alert.alert("Success", "Stress scan abort command issued successfully.");
-                setIsScanning(false);
-              } else {
-                Alert.alert("Error", response.data.message || "Failed to abort stress test.");
-              }
-            } catch (err) {
-              Alert.alert("Error", "Network error occurred when stopping the stress engine.");
-            } finally {
-              setIsStopping(false);
-            }
-          }
+  // Connect WebSocket when scanning starts
+  useEffect(() => {
+    if (isScanning) {
+      connectWebSocket();
+    } else {
+      disconnectWebSocket();
+    }
+  }, [isScanning]);
+
+  const connectWebSocket = () => {
+    disconnectWebSocket();
+
+    let wsProto = 'ws://';
+    let wsHost = serverIp || '10.0.2.2:8000';
+
+    if (wsHost.includes('://')) {
+      const parts = wsHost.split('://');
+      wsProto = parts[0] === 'https' ? 'wss://' : 'ws://';
+      wsHost = parts[1];
+    }
+
+    if (wsHost.endsWith('/')) {
+      wsHost = wsHost.substring(0, wsHost.length - 1);
+    }
+
+    const wsUrl = `${wsProto}${wsHost}/ws/stress/${scanId}/`;
+    console.log(`[WebSocket] Connecting to stress stream: ${wsUrl}`);
+    setWsStatus('connecting');
+
+    const socket = new WebSocket(wsUrl);
+    socketRef.current = socket;
+
+    socket.onopen = () => {
+      console.log('[WebSocket] Connected successfully');
+      setWsStatus('connected');
+    };
+
+    socket.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        if (message.type === 'telemetry_update') {
+          handleTelemetryData(message.data);
+        } else if (message.type === 'scan_status') {
+          setIsScanning(message.status === 'running');
         }
-      ]
+      } catch (err) {
+        console.error('[WebSocket] Parse error:', err);
+      }
+    };
+
+    socket.onclose = (event) => {
+      console.log('[WebSocket] Connection closed:', event.code);
+      setWsStatus('disconnected');
+      if (isScanning) {
+        // Retry
+        setTimeout(connectWebSocket, 3000);
+      }
+    };
+
+    socket.onerror = (error) => {
+      console.error('[WebSocket] Error encountered:', error);
+      setWsStatus('error');
+    };
+  };
+
+  const disconnectWebSocket = () => {
+    if (socketRef.current) {
+      socketRef.current.close();
+      socketRef.current = null;
+    }
+    setWsStatus('disconnected');
+  };
+
+  const handleTelemetryData = (point: TelemetryPoint) => {
+    if (point.type === 'log' && point.line) {
+      setLogs(prev => {
+        const newLogs = [...prev, point.line!];
+        if (newLogs.length > 500) newLogs.shift();
+        return newLogs;
+      });
+      // Scroll terminal logs to bottom
+      setTimeout(() => {
+        logsListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    } else if (point.type === 'metric') {
+      const lat = point.avg_latency || point.latency || 0;
+      const rps = point.throughput_rps || point.rps || 0;
+      const reqs = point.total_requests || 0;
+      const errs = point.error_rate || 0;
+
+      if (lat > 0) {
+        setLatencyPoints(prev => {
+          const nextPoints = [...prev, { x: point.timestamp, y: lat }];
+          if (nextPoints.length > 30) nextPoints.shift();
+          return nextPoints;
+        });
+      }
+
+      setRpsValue(rps);
+      if (reqs > 0) setTotalReqs(reqs);
+      setErrorRate(errs);
+    }
+  };
+
+  const handleStart = async () => {
+    setLogs([]);
+    setLatencyPoints([]);
+    setRpsValue(0);
+    setErrorRate(0);
+    setIsScanning(true);
+
+    const k6_conf = {
+      vus: concurrency,
+      duration: duration,
+      attack_type: 'http_get',
+      rps: '',
+      insecure_skip_tls: true,
+      no_connection_reuse: false,
+      http_debug: ''
+    };
+
+    const wrk_conf = {
+      threads: '2',
+      connections: concurrency,
+      duration: duration,
+      latency: true,
+      timeout: '',
+      headers: []
+    };
+
+    const locust_conf = {
+      users: concurrency,
+      spawn_rate: 10,
+      run_time: duration,
+      loglevel: 'ERROR'
+    };
+
+    const payload: StressConfig = {
+      concurrency,
+      duration,
+      uses_tools: selectedTools,
+      selected_endpoints: selectedEndpoints.length > 0 ? selectedEndpoints : undefined,
+      k6_config: k6_conf,
+      wrk_config: wrk_conf,
+      locust_config: locust_conf
+    };
+
+    try {
+      await stressApi.controlStressTest(scanId, 'start', payload);
+      Alert.alert('Telemetry Cockpit Active', 'Stress testing run successfully initiated.');
+    } catch (error: any) {
+      console.error('Failed to start stress run:', error);
+      setIsScanning(false);
+      Alert.alert('Execution Blocked', 'Could not start stress testing task. Please check server logs.');
+    }
+  };
+
+  const handleStop = async () => {
+    try {
+      await stressApi.controlStressTest(scanId, 'stop');
+      setIsScanning(false);
+      Alert.alert('Halt Sent', 'Emergency abort command triggered.');
+    } catch (error: any) {
+      console.error('Failed to trigger abort switch:', error);
+      Alert.alert('Error', 'Failed to halt the stress test.');
+    }
+  };
+
+  const toggleTool = (tool: string) => {
+    setSelectedTools(prev => 
+      prev.includes(tool) ? prev.filter(t => t !== tool) : [...prev, tool]
     );
   };
 
-  // 3. Generate Report Trigger
-  const handleGenerateReport = async () => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setIsGeneratingReport(true);
-    try {
-      // Simulate/trigger report generation using same backend endpoint
-      const response = await apiClient.post(`/mapi/action/generate-stress-report/`, { scan_id: Number(id) });
-      if (response.data && response.data.status) {
-        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        Alert.alert("Report Initialized", "Stress Test SOC report compilation triggered successfully.");
-      } else {
-        Alert.alert("Error", response.data.message || "Failed to compile stress test report.");
-      }
-    } catch (err) {
-      Alert.alert("Error", "Network connection issues prevented report compilation.");
-    } finally {
-      setIsGeneratingReport(false);
-    }
+  const toggleEndpoint = (url: string) => {
+    setSelectedEndpoints(prev => 
+      prev.includes(url) ? prev.filter(u => u !== url) : [...prev, url]
+    );
   };
 
-  // 4. Compute Real-Time KPIs dynamically from Telemetry Streams
-  const kpiData = useMemo(() => {
-    const points = telemetry.filter(p => !p.type || p.type === 'metric');
-    if (points.length === 0) {
-      return { concurrency: 0, avgLatency: 0, successRate: 100, rps: 0 };
-    }
+  // SVG Chart Layout Helpers
+  const svgPath = useMemo(() => {
+    if (latencyPoints.length < 2) return '';
+    const chartWidth = width - Theme.spacing.md * 4;
+    const chartHeight = 120;
+    const ys = latencyPoints.map(p => p.y);
+    const maxY = Math.max(...ys, 100);
+    const minY = Math.min(...ys, 0);
+    const yRange = maxY - minY;
 
-    const latest = points[points.length - 1];
-    const concurrency = latest.concurrency || 0;
-    
-    // Average Latency
-    const sumLatency = points.reduce((acc, curr) => acc + (curr.avg_latency || curr.latency || 0), 0);
-    const avgLatency = Math.round(sumLatency / points.length);
+    return latencyPoints.map((p, index) => {
+      const x = (index / (latencyPoints.length - 1)) * chartWidth;
+      const y = chartHeight - ((p.y - minY) / yRange) * (chartHeight - 20) - 10;
+      return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
+    }).join(' ');
+  }, [latencyPoints]);
 
-    // Throughput RPS
-    const rps = latest.throughput_rps || 0;
-
-    // Success Rate (from error rate)
-    const avgErrorRate = points.reduce((acc, curr) => acc + (curr.error_rate || 0), 0) / points.length;
-    const successRate = Math.max(0, Math.min(100, Math.round(100 - avgErrorRate)));
-
-    return { concurrency, avgLatency, successRate, rps };
-  }, [telemetry]);
-
-  // 5. Build Lightweight SVG Custom Charts for 60fps Mobile Performance
-  const screenWidth = Dimensions.get('window').width;
-  const chartWidth = screenWidth - 32 - 16; // Account for margins and padding
-  const chartHeight = 120;
-
-  const latencyChartPath = useMemo(() => {
-    const points = telemetry.filter(p => !p.type || p.type === 'metric');
-    if (points.length < 2) return '';
-
-    const latencies = points.map(p => p.avg_latency || p.latency || 0);
-    const maxVal = Math.max(...latencies, 200); // Floor at 200ms
-    const minVal = 0;
-
-    const xStride = chartWidth / (points.length - 1);
-    const yScale = chartHeight / (maxVal - minVal);
-
-    let d = `M 0 ${chartHeight - (latencies[0] - minVal) * yScale}`;
-    for (let i = 1; i < latencies.length; i++) {
-      const x = i * xStride;
-      const y = chartHeight - (latencies[i] - minVal) * yScale;
-      d += ` L ${x} ${y}`;
-    }
-    return d;
-  }, [telemetry, chartWidth]);
-
-  const latencyFillPath = useMemo(() => {
-    if (!latencyChartPath) return '';
-    return `${latencyChartPath} L ${chartWidth} ${chartHeight} L 0 ${chartHeight} Z`;
-  }, [latencyChartPath, chartWidth]);
-
-  const throughputChartPath = useMemo(() => {
-    const points = telemetry.filter(p => !p.type || p.type === 'metric');
-    if (points.length < 2) return '';
-
-    const throughputs = points.map(p => p.throughput_rps || 0);
-    const maxVal = Math.max(...throughputs, 50); // Floor at 50 RPS
-    const minVal = 0;
-
-    const xStride = chartWidth / (points.length - 1);
-    const yScale = chartHeight / (maxVal - minVal);
-
-    let d = `M 0 ${chartHeight - (throughputs[0] - minVal) * yScale}`;
-    for (let i = 1; i < throughputs.length; i++) {
-      const x = i * xStride;
-      const y = chartHeight - (throughputs[i] - minVal) * yScale;
-      d += ` L ${x} ${y}`;
-    }
-    return d;
-  }, [telemetry, chartWidth]);
-
-  // 6. Mobile Optimized Saturation List
-  const endpointSaturationList = useMemo(() => {
-    const endpoints: Record<string, { latency: number; count: number }> = {};
-    telemetry.forEach((p) => {
-      if (p.endpoint && (p.latency || p.avg_latency)) {
-        const val = p.avg_latency || p.latency || 0;
-        if (!endpoints[p.endpoint]) {
-          endpoints[p.endpoint] = { latency: 0, count: 0 };
-        }
-        endpoints[p.endpoint].latency += val;
-        endpoints[p.endpoint].count += 1;
-      }
-    });
-
-    return Object.keys(endpoints).map((key) => {
-      const avg = Math.round(endpoints[key].latency / endpoints[key].count);
-      let status: 'good' | 'warn' | 'critical' = 'good';
-      let color = Theme.colors.success;
-      if (avg > 500) {
-        status = 'critical';
-        color = Theme.colors.error;
-      } else if (avg > 200) {
-        status = 'warn';
-        color = Theme.colors.warning;
-      }
-
-      return {
-        endpoint: key,
-        avgLatency: avg,
-        status,
-        color
-      };
-    });
-  }, [telemetry]);
-
-  // 7. Stream Console & Filtering Log Methods
-  const filteredConsoleLogs = useMemo(() => {
-    if (!filterText.trim()) return consoleLogs;
-    return consoleLogs.filter(log => log.toLowerCase().includes(filterText.toLowerCase()));
-  }, [consoleLogs, filterText]);
-
-  const copyToClipboard = () => {
-    Clipboard.setString(consoleLogs.join('\n'));
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    Alert.alert("Copied", "Raw telemetry logs successfully copied to your clipboard.");
-  };
-
-  const clearLogs = () => {
-    setConsoleLogs([]);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  };
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Theme.colors.primary} />
+        <Text style={styles.loadingText}>Connecting Telemetry Grid...</Text>
+      </View>
+    );
+  }
 
   return (
-    <SafeAreaView style={styles.safeContainer}>
-      <Stack.Screen 
-        options={{
-          headerShown: true,
-          title: 'STRESS COCKPIT',
-          headerStyle: { backgroundColor: Theme.colors.surface },
-          headerTintColor: Theme.colors.primary,
-          headerTitleStyle: {
-            fontFamily: 'Bangers',
-            fontSize: 22
-          },
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={{ padding: 8, marginLeft: -8 }}>
-              <ChevronLeft size={24} color={Theme.colors.text} />
-            </TouchableOpacity>
-          )
-        }}
-      />
+    <View style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
 
-      <ScrollView 
-        style={styles.container}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* WS Status Badge & Engine Info */}
-        <View style={styles.topInfoRow}>
-          <View style={styles.badgeContainer}>
-            <View style={[styles.statusDot, { 
-              backgroundColor: wsStatus === 'connected' ? Theme.colors.success : 
-                               wsStatus === 'connecting' ? Theme.colors.warning : Theme.colors.error 
-            }]} />
-            <Text style={styles.statusLabel}>
-              WS TELEMETRY: {wsStatus.toUpperCase()}
-            </Text>
-          </View>
-          <View style={[styles.statusBadge, { 
-            borderColor: isScanning ? Theme.colors.primary : Theme.colors.textMuted,
-            backgroundColor: isScanning ? Theme.colors.primary + '15' : 'transparent'
-          }]}>
-            <Text style={[styles.badgeText, { color: isScanning ? Theme.colors.primary : Theme.colors.textMuted }]}>
-              {isScanning ? 'ACTIVE RUN' : 'STANDBY'}
-            </Text>
-          </View>
+      {/* Header Bar */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <ChevronLeft size={28} color={Theme.colors.text} />
+        </TouchableOpacity>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>STRESS COCKPIT</Text>
+          <Text style={styles.headerSubtitle}>Target Scan ID: {scanId}</Text>
         </View>
+        <TouchableOpacity 
+          onPress={() => setOpenSettingsModal(true)} 
+          style={styles.settingsBtn}
+          disabled={isScanning}
+        >
+          <Settings size={22} color={isScanning ? Theme.colors.textMuted : Theme.colors.primary} />
+        </TouchableOpacity>
+      </View>
 
-        {/* Real-Time KPIs Grid */}
-        <View style={styles.kpiGrid}>
-          <View style={styles.kpiCard}>
-            <View style={styles.kpiHeader}>
-              <Cpu size={14} color={Theme.colors.primary} />
-              <Text style={styles.kpiTitle}>CONCURRENCY</Text>
-            </View>
-            <Text style={[styles.kpiValue, { color: Theme.colors.primary }]}>{kpiData.concurrency}</Text>
-            <Text style={styles.kpiMeta}>Active VUs</Text>
-          </View>
-
-          <View style={styles.kpiCard}>
-            <View style={styles.kpiHeader}>
-              <Clock size={14} color={Theme.colors.warning} />
-              <Text style={styles.kpiTitle}>AVG LATENCY</Text>
-            </View>
-            <Text style={[styles.kpiValue, { color: Theme.colors.warning }]}>{kpiData.avgLatency}ms</Text>
-            <Text style={styles.kpiMeta}>Response</Text>
-          </View>
-
-          <View style={styles.kpiCard}>
-            <View style={styles.kpiHeader}>
-              <Zap size={14} color={Theme.colors.success} />
-              <Text style={styles.kpiTitle}>SUCCESS RATE</Text>
-            </View>
-            <Text style={[styles.kpiValue, { color: Theme.colors.success }]}>{kpiData.successRate}%</Text>
-            <Text style={styles.kpiMeta}>Error bound</Text>
-          </View>
-
-          <View style={styles.kpiCard}>
-            <View style={styles.kpiHeader}>
-              <Activity size={14} color={Theme.colors.accent} />
-              <Text style={styles.kpiTitle}>THROUGHPUT</Text>
-            </View>
-            <Text style={[styles.kpiValue, { color: Theme.colors.accent }]}>{Math.round(kpiData.rps)}</Text>
-            <Text style={styles.kpiMeta}>Requests/sec</Text>
-          </View>
-        </View>
-
-        {/* Action Controls */}
-        <View style={styles.actionContainer}>
-          <TouchableOpacity 
-            style={[styles.glassBtn, styles.reportBtn]} 
-            onPress={handleGenerateReport}
-            disabled={isGeneratingReport}
-          >
-            {isGeneratingReport ? (
-              <ActivityIndicator size="small" color="#8ba4c0" />
-            ) : (
-              <>
-                <FileText size={18} color="#8ba4c0" />
-                <Text style={styles.reportBtnText}>COMPILE SOC REPORT</Text>
-              </>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.actionBtn, styles.stopBtn]} 
-            onPress={handleStopScan}
-            disabled={isStopping}
-          >
-            {isStopping ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <>
-                <Square size={16} color="#fff" fill="#fff" />
-                <Text style={styles.stopBtnText}>KILL SWITCH</Text>
-              </>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Real-time charts */}
-        <View style={styles.chartPanel}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Connection Status & Control Console */}
+        <View style={styles.panel}>
           <View style={styles.panelHeader}>
-            <Activity size={16} color={Theme.colors.warning} />
-            <Text style={styles.panelTitle}>AVG RESPONSE TIME (ms)</Text>
+            <Activity size={16} color={Theme.colors.primary} />
+            <Text style={styles.panelTitle}>TELEMETRY NETWORK STATUS</Text>
+          </View>
+          <View style={styles.statusBox}>
+            <View style={styles.statusRow}>
+              <Text style={styles.statusLabel}>GRID STATUS:</Text>
+              <View style={[styles.badge, { 
+                borderColor: isScanning ? Theme.colors.success : Theme.colors.warning 
+              }]}>
+                <Text style={[styles.badgeText, { 
+                  color: isScanning ? Theme.colors.success : Theme.colors.warning 
+                }]}>
+                  {isScanning ? 'RUNNING' : 'STANDBY'}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.statusRow}>
+              <Text style={styles.statusLabel}>WEBSOCKET FEED:</Text>
+              <Text style={[styles.feedStatus, { 
+                color: wsStatus === 'connected' ? Theme.colors.success : Theme.colors.error 
+              }]}>
+                {wsStatus.toUpperCase()}
+              </Text>
+            </View>
+          </View>
+
+          {/* Start/Stop Primary Buttons */}
+          <View style={styles.controlsRow}>
+            {!isScanning ? (
+              <TouchableOpacity onPress={handleStart} style={styles.startBtn}>
+                <Play size={18} color="#000" fill="#000" />
+                <Text style={styles.startBtnText}>ENGAGE STRESS TEST</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity onPress={handleStop} style={styles.stopBtn}>
+                <Square size={18} color="#fff" fill="#fff" />
+                <Text style={styles.stopBtnText}>ABORT TASK IMMEDIATELY</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
+        {/* Real-time KPI Card Dashboard */}
+        <View style={styles.kpiRow}>
+          <View style={styles.kpiCard}>
+            <Text style={styles.kpiLabel}>AVERAGE RPS</Text>
+            <Text style={[styles.kpiValue, { color: Theme.colors.primary }]}>
+              {rpsValue.toFixed(1)}
+            </Text>
+            <Text style={styles.kpiSub}>Requests / Sec</Text>
+          </View>
+          <View style={styles.kpiCard}>
+            <Text style={styles.kpiLabel}>ERROR RATE</Text>
+            <Text style={[styles.kpiValue, { color: errorRate > 0 ? Theme.colors.error : Theme.colors.success }]}>
+              {errorRate.toFixed(1)}%
+            </Text>
+            <Text style={styles.kpiSub}>Failed Requests</Text>
+          </View>
+        </View>
+
+        {/* SVG Performance Line Graph */}
+        <View style={styles.panel}>
+          <View style={styles.panelHeader}>
+            <Zap size={16} color={Theme.colors.warning} />
+            <Text style={styles.panelTitle}>LATENCY OVERVIEW (ms)</Text>
           </View>
           <View style={styles.chartContainer}>
-            {telemetry.length < 2 ? (
+            {latencyPoints.length < 2 ? (
               <View style={styles.emptyChart}>
-                <ActivityIndicator size="small" color={Theme.colors.warning} />
-                <Text style={styles.emptyChartText}>Waiting for latency telemetry...</Text>
+                <Text style={styles.emptyChartText}>Waiting for latency data stream...</Text>
               </View>
             ) : (
-              <Svg width={chartWidth} height={chartHeight}>
-                <Defs>
-                  <LinearGradient id="latencyGlow" x1="0" y1="0" x2="0" y2="1">
-                    <Stop offset="0%" stopColor={Theme.colors.warning} stopOpacity="0.3" />
-                    <Stop offset="100%" stopColor={Theme.colors.warning} stopOpacity="0" />
-                  </LinearGradient>
-                </Defs>
-                <Path d={latencyFillPath} fill="url(#latencyGlow)" />
-                <Path d={latencyChartPath} fill="none" stroke={Theme.colors.warning} strokeWidth="2.5" />
+              <Svg width={width - Theme.spacing.md * 4} height={120}>
+                <Path
+                  d={svgPath}
+                  fill="none"
+                  stroke={Theme.colors.primary}
+                  strokeWidth={2.5}
+                />
               </Svg>
             )}
           </View>
         </View>
 
-        <View style={styles.chartPanel}>
+        {/* Real-time RPS Load Indicator */}
+        <View style={styles.panel}>
           <View style={styles.panelHeader}>
-            <Zap size={16} color={Theme.colors.accent} />
-            <Text style={styles.panelTitle}>THROUGHPUT RATE (RPS)</Text>
-          </View>
-          <View style={styles.chartContainer}>
-            {telemetry.length < 2 ? (
-              <View style={styles.emptyChart}>
-                <ActivityIndicator size="small" color={Theme.colors.accent} />
-                <Text style={styles.emptyChartText}>Waiting for throughput telemetry...</Text>
-              </View>
-            ) : (
-              <Svg width={chartWidth} height={chartHeight}>
-                <Defs>
-                  <LinearGradient id="throughputGlow" x1="0" y1="0" x2="0" y2="1">
-                    <Stop offset="0%" stopColor={Theme.colors.accent} stopOpacity="0.25" />
-                    <Stop offset="100%" stopColor={Theme.colors.accent} stopOpacity="0" />
-                  </LinearGradient>
-                </Defs>
-                <Path d={throughputChartPath} fill="none" stroke={Theme.colors.accent} strokeWidth="2" />
-              </Svg>
-            )}
-          </View>
-        </View>
-
-        {/* Heatmap/Saturation list */}
-        <View style={styles.chartPanel}>
-          <View style={styles.panelHeader}>
-            <Layers size={16} color={Theme.colors.primary} />
-            <Text style={styles.panelTitle}>ENDPOINT SATURATION ANALYSIS</Text>
+            <Sliders size={16} color={Theme.colors.secondary} />
+            <Text style={styles.panelTitle}>THROUGHPUT SATURATION</Text>
           </View>
           <View style={styles.saturationContainer}>
-            {endpointSaturationList.length === 0 ? (
-              <View style={styles.emptyChart}>
-                <Text style={styles.emptyChartText}>No active endpoint telemetry logged.</Text>
-              </View>
-            ) : (
-              endpointSaturationList.map((item) => (
-                <View key={item.endpoint} style={styles.saturationRow}>
-                  <View style={[styles.saturationDotBox, { backgroundColor: item.color + '20' }]}>
-                    <View style={[styles.saturationIndicator, { backgroundColor: item.color }]} />
-                  </View>
-                  <Text style={styles.saturationEndpoint} numberOfLines={1}>
-                    {item.endpoint}
-                  </Text>
-                  <Text style={[styles.saturationLatency, { color: item.color }]}>
-                    {item.avgLatency}ms
-                  </Text>
-                </View>
-              ))
-            )}
+            <Text style={styles.saturationLabel}>CURRENT LOAD PRESSURE</Text>
+            <View style={styles.barBg}>
+              <View style={[
+                styles.barFill, 
+                { width: `${Math.min((rpsValue / 500) * 100, 100)}%` }
+              ]} />
+            </View>
+            <Text style={styles.saturationSub}>
+              {rpsValue.toFixed(0)} / 500 RPS Max Indicator Capacity
+            </Text>
           </View>
         </View>
 
-        {/* Live Terminal Logs */}
+        {/* Console Log Terminal */}
         <View style={styles.terminalPanel}>
           <View style={styles.terminalHeader}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'transparent', gap: 8 }}>
-              <TerminalIcon size={16} color={Theme.colors.primary} />
-              <Text style={styles.terminalTitle}>RAW TELEMETRY STREAM</Text>
-            </View>
-            <View style={styles.terminalControls}>
-              <TouchableOpacity onPress={copyToClipboard} style={styles.terminalControlBtn}>
-                <Copy size={14} color={Theme.colors.textMuted} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={clearLogs} style={styles.terminalControlBtn}>
-                <Trash2 size={14} color={Theme.colors.textMuted} />
-              </TouchableOpacity>
-            </View>
+            <Terminal size={14} color="#00f3ff" />
+            <Text style={styles.terminalTitle}>TACTICAL TELEMETRY STREAM</Text>
           </View>
-
-          {/* Filtering logs bar */}
-          <View style={styles.searchBarContainer}>
-            <TextInput 
-              style={styles.searchInput}
-              placeholder="Filter terminal console..."
-              placeholderTextColor={Theme.colors.textMuted + '80'}
-              value={filterText}
-              onChangeText={setFilterText}
-            />
-          </View>
-
-          <ScrollView 
-            ref={consoleScrollViewRef}
-            style={styles.terminalConsole}
-            contentContainerStyle={styles.terminalScrollContent}
-            nestedScrollEnabled={true}
-            onContentSizeChange={() => {
-              if (consoleScrollViewRef.current) {
-                consoleScrollViewRef.current.scrollToEnd({ animated: true });
-              }
-            }}
-          >
-            {filteredConsoleLogs.length === 0 ? (
-              <Text style={styles.emptyTerminalText}>[STANDBY] Telemetry log buffer empty...</Text>
-            ) : (
-              filteredConsoleLogs.map((log, index) => {
-                let color = '#d4d4d8'; // neutral text
-                if (log.includes('ERROR') || log.includes('Failed') || log.includes('ERR')) {
-                  color = Theme.colors.error;
-                } else if (log.includes('SUCCESS') || log.includes('passed') || log.includes('done')) {
-                  color = Theme.colors.success;
-                } else if (log.startsWith('>') || log.startsWith('[k6') || log.startsWith('[wrk')) {
-                  color = Theme.colors.primary;
-                }
-
-                return (
-                  <Text key={index} style={[styles.terminalLine, { color }]}>
-                    {log}
-                  </Text>
-                );
-              })
+          <FlatList
+            ref={logsListRef}
+            data={logs}
+            keyExtractor={(item, index) => index.toString()}
+            style={styles.terminalList}
+            contentContainerStyle={styles.terminalContent}
+            renderItem={({ item }) => (
+              <Text style={styles.terminalText}>{item}</Text>
             )}
-          </ScrollView>
+            ListEmptyComponent={
+              <Text style={styles.terminalEmpty}>CONSOLE STANDBY - ENGAGE COCKPIT TO UNLEASH TELEMETRY...</Text>
+            }
+          />
         </View>
       </ScrollView>
-    </SafeAreaView>
+
+      {/* Settings Configuration Modal */}
+      <Modal visible={openSettingsModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>STRESS RUN CONFIGURATION</Text>
+
+            <View style={styles.settingItem}>
+              <Text style={styles.settingLabel}>Concurrency Limit (VUs)</Text>
+              <TextInput
+                keyboardType="numeric"
+                value={concurrency.toString()}
+                onChangeText={(text) => setConcurrency(parseInt(text) || 10)}
+                style={styles.textInput}
+              />
+            </View>
+
+            <View style={styles.settingItem}>
+              <Text style={styles.settingLabel}>Duration Limit (e.g. 30s, 1m)</Text>
+              <TextInput
+                value={duration}
+                onChangeText={setDuration}
+                style={styles.textInput}
+              />
+            </View>
+
+            {/* Tool Selection Checkboxes */}
+            <Text style={styles.sectionHeading}>ENGAGED TOOLS</Text>
+            {['k6', 'wrk', 'locust'].map((tool) => (
+              <View key={tool} style={styles.checkboxRow}>
+                <Text style={styles.toolName}>{tool.toUpperCase()}</Text>
+                <Switch
+                  value={selectedTools.includes(tool)}
+                  onValueChange={() => toggleTool(tool)}
+                  thumbColor={selectedTools.includes(tool) ? Theme.colors.primary : '#444'}
+                  trackColor={{ true: Theme.colors.primary + '66', false: '#222' }}
+                />
+              </View>
+            ))}
+
+            {/* Target URL Selector Button */}
+            <TouchableOpacity 
+              onPress={() => {
+                setOpenSettingsModal(false);
+                setTimeout(() => setOpenEndpointsModal(true), 300);
+              }}
+              style={styles.endpointSelectBtn}
+            >
+              <Globe size={18} color="#000" />
+              <Text style={styles.endpointSelectBtnText}>
+                TARGET SELECTOR ({selectedEndpoints.length} ACTIVE)
+              </Text>
+            </TouchableOpacity>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                onPress={() => setOpenSettingsModal(false)} 
+                style={styles.applyBtn}
+              >
+                <Text style={styles.applyBtnText}>APPLY CONFIGS</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Endpoint Selector Drawer / Modal */}
+      <Modal visible={openEndpointsModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>TARGET ENDPOINT SELECTOR</Text>
+            <Text style={styles.modalSub}>Select specific discovered URLs to stress test</Text>
+
+            <ScrollView style={styles.endpointsScroll}>
+              {endpoints.map((ep) => {
+                const isActive = selectedEndpoints.includes(ep.http_url);
+                return (
+                  <TouchableOpacity 
+                    key={ep.id || ep.http_url}
+                    onPress={() => toggleEndpoint(ep.http_url)}
+                    style={[styles.endpointItem, isActive && styles.endpointItemActive]}
+                  >
+                    <View style={styles.endpointMeta}>
+                      <Text style={styles.endpointUrl} numberOfLines={2}>{ep.http_url}</Text>
+                      {ep.http_status && (
+                        <Text style={styles.endpointStatus}>Status: {ep.http_status}</Text>
+                      )}
+                    </View>
+                    <View style={[styles.customCheckbox, isActive && styles.customCheckboxChecked]}>
+                      {isActive && <Text style={styles.checkText}>✓</Text>}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+              {endpoints.length === 0 && (
+                <Text style={styles.emptyEndpoints}>No crawled target endpoints found for this scan.</Text>
+              )}
+            </ScrollView>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                onPress={() => {
+                  setOpenEndpointsModal(false);
+                  setTimeout(() => setOpenSettingsModal(true), 300);
+                }} 
+                style={styles.applyBtn}
+              >
+                <Text style={styles.applyBtnText}>SAVE SELECTIONS</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeContainer: {
-    flex: 1,
-    backgroundColor: Theme.colors.background,
-  },
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: '#0a0a0d',
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#0a0a0d',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: '#00f3ff',
+    fontFamily: 'SpaceMono',
+    fontSize: 14,
+    marginTop: 15,
+    letterSpacing: 1.5,
+  },
+  header: {
+    height: 70,
+    backgroundColor: '#101014',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Theme.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.05)',
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitleContainer: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  headerTitle: {
+    fontFamily: 'SpaceMono',
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#00f3ff',
+    letterSpacing: 2,
+  },
+  headerSubtitle: {
+    fontFamily: 'SpaceMono',
+    fontSize: 11,
+    color: Theme.colors.textMuted,
+  },
+  settingsBtn: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   scrollContent: {
-    padding: 16,
+    padding: Theme.spacing.md,
     paddingBottom: 40,
   },
-  topInfoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    marginBottom: 16,
-  },
-  badgeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    gap: 8,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  statusLabel: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: Theme.colors.textMuted,
-    letterSpacing: 0.5,
-  },
-  statusBadge: {
+  panel: {
+    backgroundColor: '#121216',
+    borderRadius: 8,
     borderWidth: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  badgeText: {
-    fontSize: 9,
-    fontWeight: '900',
-    letterSpacing: 0.5,
-  },
-  kpiGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    backgroundColor: 'transparent',
-    marginBottom: 20,
-  },
-  kpiCard: {
-    flex: 1,
-    minWidth: '45%',
-    backgroundColor: Theme.colors.surface,
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Theme.colors.border,
-  },
-  kpiHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-    backgroundColor: 'transparent',
-    gap: 6,
-  },
-  kpiTitle: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: Theme.colors.textMuted,
-    letterSpacing: 0.5,
-  },
-  kpiValue: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginVertical: 4,
-  },
-  kpiMeta: {
-    fontSize: 9,
-    color: Theme.colors.textMuted,
-  },
-  actionContainer: {
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    gap: 12,
-    marginBottom: 20,
-  },
-  actionBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 10,
-    gap: 8,
-  },
-  glassBtn: {
-    flex: 1.2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 10,
-    gap: 8,
-    borderWidth: 1,
-  },
-  reportBtn: {
-    backgroundColor: 'rgba(20, 15, 30, 0.75)',
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-  },
-  reportBtnText: {
-    color: '#8ba4c0',
-    fontSize: 11,
-    fontWeight: '900',
-    letterSpacing: 0.5,
-  },
-  stopBtn: {
-    backgroundColor: Theme.colors.error,
-  },
-  stopBtnText: {
-    color: '#fff',
-    fontSize: 11,
-    fontWeight: '900',
-    letterSpacing: 0.5,
-  },
-  chartPanel: {
-    backgroundColor: Theme.colors.surface,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: Theme.colors.border,
-    padding: 16,
-    marginBottom: 16,
+    borderColor: 'rgba(255,255,255,0.03)',
+    padding: Theme.spacing.md,
+    marginBottom: Theme.spacing.md,
   },
   panelHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: Theme.spacing.md,
     backgroundColor: 'transparent',
-    gap: 8,
   },
   panelTitle: {
-    fontSize: 11,
+    fontFamily: 'SpaceMono',
+    fontSize: 12,
+    fontWeight: 'bold',
     color: Theme.colors.text,
-    fontFamily: 'Bangers',
-    letterSpacing: 0.5,
+    marginLeft: 8,
+    letterSpacing: 1.5,
   },
-  chartContainer: {
+  statusBox: {
+    backgroundColor: '#0a0a0c',
+    borderRadius: 6,
+    padding: Theme.spacing.sm,
+    marginBottom: Theme.spacing.md,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
+    marginVertical: 4,
     backgroundColor: 'transparent',
   },
-  emptyChart: {
-    height: 120,
-    alignItems: 'center',
-    justifyContent: 'center',
+  statusLabel: {
+    fontFamily: 'SpaceMono',
+    fontSize: 11,
+    color: Theme.colors.textMuted,
+  },
+  badge: {
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  badgeText: {
+    fontFamily: 'SpaceMono',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  feedStatus: {
+    fontFamily: 'SpaceMono',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  controlsRow: {
+    flexDirection: 'row',
     backgroundColor: 'transparent',
+  },
+  startBtn: {
+    flex: 1,
+    height: 46,
+    backgroundColor: '#00f3ff',
+    borderRadius: 6,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     gap: 8,
   },
+  startBtnText: {
+    color: '#000',
+    fontFamily: 'SpaceMono',
+    fontSize: 12,
+    fontWeight: 'bold',
+    letterSpacing: 1.5,
+  },
+  stopBtn: {
+    flex: 1,
+    height: 46,
+    backgroundColor: Theme.colors.error,
+    borderRadius: 6,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+  },
+  stopBtnText: {
+    color: '#fff',
+    fontFamily: 'SpaceMono',
+    fontSize: 12,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  kpiRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: Theme.spacing.md,
+    backgroundColor: 'transparent',
+  },
+  kpiCard: {
+    width: (width - Theme.spacing.md * 3) / 2,
+    backgroundColor: '#121216',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.03)',
+    padding: Theme.spacing.md,
+    alignItems: 'center',
+  },
+  kpiLabel: {
+    fontFamily: 'SpaceMono',
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  kpiValue: {
+    fontFamily: 'SpaceMono',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginVertical: 4,
+  },
+  kpiSub: {
+    fontFamily: 'SpaceMono',
+    fontSize: 9,
+    color: Theme.colors.textMuted,
+  },
+  chartContainer: {
+    height: 125,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#0a0a0c',
+    borderRadius: 6,
+  },
+  emptyChart: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
   emptyChartText: {
+    fontFamily: 'SpaceMono',
     fontSize: 11,
     color: Theme.colors.textMuted,
   },
   saturationContainer: {
-    backgroundColor: 'transparent',
-    gap: 10,
+    backgroundColor: '#0a0a0c',
+    borderRadius: 6,
+    padding: Theme.spacing.md,
   },
-  saturationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: Theme.colors.border + '20',
+  saturationLabel: {
+    fontFamily: 'SpaceMono',
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+    marginBottom: 8,
   },
-  saturationDotBox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
+  barBg: {
+    height: 12,
+    backgroundColor: '#222',
+    borderRadius: 6,
+    overflow: 'hidden',
   },
-  saturationIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  barFill: {
+    height: '100%',
+    backgroundColor: Theme.colors.secondary,
+    borderRadius: 6,
   },
-  saturationEndpoint: {
-    flex: 1,
-    fontSize: 12,
-    color: Theme.colors.text,
-    fontWeight: '500',
-  },
-  saturationLatency: {
-    fontSize: 12,
-    fontWeight: 'bold',
+  saturationSub: {
+    fontFamily: 'SpaceMono',
+    fontSize: 9,
+    color: Theme.colors.textMuted,
+    marginTop: Theme.spacing.xs,
   },
   terminalPanel: {
-    backgroundColor: '#090d16',
-    borderRadius: 14,
+    backgroundColor: '#000',
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: Theme.colors.border,
-    padding: 16,
-    marginBottom: 16,
+    borderColor: 'rgba(0, 243, 255, 0.15)',
+    height: 200,
+    marginBottom: Theme.spacing.md,
+    overflow: 'hidden',
   },
   terminalHeader: {
+    height: 34,
+    backgroundColor: '#111',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Theme.spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 243, 255, 0.1)',
+  },
+  terminalTitle: {
+    fontFamily: 'SpaceMono',
+    fontSize: 10,
+    color: '#00f3ff',
+    marginLeft: 6,
+    letterSpacing: 1.5,
+  },
+  terminalList: {
+    flex: 1,
+  },
+  terminalContent: {
+    padding: Theme.spacing.sm,
+  },
+  terminalText: {
+    fontFamily: 'SpaceMono',
+    fontSize: 10,
+    color: '#39ff14', // Matrix Green stdout
+    lineHeight: 14,
+  },
+  terminalEmpty: {
+    fontFamily: 'SpaceMono',
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.3)',
+    textAlign: 'center',
+    paddingVertical: 40,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#121216',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: Theme.spacing.md,
+    borderTopWidth: 2,
+    borderTopColor: '#00f3ff',
+    maxHeight: '80%',
+  },
+  modalTitle: {
+    fontFamily: 'SpaceMono',
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#00f3ff',
+    letterSpacing: 1.5,
+    marginBottom: 4,
+  },
+  modalSub: {
+    fontFamily: 'SpaceMono',
+    fontSize: 11,
+    color: Theme.colors.textMuted,
+    marginBottom: Theme.spacing.md,
+  },
+  settingItem: {
+    marginBottom: Theme.spacing.md,
+    backgroundColor: 'transparent',
+  },
+  settingLabel: {
+    fontFamily: 'SpaceMono',
+    fontSize: 11,
+    color: Theme.colors.text,
+    marginBottom: 6,
+  },
+  textInput: {
+    height: 40,
+    backgroundColor: '#0a0a0c',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    color: '#fff',
+    paddingHorizontal: 12,
+    fontFamily: 'SpaceMono',
+    fontSize: 12,
+  },
+  sectionHeading: {
+    fontFamily: 'SpaceMono',
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#00f3ff',
+    marginTop: Theme.spacing.sm,
+    marginBottom: Theme.spacing.xs,
+    letterSpacing: 1.5,
+  },
+  checkboxRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'transparent',
-    marginBottom: 12,
-  },
-  terminalTitle: {
-    fontSize: 11,
-    color: Theme.colors.text,
-    fontFamily: 'Bangers',
-    letterSpacing: 0.5,
-  },
-  terminalControls: {
-    flexDirection: 'row',
-    gap: 8,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.03)',
     backgroundColor: 'transparent',
   },
-  terminalControlBtn: {
-    padding: 6,
-    backgroundColor: Theme.colors.surface,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: Theme.colors.border,
-  },
-  searchBarContainer: {
-    backgroundColor: Theme.colors.surface,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: Theme.colors.border + '50',
-  },
-  searchInput: {
-    color: Theme.colors.text,
+  toolName: {
+    fontFamily: 'SpaceMono',
     fontSize: 12,
-    padding: 0,
+    color: '#fff',
   },
-  terminalConsole: {
-    height: 180,
-    backgroundColor: '#05070c',
-    borderRadius: 8,
-    padding: 10,
+  endpointSelectBtn: {
+    height: 40,
+    backgroundColor: '#ff5f1f', // Tactical Orange
+    borderRadius: 6,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    marginVertical: Theme.spacing.md,
   },
-  terminalScrollContent: {
-    paddingBottom: 10,
+  endpointSelectBtnText: {
+    color: '#000',
+    fontFamily: 'SpaceMono',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 1.5,
   },
-  emptyTerminalText: {
-    color: Theme.colors.textMuted + '80',
-    fontSize: 10,
-    fontFamily: 'monospace',
+  modalActions: {
+    marginTop: Theme.spacing.md,
+    backgroundColor: 'transparent',
   },
-  terminalLine: {
-    fontSize: 10,
-    fontFamily: 'monospace',
-    lineHeight: 14,
-    marginBottom: 4,
-  }
+  applyBtn: {
+    height: 44,
+    backgroundColor: '#00f3ff',
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  applyBtnText: {
+    color: '#000',
+    fontFamily: 'SpaceMono',
+    fontSize: 12,
+    fontWeight: 'bold',
+    letterSpacing: 2,
+  },
+  endpointsScroll: {
+    maxHeight: 300,
+    marginVertical: Theme.spacing.md,
+  },
+  endpointItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: Theme.spacing.sm,
+    borderRadius: 6,
+    backgroundColor: '#0a0a0c',
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  endpointItemActive: {
+    borderColor: 'rgba(255, 95, 31, 0.4)',
+    backgroundColor: 'rgba(255, 95, 31, 0.05)',
+  },
+  endpointMeta: {
+    flex: 1,
+    marginRight: Theme.spacing.md,
+    backgroundColor: 'transparent',
+  },
+  endpointUrl: {
+    fontFamily: 'SpaceMono',
+    fontSize: 11,
+    color: '#fff',
+  },
+  endpointStatus: {
+    fontFamily: 'SpaceMono',
+    fontSize: 9,
+    color: Theme.colors.textMuted,
+    marginTop: 2,
+  },
+  customCheckbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: '#444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+  },
+  customCheckboxChecked: {
+    borderColor: '#ff5f1f',
+    backgroundColor: '#ff5f1f',
+  },
+  checkText: {
+    color: '#000',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  emptyEndpoints: {
+    fontFamily: 'SpaceMono',
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.3)',
+    textAlign: 'center',
+    paddingVertical: 30,
+  },
 });

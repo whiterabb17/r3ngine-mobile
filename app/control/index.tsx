@@ -32,15 +32,18 @@ const ControlScreen = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      let result;
+      let dataList: any[] = [];
       if (activeTab === 'engines') {
-        result = await listEngines();
+        const result = await listEngines();
+        dataList = result.engines || [];
       } else if (activeTab === 'tools') {
-        result = await listExternalTools();
+        const result = await listExternalTools();
+        dataList = result.tools || [];
       } else {
-        result = await listWordlists();
+        const result = await listWordlists();
+        dataList = result.wordlists || [];
       }
-      setData(Array.isArray(result) ? result : (result.results || result.data || []));
+      setData(dataList);
     } catch (error) {
       console.error(error);
       setData([]);

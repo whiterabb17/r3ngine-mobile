@@ -82,15 +82,13 @@ describe('Mobile API (/mapi/) Integration Tests', () => {
 
   describe('Notification Operations', () => {
     it('should fetch notifications', async () => {
-      mock.onGet('/mapi/notifications/').reply(200, {
-        results: [
-          { id: 1, title: 'Scan Completed', description: 'Scan for example.com finished' }
-        ]
-      });
+      mock.onGet('/mapi/notifications/').reply(200, [
+        { id: 1, title: 'Scan Completed', description: 'Scan for example.com finished' }
+      ]);
       
       const data = await getNotifications();
-      expect(data.results).toHaveLength(1);
-      expect(data.results[0].title).toBe('Scan Completed');
+      expect(data).toHaveLength(1);
+      expect(data[0].title).toBe('Scan Completed');
     });
 
     it('should fetch unread count', async () => {

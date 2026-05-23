@@ -16,12 +16,23 @@ interface Vulnerability {
   impact?: string;
   matched_at: string;
   is_gpt_used?: boolean;
+  domain_name?: string;
 }
 
 interface VulnerabilitiesTabProps {
   vulnerabilities: Vulnerability[];
   onRefresh?: () => void;
 }
+
+const extractDomain = (url?: string) => {
+  if (!url) return '';
+  try {
+    const matches = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/im);
+    return matches ? matches[1] : '';
+  } catch (e) {
+    return '';
+  }
+};
 
 export default function VulnerabilitiesTab({ vulnerabilities = [], onRefresh }: VulnerabilitiesTabProps) {
   const [selectedVuln, setSelectedVuln] = useState<Vulnerability | null>(null);
@@ -153,6 +164,11 @@ export default function VulnerabilitiesTab({ vulnerabilities = [], onRefresh }: 
 
                 <Text style={styles.detailName}>{selectedVuln.name}</Text>
                 
+                <View style={styles.detailSection}>
+                  <Text style={styles.detailLabel}>DOMAIN / TARGET</Text>
+                  <Text style={styles.detailValue}>{selectedVuln.domain_name || extractDomain(selectedVuln.url) || 'N/A'}</Text>
+                </View>
+
                 <View style={styles.detailSection}>
                   <Text style={styles.detailLabel}>AFFECTED URL</Text>
                   <Text style={styles.detailValue}>{selectedVuln.url}</Text>

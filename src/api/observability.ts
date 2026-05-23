@@ -23,10 +23,32 @@ export interface GraphData {
   edges: { data: GraphEdge }[];
 }
 
-type GetScanGraphResponse = paths['/mapi/graph/scan/{scan_id}/']['get']['responses']['200']['content']['application/json'];
-type GetTargetGraphResponse = paths['/mapi/graph/target/{target_id}/']['get']['responses']['200']['content']['application/json'];
-type GetNodeDetailsResponse = paths['/mapi/graph/node/{node_id}/']['get']['responses']['200']['content']['application/json'];
-type GetSystemLogsResponse = paths['/mapi/system/logs/']['get']['responses']['200']['content']['application/json'];
+export interface GetScanGraphResponse {
+  nodes: { data: GraphNode }[];
+  edges: { data: GraphEdge }[];
+}
+
+export interface GetTargetGraphResponse {
+  nodes: { data: GraphNode }[];
+  edges: { data: GraphEdge }[];
+}
+
+export interface GetNodeDetailsResponse {
+  node: GraphNode;
+  metadata?: any;
+}
+
+export interface SystemLogLine {
+  timestamp: string;
+  level: string;
+  message: string;
+  logger?: string;
+}
+
+export interface GetSystemLogsResponse {
+  status: boolean;
+  logs: string[];
+}
 
 export const fetchScanMetrics = async (scanId: number) => {
   return apiClient.get<any>(`/mapi/observability/metrics/`, {

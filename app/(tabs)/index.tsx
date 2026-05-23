@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, ScrollView, RefreshControl, TouchableOpacity, useWindowDimensions, Modal, View, Text } from 'react-native';
+import { StyleSheet, ScrollView, RefreshControl, TouchableOpacity, useWindowDimensions, Modal, View, Text, Alert } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import {
   Target,
@@ -18,6 +18,8 @@ import {
   Camera,
   Bell,
   Inbox,
+  X,
+  Brain,
 } from 'lucide-react-native';
 
 
@@ -26,6 +28,16 @@ import apiClient from '../../src/api/client';
 import { useProjectStore } from '../../src/store/useProjectStore';
 import GeoMap from '../../src/components/Dashboard/GeoMap';
 import { getUnreadCount } from '../../src/api/notifications';
+
+const extractDomain = (url?: string) => {
+  if (!url) return '';
+  try {
+    const matches = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/im);
+    return matches ? matches[1] : '';
+  } catch (e) {
+    return '';
+  }
+};
 
 interface Kpis {
   domain_count: number;
@@ -58,6 +70,7 @@ interface Technology {
 }
 
 interface VulnerableTarget {
+  id: number;
   name: string;
   vuln_count: number;
   critical_count: number;
@@ -82,6 +95,7 @@ export default function DashboardScreen() {
   const [trends, setTrends] = useState<Trends | null>(null);
   const [assetCountries, setAssetCountries] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [selectedVuln, setSelectedVuln] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
@@ -426,7 +440,18 @@ export default function DashboardScreen() {
           </View>
           <View style={styles.card}>
             {topVulnerableTargets.length > 0 ? topVulnerableTargets.map((target, index) => (
-              <View key={index} style={styles.targetRow}>
+              <TouchableOpacity 
+                key={index} 
+                style={styles.targetRow}
+                activeOpacity={0.7}
+                onPress={() => {
+                  if (target.id) {
+                    router.push(`/target/${target.id}` as any);
+                  } else {
+                    Alert.alert('Error', 'Target ID not available.');
+                  }
+                }}
+              >
                 <View style={styles.targetMainInfo}>
                   <Text style={styles.targetName} numberOfLines={1}>{target.name}</Text>
                   <View style={styles.targetSeverityCounts}>
@@ -435,7 +460,8 @@ export default function DashboardScreen() {
                     <Text style={styles.totalVulnLabel}>{target.vuln_count} Total</Text>
                   </View>
                 </View>
-              </View>
+                <ChevronRight size={16} color={Theme.colors.textMuted} style={{ alignSelf: 'center' }} />
+              </TouchableOpacity>
             )) : (
               <Text style={styles.emptyText}>No vulnerable targets found</Text>
             )}
@@ -471,7 +497,12 @@ export default function DashboardScreen() {
           </View>
           <View style={styles.card}>
             {vulnerabilities.length > 0 ? vulnerabilities.map((vuln) => (
-              <TouchableOpacity key={vuln.id} style={styles.vulnRow} activeOpacity={0.7}>
+              <TouchableOpacity 
+                key={vuln.id} 
+                style={styles.vulnRow} 
+                activeOpacity={0.7}
+                onPress={() => setSelectedVuln(vuln)}
+              >
                 <View style={[styles.vulnIconContainer, { backgroundColor: getSeverityColor(vuln.severity) + '15' }]}>
                   <Biohazard size={18} color={getSeverityColor(vuln.severity)} />
                 </View>
@@ -486,6 +517,88 @@ export default function DashboardScreen() {
             )}
           </View>
         </View>
+
+        {/* Vulnerability Detail Modal */}
+        <Modal
+          visible={!!selectedVuln}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setSelectedVuln(null)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setSelectedVuln(null)}
+          >
+            <View style={[styles.modalContent, { height: '80%', paddingBottom: 30 }]}>
+              <View style={styles.vulnModalHeader}>
+                <Text style={styles.vulnModalTitle}>Vulnerability Detail</Text>
+                <TouchableOpacity onPress={() => setSelectedVuln(null)}>
+                  <X size={24} color={Theme.colors.text} />
+                </TouchableOpacity>
+              </View>
+
+              {selectedVuln && (
+                <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+                  <View style={[styles.modalSeverityBadge, { backgroundColor: getSeverityColor(selectedVuln.severity) }]}>
+                    <Text style={styles.modalSeverityText}>
+                      {selectedVuln.severity === 4 ? 'CRITICAL' : 
+                       selectedVuln.severity === 3 ? 'HIGH' : 
+                       selectedVuln.severity === 2 ? 'MEDIUM' : 
+                       selectedVuln.severity === 1 ? 'LOW' : 'INFO'}
+                    </Text>
+                  </View>
+
+                  {selectedVuln.is_gpt_used && (
+                    <View style={styles.aiBadge}>
+                      <Brain size={12} color="#fff" />
+                      <Text style={styles.aiBadgeText}>AI ENHANCED</Text>
+                    </View>
+                  )}
+
+                  <Text style={styles.detailName}>{selectedVuln.name}</Text>
+                  
+                  <View style={styles.detailSection}>
+                    <Text style={styles.detailLabel}>DOMAIN / TARGET</Text>
+                    <Text style={styles.detailValue}>
+                      {selectedVuln.subdomain?.name || 
+                       selectedVuln.target_domain?.name || 
+                       selectedVuln.scan_history?.domain?.name || 
+                       extractDomain(selectedVuln.http_url || selectedVuln.url) || 
+                       'N/A'}
+                    </Text>
+                  </View>
+
+                  <View style={styles.detailSection}>
+                    <Text style={styles.detailLabel}>AFFECTED URL</Text>
+                    <Text style={styles.detailValue}>{selectedVuln.http_url || selectedVuln.url || 'N/A'}</Text>
+                  </View>
+
+                  <View style={styles.detailSection}>
+                    <Text style={styles.detailLabel}>DESCRIPTION</Text>
+                    <Text style={styles.detailBody}>{selectedVuln.description || 'No description provided.'}</Text>
+                  </View>
+
+                  {selectedVuln.impact ? (
+                    <View style={styles.detailSection}>
+                      <Text style={styles.detailLabel}>IMPACT</Text>
+                      <Text style={styles.detailBody}>{selectedVuln.impact}</Text>
+                    </View>
+                  ) : null}
+
+                  {selectedVuln.remediation ? (
+                    <View style={styles.detailSection}>
+                      <Text style={styles.detailLabel}>REMEDIATION</Text>
+                      <View style={styles.remediationBox}>
+                        <Text style={styles.detailBody}>{selectedVuln.remediation}</Text>
+                      </View>
+                    </View>
+                  ) : null}
+                </ScrollView>
+              )}
+            </View>
+          </TouchableOpacity>
+        </Modal>
 
         {__DEV__ && (
           <View style={[styles.card, { marginTop: 20, borderColor: Theme.colors.warning }]}>
@@ -967,5 +1080,85 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     backgroundColor: Theme.colors.primary,
+  },
+  vulnModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Theme.spacing.lg,
+    backgroundColor: 'transparent',
+  },
+  vulnModalTitle: {
+    fontSize: 20,
+    color: Theme.colors.text,
+    fontFamily: 'Bangers',
+    letterSpacing: 1,
+  },
+  modalBody: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  modalSeverityBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 4,
+    marginBottom: 12,
+  },
+  modalSeverityText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  detailName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: Theme.colors.text,
+    marginBottom: Theme.spacing.lg,
+  },
+  detailSection: {
+    marginBottom: Theme.spacing.lg,
+    backgroundColor: 'transparent',
+  },
+  detailLabel: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: Theme.colors.textMuted,
+    letterSpacing: 1,
+    marginBottom: 8,
+  },
+  detailValue: {
+    fontSize: 12,
+    color: Theme.colors.primary,
+    fontFamily: 'monospace',
+  },
+  detailBody: {
+    fontSize: 14,
+    color: Theme.colors.text,
+    lineHeight: 20,
+  },
+  remediationBox: {
+    backgroundColor: Theme.colors.background,
+    padding: Theme.spacing.md,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+  },
+  aiBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: Theme.colors.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
+    marginBottom: 12,
+  },
+  aiBadgeText: {
+    color: '#fff',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 0.5,
   },
 });

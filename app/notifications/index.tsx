@@ -95,6 +95,7 @@ const NotificationsScreen = () => {
    * @param {InAppNotification} notification - The clicked notification object.
    */
   const handleNotificationPress = async (notification: InAppNotification) => {
+    if (notification.id === undefined) return;
     if (!notification.is_read) {
       try {
         await markAsRead(notification.id);
@@ -165,7 +166,7 @@ const NotificationsScreen = () => {
       
       <FlatList
         data={notifications}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => (item.id ?? '').toString()}
         renderItem={({ item }) => (
           <NotificationCard 
             notification={item} 
