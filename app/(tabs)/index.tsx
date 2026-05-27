@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, ScrollView, RefreshControl, TouchableOpacity, useWindowDimensions, Modal, View, Text, Alert } from 'react-native';
+import { StyleSheet, ScrollView, RefreshControl, TouchableOpacity, useWindowDimensions, Modal, View, Text, Alert, Animated } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import {
   Target,
@@ -27,6 +27,7 @@ import { Theme } from '../../src/constants/Theme';
 import apiClient from '../../src/api/client';
 import { useProjectStore } from '../../src/store/useProjectStore';
 import GeoMap from '../../src/components/Dashboard/GeoMap';
+import AnimatedActivityBadge from '../../src/components/Dashboard/AnimatedActivityBadge';
 import { getUnreadCount } from '../../src/api/notifications';
 
 const extractDomain = (url?: string) => {
@@ -95,6 +96,7 @@ export default function DashboardScreen() {
   const [trends, setTrends] = useState<Trends | null>(null);
   const [assetCountries, setAssetCountries] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [hasActiveScan, setHasActiveScan] = useState(false);
   const [selectedVuln, setSelectedVuln] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -154,19 +156,44 @@ export default function DashboardScreen() {
     }
   }, [currentProject]);
 
+  const fetchScanStatus = useCallback(async () => {
+    if (!currentProject) {
+      setHasActiveScan(false);
+      return;
+    }
+    try {
+      const response = await apiClient.get('/mapi/scan_status/', {
+        params: { project: currentProject }
+      });
+      const scanningScans = response.data?.scans?.scanning || [];
+      setHasActiveScan(scanningScans.length > 0);
+    } catch (err) {
+      console.error('Error fetching scan status:', err);
+      setHasActiveScan(false);
+    }
+  }, [currentProject]);
+
   useEffect(() => {
     fetchProjects();
+  }, [fetchProjects]);
+
+  useEffect(() => {
     fetchUnreadCount();
+    fetchScanStatus();
     
-    // Poll for notifications every 60 seconds
-    const interval = setInterval(fetchUnreadCount, 60000);
+    // Poll for notifications and active scan status every 30 seconds
+    const interval = setInterval(() => {
+      fetchUnreadCount();
+      fetchScanStatus();
+    }, 30000);
     return () => clearInterval(interval);
-  }, [fetchUnreadCount]);
+  }, [fetchUnreadCount, fetchScanStatus]);
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchProjects();
     fetchUnreadCount();
+    fetchScanStatus();
   };
 
   const handleProjectSelect = (slug: string) => {
@@ -174,6 +201,7 @@ export default function DashboardScreen() {
     setShowProjectModal(false);
     setLoading(true);
     fetchDashboard(slug);
+    fetchScanStatus();
   };
 
   const formatDate = (dateString: string) => {
@@ -229,6 +257,11 @@ export default function DashboardScreen() {
         ),
         headerRight: () => (
           <View style={styles.headerRightContainer}>
+            {hasActiveScan && (
+              <AnimatedActivityBadge
+                onPress={() => router.push('/(tabs)/scans' as any)}
+              />
+            )}
             <TouchableOpacity
               style={styles.notificationIcon}
               onPress={() => router.push('/notifications' as any)}
