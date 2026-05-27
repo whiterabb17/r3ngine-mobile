@@ -19,6 +19,25 @@ import { useSettingsStore } from '../../src/store/useSettingsStore';
 import axios from 'axios';
 import { Theme } from '../../src/constants/Theme';
 
+const MIN_REQUIRED_BACKEND_VERSION = '3.1.0';
+
+const isVersionCompatible = (serverVersion?: string, minVersion: string = MIN_REQUIRED_BACKEND_VERSION) => {
+  if (!serverVersion) return false;
+  const sv = serverVersion.replace(/^v/i, '');
+  const mv = minVersion.replace(/^v/i, '');
+  
+  const svParts = sv.split('.').map(Number);
+  const mvParts = mv.split('.').map(Number);
+  
+  for (let i = 0; i < 3; i++) {
+    const s = svParts[i] || 0;
+    const m = mvParts[i] || 0;
+    if (s > m) return true;
+    if (s < m) return false;
+  }
+  return true;
+};
+
 export default function LoginScreen() {
   const router = useRouter();
   const { setServerIp, serverIp } = useSettingsStore();
@@ -43,6 +62,11 @@ export default function LoginScreen() {
         username,
         password,
       }, { timeout: 10000 });
+
+      const serverVersion = response.headers['x-system-version'];
+      if (!isVersionCompatible(serverVersion, MIN_REQUIRED_BACKEND_VERSION)) {
+        throw new Error(`Update Required: This app requires reNgine core v${MIN_REQUIRED_BACKEND_VERSION} or newer. Your server is running ${serverVersion || 'an older or unknown version'}.`);
+      }
 
       console.log('Login successful, response data:', response.data);
 
