@@ -4,12 +4,12 @@
 </p>
 
 <p align="center">
-  <h4 align="center"><strong>Phoenix: Fire from the Ashes even Stronger</strong></h4> 
+  <h4 align="center"><strong>Phoenix: From the Ashes even Stronger</strong></h4> 
   <h3 align="center">Official v3 Mobile Companion: The Tactical Reconnaissance Interface in Your Pocket 🚀</h3>
 </p>
 
 <p align="center">
-<a href="https://github.com/whiterabb17/r3ngine-mobile/releases" target="_blank"><img src="https://img.shields.io/badge/version-v1.2.2-informational?&logo=none" alt="r3ngine Mobile Version" /></a>&nbsp;<a href="https://github.com/whiterabb17/r3ngine/releases" target="_blank"><img src="https://img.shields.io/badge/compatible_with-r3ngine_v3.1+-warning?&logo=none" alt="Compatible r3Ngine version" /></a><br/><a href="https://www.gnu.org/licenses/gpl-3.0" target="_blank"><img src="https://img.shields.io/badge/License-GPLv3-red.svg?&logo=none" alt="License" /></a>&nbsp;<a href="https://expo.dev" target="_blank"><img src="https://img.shields.io/badge/Platform-Expo--iOS--Android-blue.svg?&logo=none" alt="Platform" /></a>
+<a href="https://github.com/whiterabb17/r3ngine-mobile/releases" target="_blank"><img src="https://img.shields.io/badge/version-v1.2.3-informational?&logo=none" alt="r3ngine Mobile Version" /></a>&nbsp;<a href="https://github.com/whiterabb17/r3ngine/releases" target="_blank"><img src="https://img.shields.io/badge/compatible_with-r3ngine_v3.2+-warning?&logo=none" alt="Compatible r3Ngine version" /></a><br/><a href="https://www.gnu.org/licenses/gpl-3.0" target="_blank"><img src="https://img.shields.io/badge/License-GPLv3-red.svg?&logo=none" alt="License" /></a>&nbsp;<a href="https://expo.dev" target="_blank"><img src="https://img.shields.io/badge/Platform-Expo--iOS--Android-blue.svg?&logo=none" alt="Platform" /></a>
 </p>
 
 <h4>r3ngine Mobile: Tactical Reconnaissance 3.0</h4>

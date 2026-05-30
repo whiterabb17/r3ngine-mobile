@@ -9,7 +9,7 @@
     "web": "expo start --web",
     "build": "npx eas build -p android --profile production",
     "build:dev": "cd android && gradlew assembleDebug && cd .. && node -e \"require('fs').mkdirSync('.build', {recursive:true}); require('fs').copyFileSync('android/app/build/outputs/apk/debug/app-debug.apk', '.build/r3ngine-debug.apk')\" && bash .build/generate-checksum.sh .build/r3ngine-debug.apk",
-    "build:prod": "cd android && gradlew assembleRelease && cd .. && node -e \"require('fs').mkdirSync('.build', {recursive:true}); require('fs').copyFileSync('android/app/build/outputs/apk/release/app-release.apk', '.build/r3NgineMobile-v1.2.2.apk')\" && bash -c \"/bin/bash /mnt/d/Repos/r3ngine/r3ngine-mobile/.build/generate-checksum.sh /mnt/d/Repos/r3ngine/r3ngine-mobile/.build/r3NgineMobile-v1.2.2.apk\"",
+    "build:prod": "cd android && gradlew assembleRelease && cd .. && node -e \"require('fs').mkdirSync('.build', {recursive:true}); require('fs').copyFileSync('android/app/build/outputs/apk/release/app-release.apk', '.build/r3NgineMobile-v1.2.3.apk')\" && bash -c \"/bin/bash /mnt/d/Repos/r3ngine/r3ngine-mobile/.build/generate-checksum.sh /mnt/d/Repos/r3ngine/r3ngine-mobile/.build/r3NgineMobile-v1.2.3.apk\"",
     "checksum": "bash .build/generate-checksum.sh",
     "generate-api": "npx openapi-typescript openapi.json -o src/types/api.ts",
     "test": "jest"
