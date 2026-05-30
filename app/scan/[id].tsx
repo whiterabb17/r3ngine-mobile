@@ -104,12 +104,13 @@ export default function ScanDetailScreen() {
     }
   };
 
-  const getStatusLabel = (status: number) => {
+  const getStatusLabel = (status: number, ok?: number, total?: number): string => {
+    const suffix = (total ?? 0) > 0 ? ` ${ok ?? 0}/${total}` : '';
     switch (status) {
-      case 2: return 'SUCCESS';
+      case 2: return `COMPLETE${suffix}`;
       case 1: return 'SCANNING';
       case 3: return 'ABORTED';
-      case 0: return 'FAILED';
+      case 0: return `FAILED${suffix}`;
       case 4: return 'PARTIALLY COMPLETE';
       default: return 'PENDING';
     }
@@ -156,7 +157,7 @@ export default function ScanDetailScreen() {
             )}
             <View style={[styles.statusBadge, { borderColor: getStatusColor(data?.scan_info?.scan_status) }]}>
               <Text style={[styles.statusLabel, { color: getStatusColor(data?.scan_info?.scan_status) }]}>
-                {getStatusLabel(data?.scan_info?.scan_status)}
+                {getStatusLabel(data?.scan_info?.scan_status, data?.scan_info?.successful_task_count, data?.scan_info?.total_task_count)}
               </Text>
             </View>
             {data?.scan_info?.scan_status === 1 && (
