@@ -46,6 +46,7 @@ interface Subdomain {
   origin_ip: string;
   response_time: number;
   screenshot_path: string;
+  screenshots?: Array<{ screenshot_path: string }>;
   critical_count: number;
   high_count: number;
   medium_count: number;
@@ -180,10 +181,12 @@ export default function SubdomainsTab({ subdomains = [], onRefresh }: Subdomains
         </View>
 
         <View style={styles.actionRow}>
-          {item.screenshot_path && (
-            <TouchableOpacity 
+          {(item.screenshot_path || item.screenshots?.[0]?.screenshot_path) && (
+            <TouchableOpacity
               style={styles.actionBtn}
-              onPress={() => setSelectedScreenshot(item.screenshot_path)}
+              onPress={() => setSelectedScreenshot(
+                item.screenshot_path || item.screenshots![0].screenshot_path
+              )}
             >
               <Camera size={16} color={Theme.colors.primary} />
             </TouchableOpacity>
