@@ -45,7 +45,7 @@ export const getEngineDetails = async (id: number): Promise<GetEngineDetailsResp
 
 // Tool Management
 export const listExternalTools = async (): Promise<ListExternalToolsResponse> => {
-  const response = await apiClient.get<ListExternalToolsResponse>('/mapi/external/tool/get_current_release/');
+  const response = await apiClient.get<ListExternalToolsResponse>('/mapi/listTools/');
   return response.data;
 };
 

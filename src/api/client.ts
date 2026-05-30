@@ -16,6 +16,10 @@ apiClient.interceptors.request.use(async (config) => {
     config.baseURL = baseUrl;
   }
 
+  if (config.url?.startsWith('/') && config.baseURL?.endsWith('/')) {
+    config.url = config.url.substring(1);
+  }
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
