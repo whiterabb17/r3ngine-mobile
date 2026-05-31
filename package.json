@@ -7,7 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "build": "npx eas build -p android --profile production",
+    "build:eas": "npx eas build -p android --profile production",
     "build:dev": "cd android && gradlew assembleDebug && cd .. && node -e \"const v=require('./package.json').version,fs=require('fs'),{execSync}=require('child_process'),n='r3NgineMobile-v'+v+'-debug.apk';fs.mkdirSync('.build',{recursive:true});fs.copyFileSync('android/app/build/outputs/apk/debug/app-debug.apk','.build/'+n);execSync('bash .build/generate-checksum.sh .build/'+n,{stdio:'inherit'})\"",
     "build:prod": "cd android && gradlew assembleRelease && cd .. && node -e \"const v=require('./package.json').version,fs=require('fs'),{execSync}=require('child_process'),n='r3NgineMobile-v'+v+'.apk';fs.mkdirSync('.build',{recursive:true});fs.copyFileSync('android/app/build/outputs/apk/release/app-release.apk','.build/'+n);execSync('bash .build/generate-checksum.sh .build/'+n,{stdio:'inherit'})\"",
     "checksum": "bash .build/generate-checksum.sh",
