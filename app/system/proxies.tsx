@@ -20,6 +20,8 @@ export default function ProxySettingsScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [fetching, setFetching] = useState(false);
+  const [fetchLimit, setFetchLimit] = useState<number | 'custom'>(5000);
+  const [customLimit, setCustomLimit] = useState('5000');
   const [settings, setSettings] = useState({
     use_proxy: false,
     proxies: '',
@@ -60,16 +62,18 @@ export default function ProxySettingsScreen() {
   };
 
   const handleFetchProxies = async () => {
+    const finalLimit = fetchLimit === 'custom'
+      ? (parseInt(customLimit, 10) || 1000)
+      : fetchLimit;
     try {
       setFetching(true);
       TacticalHaptics.trigger();
-      const response = await apiClient.post('/mapi/rengine/fetch-proxies/');
+      const response = await apiClient.post('/mapi/rengine/fetch-proxies/', { limit: finalLimit });
       if (response.data.status) {
         Alert.alert(
-          'Task Started', 
-          'Proxy fetch task has been initiated in the background. Your proxy list will be updated automatically.'
+          'Task Started',
+          `Proxy fetch task started (limit: ${finalLimit.toLocaleString()}). Your proxy list will be updated automatically.`
         );
-        // Refresh after a delay to see if proxies updated
         setTimeout(fetchSettings, 5000);
       }
     } catch (err) {
@@ -154,6 +158,64 @@ export default function ProxySettingsScreen() {
             />
           </View>
           <Text style={styles.helperText}>Formats: http://host:port, socks5://user:pass@host:port</Text>
+        </View>
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Globe size={18} color={Theme.colors.primary} />
+            <Text style={styles.sectionTitle}>Fetch Limit</Text>
+          </View>
+          <Text style={styles.helperText} numberOfLines={2}>
+            Max proxies to scrape. Higher = slower but more results.
+          </Text>
+
+          <View style={styles.presetRow}>
+            {([5000, 10000, 25000] as const).map((n) => (
+              <TouchableOpacity
+                key={n}
+                style={[
+                  styles.presetChip,
+                  fetchLimit === n && styles.presetChipActive,
+                ]}
+                onPress={() => setFetchLimit(n)}
+              >
+                <Text style={[
+                  styles.presetChipText,
+                  fetchLimit === n && styles.presetChipTextActive,
+                ]}>
+                  {n.toLocaleString()}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              style={[
+                styles.presetChip,
+                fetchLimit === 'custom' && styles.presetChipActive,
+              ]}
+              onPress={() => setFetchLimit('custom')}
+            >
+              <Text style={[
+                styles.presetChipText,
+                fetchLimit === 'custom' && styles.presetChipTextActive,
+              ]}>
+                Custom
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {fetchLimit === 'custom' && (
+            <View style={styles.card}>
+              <TextInput
+                style={styles.limitInput}
+                keyboardType="numeric"
+                placeholder="Enter count (e.g. 2000)"
+                placeholderTextColor="#555"
+                value={customLimit}
+                onChangeText={setCustomLimit}
+                maxLength={7}
+              />
+            </View>
+          )}
         </View>
 
         <View style={styles.actionContainer}>
@@ -294,5 +356,39 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginLeft: Theme.spacing.sm,
     letterSpacing: 0.5,
+  },
+  presetRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Theme.spacing.sm,
+    marginTop: Theme.spacing.sm,
+    marginBottom: Theme.spacing.sm,
+  },
+  presetChip: {
+    paddingHorizontal: Theme.spacing.md,
+    paddingVertical: Theme.spacing.sm,
+    borderRadius: Theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    backgroundColor: Theme.colors.surface,
+  },
+  presetChipActive: {
+    borderColor: Theme.colors.primary,
+    backgroundColor: Theme.colors.primary + '22',
+  },
+  presetChipText: {
+    color: Theme.colors.textMuted,
+    fontFamily: 'Bangers',
+    fontSize: 14,
+    letterSpacing: 0.5,
+  },
+  presetChipTextActive: {
+    color: Theme.colors.primary,
+  },
+  limitInput: {
+    color: Theme.colors.text,
+    padding: Theme.spacing.md,
+    fontSize: 16,
+    fontFamily: 'monospace',
   },
 });
