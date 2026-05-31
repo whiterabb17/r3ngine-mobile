@@ -1,7 +1,7 @@
 {
   "name": "r3ngine_mobile",
   "main": "expo-router/entry",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -9,7 +9,7 @@
     "web": "expo start --web",
     "build": "npx eas build -p android --profile production",
     "build:dev": "cd android && gradlew assembleDebug && cd .. && node -e \"const v=require('./package.json').version,fs=require('fs'),{execSync}=require('child_process'),n='r3NgineMobile-v'+v+'-debug.apk';fs.mkdirSync('.build',{recursive:true});fs.copyFileSync('android/app/build/outputs/apk/debug/app-debug.apk','.build/'+n);execSync('bash .build/generate-checksum.sh .build/'+n,{stdio:'inherit'})\"",
-    "build:prod": "cd android && gradlew assembleRelease && cd .. && node -e \"const v=require('./package.json').version,fs=require('fs'),{execSync}=require('child_process'),n='r3NgineMobile-v'+v+'.apk';fs.mkdirSync('.build',{recursive:true});fs.copyFileSync('android/app/build/outputs/apk/release/app-release.apk','.build/'+n);execSync('/bin/bash /mnt/d/Repos/r3ngine/r3ngine-mobile/.build/generate-checksum.sh /mnt/d/Repos/r3ngine/r3ngine-mobile/.build/'+n,{stdio:'inherit'})\"",
+    "build:prod": "cd android && gradlew assembleRelease && cd .. && node -e \"const v=require('./package.json').version,fs=require('fs'),{execSync}=require('child_process'),n='r3NgineMobile-v'+v+'.apk';fs.mkdirSync('.build',{recursive:true});fs.copyFileSync('android/app/build/outputs/apk/release/app-release.apk','.build/'+n);execSync('bash .build/generate-checksum.sh .build/'+n,{stdio:'inherit'})\"",
     "checksum": "bash .build/generate-checksum.sh",
     "generate-api": "npx openapi-typescript openapi.json -o src/types/api.ts",
     "test": "jest"
