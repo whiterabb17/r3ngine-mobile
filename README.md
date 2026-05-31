@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/whiterabb17/r3ngine-mobile/releases" target="_blank"><img src="https://img.shields.io/badge/version-v1.2.3-informational?&logo=none" alt="r3ngine Mobile Version" /></a>&nbsp;<a href="https://github.com/whiterabb17/r3ngine/releases" target="_blank"><img src="https://img.shields.io/badge/compatible_with-r3ngine_v3.2+-warning?&logo=none" alt="Compatible r3Ngine version" /></a><br/><a href="https://www.gnu.org/licenses/gpl-3.0" target="_blank"><img src="https://img.shields.io/badge/License-GPLv3-red.svg?&logo=none" alt="License" /></a>&nbsp;<a href="https://expo.dev" target="_blank"><img src="https://img.shields.io/badge/Platform-Expo--iOS--Android-blue.svg?&logo=none" alt="Platform" /></a>
+<a href="https://github.com/whiterabb17/r3ngine-mobile/releases" target="_blank"><img src="https://img.shields.io/badge/version-v1.2.4-informational?&logo=none" alt="r3ngine Mobile Version" /></a>&nbsp;<a href="https://github.com/whiterabb17/r3ngine/releases" target="_blank"><img src="https://img.shields.io/badge/compatible_with-r3ngine_v3.2+-warning?&logo=none" alt="Compatible r3Ngine version" /></a><br/><a href="https://www.gnu.org/licenses/gpl-3.0" target="_blank"><img src="https://img.shields.io/badge/License-GPLv3-red.svg?&logo=none" alt="License" /></a>&nbsp;<a href="https://expo.dev" target="_blank"><img src="https://img.shields.io/badge/Platform-Expo--iOS--Android-blue.svg?&logo=none" alt="Platform" /></a>
 </p>
 
 <h4>r3ngine Mobile: Tactical Reconnaissance 3.0</h4>
@@ -38,6 +38,13 @@ The mobile app isn't just a viewer; it's a portable command center synchronized 
 *   **Live Progress Tracking**: Monitor scan pipeline health and completion status in real-time.
 *   **Remote Execution**: Initiate quick scans or stop active processes directly from your phone via the unified **StopScan API**.
 *   **Scan History**: Review historical scan results and summaries with full data persistence.
+*   **Live Log Viewer**: Stream scan and system logs in real-time with full ANSI colour support. Colour-coded log lines render directly in-app via WebSocket, so you can watch a running scan's raw output from your device.
+*   **Directories Tab**: Fully wired directory discovery view with push-notification alerts on new directory findings.
+
+### ⚙️ Infrastructure & Settings
+*   **Engines Management**: Browse, inspect, and identify scan engine configurations — view task assignments and the active default engine.
+*   **Proxy Control**: Toggle global proxy routing, manage your tactical proxy list, and set a **Fetch Limit** (presets: 5 K / 10 K / 25 K, or custom) to control how many proxies are scraped on demand.
+*   **Monitoring Console**: Per-target monitoring toggle with an inline settings modal — enable or disable continuous reconnaissance on any target without leaving the feed.
 
 ### 🥷 Stealth & Security
 *   **Secure Credential Storage**: Native integration with **Expo SecureStore** for API keys and authentication tokens.
