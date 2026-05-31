@@ -69,8 +69,8 @@ const ControlScreen = () => {
         <Text style={styles.cardTitle}>{engine.engine_name}</Text>
       </View>
       <View style={styles.cardBody}>
-        <Text style={styles.cardDetail}>Type: {engine.engine_type}</Text>
-        <Text style={styles.cardDetail}>Tasks: {Object.keys(engine.yaml_configuration || {}).length} tools configured</Text>
+        <Text style={styles.cardDetail}>Type: {engine.default_engine ? 'Primary' : 'Custom'}</Text>
+        <Text style={styles.cardDetail}>Tasks: {engine.configured_tools_count || 0} tools configured</Text>
       </View>
     </View>
   );

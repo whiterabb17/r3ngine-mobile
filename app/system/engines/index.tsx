@@ -197,12 +197,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    flexWrap: 'wrap',
   },
   engineName: {
     color: Theme.colors.text,
     fontSize: 18,
     fontFamily: 'Bangers',
     letterSpacing: 0.5,
+    flexShrink: 1,
   },
   defaultBadge: {
     backgroundColor: Theme.colors.success + '22',
@@ -232,6 +234,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: Theme.colors.border + '33',
     gap: 8,
+    flexWrap: 'wrap',
   },
   taskTag: {
     backgroundColor: Theme.colors.background,

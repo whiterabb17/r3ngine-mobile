@@ -10,6 +10,7 @@ import {
   Dimensions 
 } from 'react-native';
 import { Theme } from '../../constants/Theme';
+import AnsiText from '../AnsiText';
 import { observabilityApi } from '../../api/observability';
 import { 
   Terminal, 
@@ -91,7 +92,7 @@ export default function SystemLogViewer() {
     return (
       <View style={styles.logLine}>
         <View style={styles.logIcon}>{icon}</View>
-        <Text style={[styles.logText, { color }]}>{item}</Text>
+        <AnsiText text={item} style={[styles.logText, { color }]} />
       </View>
     );
   };

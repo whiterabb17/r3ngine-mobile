@@ -97,7 +97,7 @@ export default function TargetsScreen() {
     try {
       const response = await apiClient.post('/mapi/add/target/', {
         domain_name: newTargetName,
-        project_slug: currentProject
+        slug: currentProject
       });
 
       if (response.data && response.data.status) {

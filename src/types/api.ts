@@ -3476,6 +3476,12 @@ export interface components {
             cfg_starting_point_path?: string | null;
             /** Is spiderfoot running */
             readonly is_spiderfoot_running?: string;
+            /** Number of distinct tasks that completed successfully */
+            readonly successful_task_count?: number;
+            /** Number of tasks that permanently failed (failed and never retried to success) */
+            readonly failed_task_count?: number;
+            /** Total number of planned tasks for this scan */
+            readonly total_task_count?: number;
         };
         SubdomainChanges: {
             /** Id */

@@ -102,12 +102,13 @@ export default function ScansScreen() {
     }
   };
 
-  const getStatusLabel = (status: number) => {
+  const getStatusLabel = (status: number, ok?: number, total?: number): string => {
+    const suffix = (total ?? 0) > 0 ? ` ${ok ?? 0}/${total}` : '';
     switch (status) {
-      case 2: return 'Success';
+      case 2: return `Complete${suffix}`;
       case 1: return 'Scanning';
       case 3: return 'Aborted';
-      case 0: return 'Failed';
+      case 0: return `Failed${suffix}`;
       case 4: return 'Partial';
       default: return 'Unknown';
     }
@@ -131,7 +132,7 @@ export default function ScansScreen() {
         <View style={styles.badgeRow}>
           <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.scan_status) + '20' }]}>
             <Text style={[styles.statusText, { color: getStatusColor(item.scan_status) }]}>
-              {getStatusLabel(item.scan_status)}
+              {getStatusLabel(item.scan_status, item.successful_task_count, item.total_task_count)}
             </Text>
           </View>
           {item.scan_status === 1 && (

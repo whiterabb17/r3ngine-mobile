@@ -5,7 +5,6 @@ import {
   Target,
   ShieldAlert,
   Globe,
-  Zap,
   ChevronDown,
   Activity,
   AlertTriangle,
@@ -301,7 +300,7 @@ export default function DashboardScreen() {
         <View style={styles.grid}>
           <KpiCard icon={Target} title="Targets" value={kpis?.domain_count || 0} color={Theme.colors.primary} />
           <KpiCard icon={Globe} title="Subdomains" value={kpis?.subdomain_count || 0} color={Theme.colors.secondary} />
-          <KpiCard icon={Zap} title="Endpoints" value={kpis?.endpoint_count || 0} color={Theme.colors.info} />
+          <KpiCard icon={Activity} title="Endpoints" value={kpis?.endpoint_count || 0} color={Theme.colors.info} />
           <KpiCard icon={ShieldAlert} title="Vulnerabilities" value={kpis?.vulnerability_count || 0} color={Theme.colors.error} />
         </View>
         {/* Severity Distribution */}
@@ -681,10 +680,6 @@ export default function DashboardScreen() {
         </TouchableOpacity>
       </Modal>
 
-      {/* Quick Scan FAB */}
-      <TouchableOpacity style={styles.fab} activeOpacity={0.8}>
-        <Zap size={24} color="#fff" />
-      </TouchableOpacity>
     </View>
   );
 }
@@ -905,22 +900,7 @@ const styles = StyleSheet.create({
     color: Theme.colors.textMuted,
     padding: Theme.spacing.lg,
   },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Theme.colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: Theme.colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
+
   trendChartContainer: {
     height: 120,
     paddingTop: Theme.spacing.md,

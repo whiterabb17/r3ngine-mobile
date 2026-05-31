@@ -2,7 +2,7 @@
   "expo": {
     "name": "r3ngine_mobile",
     "slug": "r3ngine_mobile",
-    "version": "1.0.0",
+    "version": "1.2.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "r3nginemobile",
@@ -33,6 +33,15 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#7c3aed",
+          "defaultChannel": "default",
+          "sounds": []
+        }
+      ],
       [
         "expo-build-properties",
         {

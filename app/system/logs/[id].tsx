@@ -8,6 +8,7 @@ import { Theme } from '../../../src/constants/Theme';
 import { useSettingsStore } from '../../../src/store/useSettingsStore';
 import { useAuthStore } from '../../../src/store/useAuthStore';
 import { TacticalHaptics } from '../../../src/utils/haptics';
+import AnsiText from '../../../src/components/AnsiText';
 
 export default function LogViewerScreen() {
   const { id } = useLocalSearchParams();
@@ -167,7 +168,7 @@ export default function LogViewerScreen() {
             logs.map((line, index) => (
               <Text key={index} style={styles.logLine}>
                 <Text style={styles.linePrompt}>➜ </Text>
-                {line}
+                <AnsiText text={line} />
               </Text>
             ))
           )}
