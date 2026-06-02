@@ -57,9 +57,26 @@ export const listWordlists = async (): Promise<ListWordlistsResponse> => {
 
 export const getWordlistContent = async (filename: string): Promise<GetWordlistContentResponse> => {
   const params = { filename };
-  // Note: schema says GET for wordlist read list, but implementation was POST. 
+  // Note: schema says GET for wordlist read list, but implementation was POST.
   // Let's use the path and method from types if possible, but keep existing logic if types say otherwise.
   // Actually, api.ts says get: operations["mapi_action_wordlist_read_list"]
   const response = await apiClient.get<GetWordlistContentResponse>('/mapi/action/wordlist/read/', { params });
   return response.data;
+};
+
+// Plugin Management
+export interface Plugin {
+  name: string;
+  slug: string;
+  description: string;
+  is_enabled: boolean;
+  anchor_step: string;
+  version: string;
+  trust_level: string;
+}
+
+export const listPlugins = async (): Promise<Plugin[]> => {
+  const response = await apiClient.get<Plugin[] | { results: Plugin[] }>('/mapi/plugins/');
+  const data = response.data;
+  return Array.isArray(data) ? data : (data.results ?? []);
 };

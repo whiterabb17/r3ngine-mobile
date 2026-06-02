@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, Modal, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Dimensions } from 'react-native';
-import { 
-  X, 
-  Play, 
-  Shield, 
-  Globe, 
-  Search, 
-  Code, 
-  Eye, 
-  Lock, 
-  Terminal, 
-  Server, 
+import {
+  X,
+  Play,
+  Shield,
+  Globe,
+  Search,
+  Code,
+  Eye,
+  Lock,
+  Terminal,
+  Server,
   Camera,
   Flame,
   ShieldCheck,
@@ -39,11 +39,13 @@ import {
   GitBranch,
   Activity,
   AlertTriangle,
-  ChevronRight
+  ChevronRight,
+  Puzzle,
 } from 'lucide-react-native';
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
 import apiClient from '../../api/client';
+import { listPlugins, type Plugin } from '../../api/control';
 import { paths, components } from '../../types/api';
 
 const { width } = Dimensions.get('window');
@@ -155,6 +157,8 @@ export default function SubtaskModal({ visible, onClose, subdomainId, subdomainN
   const [engines, setEngines] = useState<Engine[]>([]);
   const [selectedEngineId, setSelectedEngineId] = useState<number | null>(null);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
+  const [plugins, setPlugins] = useState<Plugin[]>([]);
+  const [selectedPlugins, setSelectedPlugins] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -182,6 +186,14 @@ export default function SubtaskModal({ visible, onClose, subdomainId, subdomainN
       Alert.alert('Error', 'Failed to load scan engines');
     } finally {
       setLoading(false);
+    }
+
+    // Fetch enabled plugins — non-blocking, failure is silent
+    try {
+      const allPlugins = await listPlugins();
+      setPlugins(allPlugins.filter(p => p.is_enabled));
+    } catch {
+      setPlugins([]);
     }
   };
 
@@ -214,11 +226,13 @@ export default function SubtaskModal({ visible, onClose, subdomainId, subdomainN
       const response = await apiClient.post<any>('/mapi/action/initiate/subtask/', {
         subdomain_id: subdomainId,
         engine_id: selectedEngineId,
-        tasks: selectedTasks
+        tasks: selectedTasks,
+        selected_plugins: selectedPlugins,
       });
 
       if (response.data && response.data.status) {
         Alert.alert('Success', 'Subscan initiated successfully');
+        setSelectedPlugins([]);
         onClose();
       } else {
         Alert.alert('Error', response.data.message || 'Failed to initiate subscan');
@@ -333,6 +347,54 @@ export default function SubtaskModal({ visible, onClose, subdomainId, subdomainN
                     <AlertTriangle size={24} color={Theme.colors.warning} />
                     <Text style={styles.emptyTasksText}>No tasks defined for this engine</Text>
                   </View>
+                )}
+                {/* Plugin section — below tasks, above footer */}
+                {plugins.length > 0 && (
+                  <>
+                    <View style={styles.pluginSeparator} />
+                    <Text style={[styles.sectionLabel, { marginBottom: 12 }]}>Plugins</Text>
+                    <View style={styles.taskGrid}>
+                      {plugins.map((plugin) => {
+                        const isPluginSelected = selectedPlugins.includes(plugin.slug);
+                        return (
+                          <TouchableOpacity
+                            key={plugin.slug}
+                            style={[
+                              styles.taskCard,
+                              isPluginSelected && {
+                                borderColor: Theme.colors.accent,
+                                backgroundColor: Theme.colors.accent + '11',
+                              },
+                            ]}
+                            onPress={() =>
+                              setSelectedPlugins(prev =>
+                                prev.includes(plugin.slug)
+                                  ? prev.filter(s => s !== plugin.slug)
+                                  : [...prev, plugin.slug]
+                              )
+                            }
+                          >
+                            <View style={[styles.taskIconContainer, { backgroundColor: Theme.colors.accent + '22' }]}>
+                              <Puzzle size={20} color={Theme.colors.accent} />
+                            </View>
+                            <View style={styles.taskInfo}>
+                              <Text style={[styles.taskLabel, isPluginSelected && { color: Theme.colors.accent }]}>
+                                {plugin.name}
+                              </Text>
+                              <Text style={styles.taskKey}>{plugin.slug}</Text>
+                            </View>
+                            <View style={styles.taskCheckbox}>
+                              {isPluginSelected ? (
+                                <CheckCircle2 size={18} color={Theme.colors.accent} />
+                              ) : (
+                                <View style={styles.checkboxUnchecked} />
+                              )}
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  </>
                 )}
               </ScrollView>
 
@@ -513,6 +575,11 @@ const styles = StyleSheet.create({
     marginTop: 12,
     color: Theme.colors.textMuted,
     textAlign: 'center',
+  },
+  pluginSeparator: {
+    height: 1,
+    backgroundColor: Theme.colors.border,
+    marginVertical: 16,
   },
   footer: {
     paddingTop: 16,

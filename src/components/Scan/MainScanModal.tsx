@@ -4,8 +4,10 @@ import { X, ChevronRight, ChevronLeft, Play } from 'lucide-react-native';
 import { TacticalHaptics } from '../../utils/haptics';
 import { Theme } from '../../constants/Theme';
 import apiClient from '../../api/client';
+import { listPlugins, type Plugin } from '../../api/control';
 import EngineSelector from './EngineSelector';
 import AdvancedOptions from './AdvancedOptions';
+import PluginSelector from './PluginSelector';
 import ScanReview from './ScanReview';
 import { paths, components } from '../../types/api';
 
@@ -21,12 +23,14 @@ interface MainScanModalProps {
   targetName: string;
 }
 
-type Step = 'engine' | 'advanced' | 'review';
+type Step = 'engine' | 'advanced' | 'plugins' | 'review';
 
 export default function MainScanModal({ visible, onClose, targetId, targetName }: MainScanModalProps) {
   const [step, setStep] = useState<Step>('engine');
   const [engines, setEngines] = useState<Engine[]>([]);
   const [selectedEngineId, setSelectedEngineId] = useState<number | null>(null);
+  const [plugins, setPlugins] = useState<Plugin[]>([]);
+  const [selectedPlugins, setSelectedPlugins] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -44,6 +48,7 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
     if (visible) {
       fetchConfiguration();
       setStep('engine');
+      setSelectedPlugins([]);
     }
   }, [visible]);
 
@@ -72,6 +77,15 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
     } finally {
       setLoading(false);
     }
+
+    // Fetch enabled plugins independently — non-blocking
+    try {
+      const allPlugins = await listPlugins();
+      setPlugins(allPlugins.filter(p => p.is_enabled));
+    } catch {
+      // Plugin fetch failure is non-fatal; proceed without plugin selection
+      setPlugins([]);
+    }
   };
 
   const handleAdvancedChange = (key: string, value: any) => {
@@ -87,6 +101,8 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
       }
       setStep('advanced');
     } else if (step === 'advanced') {
+      setStep('plugins');
+    } else if (step === 'plugins') {
       setStep('review');
     }
   };
@@ -94,7 +110,8 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
   const handleBack = () => {
     TacticalHaptics.soft();
     if (step === 'advanced') setStep('engine');
-    else if (step === 'review') setStep('advanced');
+    else if (step === 'plugins') setStep('advanced');
+    else if (step === 'review') setStep('plugins');
   };
 
   const handleInitiate = async () => {
@@ -118,6 +135,7 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
         engine_id: selectedEngineId,
         domain_id: targetId,
         ...sanitizedConfig,
+        selected_plugins: selectedPlugins,
       };
 
       // Falling back to any because schema content is missing for initiate/scan
@@ -157,10 +175,12 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
               <View style={styles.stepIndicator}>
                 <View style={[styles.stepDot, step === 'engine' && styles.activeDot]} />
                 <View style={[styles.stepDot, step === 'advanced' && styles.activeDot]} />
+                <View style={[styles.stepDot, step === 'plugins' && styles.activeDot]} />
                 <View style={[styles.stepDot, step === 'review' && styles.activeDot]} />
                 <Text style={styles.stepText}>
-                  {step === 'engine' ? 'Step 1: Engine' : 
-                   step === 'advanced' ? 'Step 2: Config' : 'Step 3: Review'}
+                  {step === 'engine' ? 'Step 1: Engine' :
+                   step === 'advanced' ? 'Step 2: Config' :
+                   step === 'plugins' ? 'Step 3: Plugins' : 'Step 4: Review'}
                 </Text>
               </View>
             </View>
@@ -179,16 +199,31 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
               />
             )}
             {step === 'advanced' && (
-              <AdvancedOptions 
+              <AdvancedOptions
                 data={advancedConfig}
                 onChange={handleAdvancedChange}
               />
             )}
+            {step === 'plugins' && (
+              <PluginSelector
+                plugins={plugins}
+                selectedPlugins={selectedPlugins}
+                onToggle={(slug) =>
+                  setSelectedPlugins(prev =>
+                    prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug]
+                  )
+                }
+              />
+            )}
             {step === 'review' && (
-              <ScanReview 
+              <ScanReview
                 targetName={targetName}
                 engineName={selectedEngine?.engine_name || ''}
                 config={advancedConfig}
+                selectedPlugins={selectedPlugins}
+                pluginNames={plugins
+                  .filter(p => selectedPlugins.includes(p.slug))
+                  .map(p => p.name)}
               />
             )}
           </View>

@@ -1,18 +1,22 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch, Linking } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { LogOut, Server, Shield, Bell, Info, Activity, Database, Globe, Clock, Terminal, Cpu } from 'lucide-react-native';
+import * as Notifications from 'expo-notifications';
 import { Theme } from '../../src/constants/Theme';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 import apiClient from '../../src/api/client';
+import { registerForPushNotificationsAsync, sendTokenToServer } from '../../src/utils/notifications';
+import { version as appVersion } from '../../package.json';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { logout } = useAuthStore();
-  const { serverIp } = useSettingsStore();
+  const { serverIp, pushEnabled, setPushEnabled } = useSettingsStore();
   const [socEnabled, setSocEnabled] = React.useState(false);
   const [loadingSoc, setLoadingSoc] = React.useState(true);
+  const [togglingPush, setTogglingPush] = React.useState(false);
 
   React.useEffect(() => {
     fetchSocSettings();
@@ -38,6 +42,56 @@ export default function SettingsScreen() {
       console.error('Failed to toggle SOC streaming:', err);
       setSocEnabled(!newValue); // Revert
       Alert.alert('Error', 'Failed to update tactical log configuration.');
+    }
+  };
+
+  const promptOpenSettings = () => {
+    Alert.alert(
+      'Notifications Disabled',
+      'Push notifications are disabled for this app. Open Settings to enable them?',
+      [
+        { text: 'Not Now', style: 'cancel' },
+        { text: 'Open Settings', onPress: () => Linking.openSettings() },
+      ],
+    );
+  };
+
+  const togglePushNotifications = async () => {
+    if (togglingPush) return;
+    setTogglingPush(true);
+    try {
+      if (pushEnabled) {
+        await apiClient.delete('/mapi/push-token/register/');
+        await setPushEnabled(false);
+      } else {
+        // Check whether the OS will even show a permission dialog
+        const current = await Notifications.getPermissionsAsync() as any;
+        if (!current.granted && !current.canAskAgain) {
+          // Permanently denied — OS won't prompt; must go to device Settings
+          promptOpenSettings();
+          return;
+        }
+
+        const token = await registerForPushNotificationsAsync();
+        if (!token) {
+          // Re-check permission state to decide the right message:
+          // only send to Settings if permission is actually still denied.
+          const after = await Notifications.getPermissionsAsync() as any;
+          if (!after.granted) {
+            promptOpenSettings();
+          } else {
+            Alert.alert('Error', 'Could not retrieve push notification token. Please try again.');
+          }
+          return;
+        }
+        await sendTokenToServer(token);
+        await setPushEnabled(true);
+      }
+    } catch (err) {
+      console.error('[Settings] Failed to toggle push notifications:', err);
+      Alert.alert('Error', 'Failed to update push notification settings.');
+    } finally {
+      setTogglingPush(false);
     }
   };
 
@@ -153,7 +207,14 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preferences</Text>
           <View style={styles.card}>
-            <SettingRow icon={Bell} label="Notifications" value="Push Disabled" />
+            <SwitchRow
+              icon={Bell}
+              label="Push Notifications"
+              value={pushEnabled ?? false}
+              onValueChange={togglePushNotifications}
+              color={(pushEnabled ?? false) ? Theme.colors.primary : Theme.colors.textMuted}
+              disabled={togglingPush}
+            />
             <SwitchRow
               icon={Terminal}
               label="Live Log Streaming"
@@ -191,7 +252,7 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>reNgine Mobile v1.0.0-alpha</Text>
+          <Text style={styles.footerText}>reNgine Mobile v{appVersion}</Text>
           <Text style={styles.footerText}>Crafted for Security Researchers</Text>
         </View>
       </ScrollView>

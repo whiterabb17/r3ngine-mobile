@@ -4,6 +4,26 @@ All notable changes to **r3ngine Mobile** are documented here.
 
 ---
 
+## [1.2.5] - 2026-06-02
+
+### Added
+- **Push Notification toggle (Settings)**: The Notifications row in the Preferences section is now a live toggle. Enabling it requests OS permission and registers the device's Expo push token with the backend; disabling it deactivates the token server-side so no further pushes are delivered.
+- **Permission-aware Settings flow**: Before requesting the OS permission dialog, the toggle checks `canAskAgain`. If the OS will no longer prompt (permission permanently denied), the user is shown an alert with an **Open Settings** button that deep-links to the app's device notification settings via `Linking.openSettings()`. If permission is granted but the token fetch fails for another reason a distinct error message is shown instead, avoiding a false "Open Settings" prompt.
+- **Push preference persistence**: The enabled/disabled choice is stored in `SecureStore` under `push_enabled` and reloaded on every app start. The root layout respects the stored preference — if the user has opted out, auto-registration on login is skipped.
+- **Plugin Selection — Main Scan Wizard**: The scan orchestration wizard now includes a dedicated **Step 3: Plugins** step between Advanced Options and the Review screen. Enabled plugins are fetched from the backend and displayed as selectable cards (using the `Puzzle` icon). Users choose which plugins to include per-scan; leaving all unselected means all enabled plugins run (backward compatible). Selected plugin names appear as purple badges on the Review screen.
+- **Plugin Selection — Subscan Modal**: The subscan modal now displays a plugin section below the task list (separated by a labelled divider). Each enabled plugin is shown as a task-style card with toggle selection. Selected plugins are included in the subscan payload.
+- **`PluginSelector` component** (`src/components/Scan/PluginSelector.tsx`): Reusable plugin card list with selection state, `Puzzle` icon, `CheckCircle2` toggle, and a clean empty state for when no plugins are installed.
+- **`listPlugins` API helper** (`src/api/control.ts`): Fetches `/mapi/plugins/` and normalises paginated or flat responses. Plugin fetch failures are caught silently — both modals degrade gracefully to an empty plugin list.
+
+### Fixed
+- **Settings footer hardcoded version**: The footer label `reNgine Mobile v1.0.0-alpha` now reads the version dynamically from `package.json`, keeping it automatically in sync with every release bump.
+
+### Backend
+- **`DELETE /mapi/push-token/register/`**: New endpoint on `RegisterPushTokenView`. Sets `is_active = False` for all push tokens belonging to the authenticated user, stopping server-side push delivery when the user opts out.
+- Plugin selection is passed as `selected_plugins: string[]` in both the initiate-scan and initiate-subtask payloads. The backend routes these as `selected_plugin_slugs` into the Temporal workflow context, filtering `GetEnabledPluginsForTierActivity` to only dispatch the user's chosen plugins.
+
+---
+
 ## [1.2.4] - 2026-05-31
 
 ### Added

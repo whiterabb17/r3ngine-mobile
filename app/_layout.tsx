@@ -66,7 +66,7 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const { isAuthenticated, loadAuth } = useAuthStore();
-  const { serverIp, loadSettings } = useSettingsStore();
+  const { serverIp, pushEnabled, setPushEnabled, loadSettings } = useSettingsStore();
   const segments = useSegments();
   const router = useRouter();
 
@@ -109,7 +109,8 @@ function RootLayoutNav() {
    * The subscription is cleaned up on unmount to prevent memory leaks.
    */
   useEffect(() => {
-    if (!isAuthenticated || hasRegisteredPushToken.current) return;
+    // pushEnabled === false means the user explicitly opted out — respect it
+    if (!isAuthenticated || hasRegisteredPushToken.current || pushEnabled === false) return;
 
     const initPushNotifications = async () => {
       // Request permission + fetch Expo push token
@@ -118,6 +119,8 @@ function RootLayoutNav() {
       if (token) {
         // Store the token in the backend against this user
         await sendTokenToServer(token);
+        // Persist enabled state so the Settings toggle reflects reality
+        await setPushEnabled(true);
       }
 
       // Set up the notification tap handler regardless of token success
@@ -135,7 +138,7 @@ function RootLayoutNav() {
         notificationSubscriptionRef.current = null;
       }
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, pushEnabled]);
 
   return (
     <QueryClientProvider client={queryClient}>

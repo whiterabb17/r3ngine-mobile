@@ -12,13 +12,16 @@ interface ScanReviewProps {
     customDorkSwitch: boolean;
     spiderfoot_scan: boolean;
   };
+  selectedPlugins?: string[];
+  pluginNames?: string[];
 }
 
-export default function ScanReview({ targetName, engineName, config }: ScanReviewProps) {
-  const hasAdvanced = config.importSubdomainTextArea || 
-                      config.outOfScopeSubdomainTextarea || 
-                      config.customDorkSwitch || 
-                      config.spiderfoot_scan;
+export default function ScanReview({ targetName, engineName, config, selectedPlugins = [], pluginNames = [] }: ScanReviewProps) {
+  const hasAdvanced = config.importSubdomainTextArea ||
+                      config.outOfScopeSubdomainTextarea ||
+                      config.customDorkSwitch ||
+                      config.spiderfoot_scan ||
+                      selectedPlugins.length > 0;
 
   return (
     <View style={styles.container}>
@@ -69,6 +72,16 @@ export default function ScanReview({ targetName, engineName, config }: ScanRevie
               <View style={[styles.badge, { backgroundColor: Theme.colors.primary + '22' }]}>
                 <Text style={[styles.badgeText, { color: Theme.colors.primary }]}>Custom Dorks Enabled</Text>
               </View>
+            </View>
+          )}
+
+          {selectedPlugins.length > 0 && (
+            <View style={styles.badgeRow}>
+              {pluginNames.map((name, i) => (
+                <View key={i} style={[styles.badge, { backgroundColor: '#8a5cff22' }]}>
+                  <Text style={[styles.badgeText, { color: '#8a5cff' }]}>{name}</Text>
+                </View>
+              ))}
             </View>
           )}
 
