@@ -15,6 +15,8 @@ interface Scan {
   start_scan_date: string;
   vulnerability_count: number;
   engine_name: string;
+  successful_task_count?: number;
+  total_task_count?: number;
 }
 
 export default function ScansScreen() {

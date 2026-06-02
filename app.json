@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "r3ngine_mobile",
-    "slug": "r3ngine_mobile",
-    "version": "1.2.3",
+    "name": "r3nginemobile",
+    "slug": "r3nginemobile",
+    "version": "1.2.5",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "r3nginemobile",
@@ -56,7 +56,8 @@
             }
           }
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
