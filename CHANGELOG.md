@@ -2,6 +2,22 @@
 
 All notable changes to **r3ngine Mobile** are documented here.
 
+## [1.3.0] - 2026-06-05
+
+### Added
+- **Hardware Profile Selection (Main Scan Start Wizard)**: Select specific hardware resource profiles (CPU/RAM limits, worker queues) directly when starting a scan.
+- **Hardware Profiles Tab (Infrastructure Hub)**: Added a dedicated tab in the mobile app's Infrastructure Hub inline with Engines, Tools, and Wordlists. Fetches profiles securely, displaying thread limits, rate limits, timeouts, request delays, description, and status with accent-colored styling and type guards to prevent layout-sync rendering crashes.
+- **JWT WebSocket Authentication (Mobile Logs & Stress Telemetry)**: Appended JWT access tokens (`?token=${token}`) to WebSocket URLs, allowing React Native clients to stream scan and system logs securely.
+- **System-Wide Log Viewer**: Designed a premium tactical interface for viewing multiple backend log categories (System, Database, Temporal, Scan). Added support for real-time search filtering, auto-refresh toggles, auto-scroll management, level highlighting, and a Clipboard-integrated log line details modal.
+
+
+### Fixed
+- **System Logs Endpoint**: Patched the backend `GetSystemLogs` API to dynamically resolve different log types and return an empty array if log files are not yet created, resolving client 404 errors during startup.
+- **ASGI Gunicorn Startup Crash Loop**: Reordered imports inside ASGI routing to configure and setup Django before importing custom middleware or consumers.
+- **Allowed Hosts IP/Domain Binding**: Added dynamic host parsing of `DOMAIN_NAME` and frame-level checking in `ALLOWED_HOSTS` to support private/public server IP connections.
+- **Nginx HTTP-to-HTTPS Redirection Method Preservation**: Changed redirection status from `301` to `308` in `rengine.conf` on port 8082, preserving `POST` requests.
+- **Backend compatibility check**: Upgraded minimum core backend compatibility limit to target `v3.5.0+`.
+
 ---
 
 ## [1.2.5] - 2026-06-02

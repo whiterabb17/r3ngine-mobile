@@ -33,6 +33,7 @@ import { Text, View } from '@/components/Themed';
 import { Theme } from '../../../src/constants/Theme';
 import { stressApi, StressConfig } from '../../../src/api/stress';
 import { useSettingsStore } from '../../../src/store/useSettingsStore';
+import { useAuthStore } from '../../../src/store/useAuthStore';
 
 const { width } = Dimensions.get('window');
 
@@ -54,6 +55,7 @@ export default function MobileStressCockpit() {
   const scanId = parseInt(Array.isArray(id) ? id[0] : id);
   const router = useRouter();
   const { serverIp } = useSettingsStore();
+  const { token } = useAuthStore();
 
   const [isScanning, setIsScanning] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -133,7 +135,7 @@ export default function MobileStressCockpit() {
       wsHost = wsHost.substring(0, wsHost.length - 1);
     }
 
-    const wsUrl = `${wsProto}${wsHost}/ws/stress/${scanId}/`;
+    const wsUrl = `${wsProto}${wsHost}/ws/stress/${scanId}/${token ? `?token=${token}` : ''}`;
     console.log(`[WebSocket] Connecting to stress stream: ${wsUrl}`);
     setWsStatus('connecting');
 
