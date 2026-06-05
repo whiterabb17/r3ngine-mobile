@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, View, Text } from 'react-native';
-import { Shield, Zap, Info } from 'lucide-react-native';
+import { Shield, Zap, Info, Cpu } from 'lucide-react-native';
 import { Theme } from '../../constants/Theme';
 
 interface Engine {
@@ -8,10 +8,23 @@ interface Engine {
   engine_name: string;
 }
 
+interface HardwareProfile {
+  id: number;
+  name: string;
+  description?: string;
+  threads: number;
+  rate_limit: number;
+  is_default: boolean;
+  is_active: boolean;
+}
+
 interface EngineSelectorProps {
   engines: Engine[];
   selectedEngineId: number | null;
   onSelectEngine: (id: number) => void;
+  profiles: HardwareProfile[];
+  selectedProfileId: number | null;
+  onSelectProfile: (id: number) => void;
   loading?: boolean;
 }
 
@@ -19,6 +32,9 @@ export default function EngineSelector({
   engines, 
   selectedEngineId, 
   onSelectEngine,
+  profiles,
+  selectedProfileId,
+  onSelectProfile,
   loading 
 }: EngineSelectorProps) {
   if (loading) {
@@ -32,8 +48,8 @@ export default function EngineSelector({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Select Scan Engine</Text>
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scroll}>
+        <Text style={styles.sectionTitle}>Select Scan Engine</Text>
         <View style={styles.grid}>
           {engines.map(engine => (
             <TouchableOpacity
@@ -68,10 +84,57 @@ export default function EngineSelector({
           ))}
         </View>
 
+        <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Hardware Profile / Speed</Text>
+        <View style={styles.grid}>
+          {profiles.filter(p => p.is_active).map(profile => (
+            <TouchableOpacity
+              key={profile.id}
+              style={[
+                styles.card,
+                selectedProfileId === profile.id && styles.selectedCard
+              ]}
+              onPress={() => onSelectProfile(profile.id)}
+            >
+              <View style={[
+                styles.iconContainer,
+                selectedProfileId === profile.id && styles.selectedIconContainer
+              ]}>
+                <Cpu 
+                  size={20} 
+                  color={selectedProfileId === profile.id ? Theme.colors.primary : Theme.colors.textMuted} 
+                />
+              </View>
+              <View style={styles.info}>
+                <View style={styles.profileHeader}>
+                  <Text style={[
+                    styles.name,
+                    selectedProfileId === profile.id && styles.selectedText
+                  ]}>
+                    {profile.name.toUpperCase()}
+                  </Text>
+                  {profile.is_default && (
+                    <View style={styles.defaultBadgeContainer}>
+                      <Text style={styles.defaultBadgeText}>DEFAULT</Text>
+                    </View>
+                  )}
+                </View>
+                <Text style={styles.profileDetails}>
+                  Threads: {profile.threads} | Rate: {profile.rate_limit}/s
+                </Text>
+                {profile.description ? (
+                  <Text style={styles.profileDesc} numberOfLines={2}>
+                    {profile.description}
+                  </Text>
+                ) : null}
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
         <View style={styles.tipBox}>
           <Info size={16} color={Theme.colors.primary} />
           <Text style={styles.tipText}>
-            Engines define which tools are executed. "Full Scan" includes discovery and vulnerabilities, while "Passive" skips active probing.
+            Engines define which tools are executed. Hardware profiles override execution settings (threads, rate limits) to match scanner resources.
           </Text>
         </View>
       </ScrollView>
@@ -158,6 +221,37 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     opacity: 0.8,
   },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'transparent',
+  },
+  defaultBadgeContainer: {
+    backgroundColor: Theme.colors.primary + '22',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 0.5,
+    borderColor: Theme.colors.primary + '44',
+  },
+  defaultBadgeText: {
+    fontSize: 8,
+    color: Theme.colors.primary,
+    fontWeight: '800',
+  },
+  profileDetails: {
+    fontSize: 12,
+    color: Theme.colors.textMuted,
+    marginTop: 4,
+    fontWeight: '600',
+  },
+  profileDesc: {
+    fontSize: 11,
+    color: Theme.colors.textMuted,
+    marginTop: 2,
+    opacity: 0.8,
+  },
   tipBox: {
     flexDirection: 'row',
     backgroundColor: Theme.colors.surface,
@@ -167,6 +261,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     borderLeftWidth: 3,
     borderLeftColor: Theme.colors.primary,
+    marginTop: 10,
+    marginBottom: 20,
   },
   tipText: {
     flex: 1,
@@ -175,3 +271,4 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
 });
+

@@ -16,6 +16,16 @@ type Engine = {
   engine_name: string;
 };
 
+type HardwareProfile = {
+  id: number;
+  name: string;
+  description?: string;
+  threads: number;
+  rate_limit: number;
+  is_default: boolean;
+  is_active: boolean;
+};
+
 interface MainScanModalProps {
   visible: boolean;
   onClose: () => void;
@@ -29,6 +39,8 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
   const [step, setStep] = useState<Step>('engine');
   const [engines, setEngines] = useState<Engine[]>([]);
   const [selectedEngineId, setSelectedEngineId] = useState<number | null>(null);
+  const [profiles, setProfiles] = useState<HardwareProfile[]>([]);
+  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(null);
   const [plugins, setPlugins] = useState<Plugin[]>([]);
   const [selectedPlugins, setSelectedPlugins] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -74,6 +86,32 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
       } catch (err) {
         Alert.alert('Error', 'Failed to load scan configurations');
       }
+    }
+
+    // Fetch hardware profiles independently
+    try {
+      const profileResponse = await apiClient.get<any>('/mapi/hardwareProfiles/');
+      let fetchedProfiles: HardwareProfile[] = [];
+      if (profileResponse.data && Array.isArray(profileResponse.data)) {
+        fetchedProfiles = profileResponse.data;
+      } else if (profileResponse.data && Array.isArray(profileResponse.data.results)) {
+        fetchedProfiles = profileResponse.data.results;
+      }
+      
+      setProfiles(fetchedProfiles);
+      if (fetchedProfiles.length > 0) {
+        const defaultProfile = fetchedProfiles.find(p => p.is_default && p.is_active);
+        if (defaultProfile) {
+          setSelectedProfileId(defaultProfile.id);
+        } else {
+          const firstActive = fetchedProfiles.find(p => p.is_active);
+          if (firstActive) {
+            setSelectedProfileId(firstActive.id);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch hardware profiles', err);
     } finally {
       setLoading(false);
     }
@@ -97,6 +135,10 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
     if (step === 'engine') {
       if (!selectedEngineId) {
         Alert.alert('Error', 'Please select a scan engine');
+        return;
+      }
+      if (!selectedProfileId) {
+        Alert.alert('Error', 'Please select a hardware profile');
         return;
       }
       setStep('advanced');
@@ -133,6 +175,7 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
 
       const payload = {
         engine_id: selectedEngineId,
+        hardware_profile_id: selectedProfileId,
         domain_id: targetId,
         ...sanitizedConfig,
         selected_plugins: selectedPlugins,
@@ -158,6 +201,7 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
   };
 
   const selectedEngine = engines.find(e => e.id === selectedEngineId);
+  const selectedProfile = profiles.find(p => p.id === selectedProfileId);
 
   return (
     <Modal
@@ -195,6 +239,9 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
                 engines={engines}
                 selectedEngineId={selectedEngineId}
                 onSelectEngine={setSelectedEngineId}
+                profiles={profiles}
+                selectedProfileId={selectedProfileId}
+                onSelectProfile={setSelectedProfileId}
                 loading={loading}
               />
             )}
@@ -219,6 +266,7 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
               <ScanReview
                 targetName={targetName}
                 engineName={selectedEngine?.engine_name || ''}
+                profileName={selectedProfile?.name || 'Default'}
                 config={advancedConfig}
                 selectedPlugins={selectedPlugins}
                 pluginNames={plugins

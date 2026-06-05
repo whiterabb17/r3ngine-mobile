@@ -1,11 +1,12 @@
 import React from 'react';
 import { StyleSheet, ScrollView, View, Text } from 'react-native';
-import { CheckCircle2, Shield, Settings, Info } from 'lucide-react-native';
+import { CheckCircle2, Shield, Settings, Info, Cpu } from 'lucide-react-native';
 import { Theme } from '../../constants/Theme';
 
 interface ScanReviewProps {
   targetName: string;
   engineName: string;
+  profileName?: string;
   config: {
     importSubdomainTextArea: string;
     outOfScopeSubdomainTextarea: string;
@@ -16,7 +17,14 @@ interface ScanReviewProps {
   pluginNames?: string[];
 }
 
-export default function ScanReview({ targetName, engineName, config, selectedPlugins = [], pluginNames = [] }: ScanReviewProps) {
+export default function ScanReview({ 
+  targetName, 
+  engineName, 
+  profileName,
+  config, 
+  selectedPlugins = [], 
+  pluginNames = [] 
+}: ScanReviewProps) {
   const hasAdvanced = config.importSubdomainTextArea ||
                       config.outOfScopeSubdomainTextarea ||
                       config.customDorkSwitch ||
@@ -46,7 +54,18 @@ export default function ScanReview({ targetName, engineName, config, selectedPlu
               <Text style={styles.summaryValue}>{engineName || 'Not Selected'}</Text>
             </View>
           </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.summaryRow}>
+            <Cpu size={18} color={Theme.colors.accent} />
+            <View style={styles.summaryText}>
+              <Text style={styles.summaryLabel}>Hardware Profile</Text>
+              <Text style={styles.summaryValue}>{profileName || 'Default'}</Text>
+            </View>
+          </View>
         </View>
+
 
         <Text style={styles.subSectionTitle}>Configuration Details</Text>
         

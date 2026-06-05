@@ -80,3 +80,25 @@ export const listPlugins = async (): Promise<Plugin[]> => {
   const data = response.data;
   return Array.isArray(data) ? data : (data.results ?? []);
 };
+
+// Hardware Profiles
+export interface HardwareProfile {
+  id: number;
+  name: string;
+  description?: string;
+  threads: number;
+  rate_limit: number;
+  timeout: number;
+  delay: number;
+  retries: number;
+  profile_type: 'builtin' | 'custom';
+  is_default: boolean;
+  is_active: boolean;
+}
+
+export const listHardwareProfiles = async (): Promise<HardwareProfile[]> => {
+  const response = await apiClient.get<HardwareProfile[] | { results: HardwareProfile[] }>('/mapi/hardwareProfiles/');
+  const data = response.data;
+  return Array.isArray(data) ? data : (data.results ?? []);
+};
+

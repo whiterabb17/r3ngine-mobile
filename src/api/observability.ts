@@ -72,8 +72,10 @@ export const observabilityApi = {
     return response.data;
   },
 
-  getSystemLogs: async (): Promise<GetSystemLogsResponse> => {
-    const response = await apiClient.get<GetSystemLogsResponse>('/mapi/system/logs/');
+  getSystemLogs: async (type?: string): Promise<GetSystemLogsResponse> => {
+    const response = await apiClient.get<GetSystemLogsResponse>('/mapi/system/logs/', {
+      params: type ? { type } : {}
+    });
     return response.data;
   },
 };

@@ -19,7 +19,7 @@ import { useSettingsStore } from '../../src/store/useSettingsStore';
 import axios from 'axios';
 import { Theme } from '../../src/constants/Theme';
 
-const MIN_REQUIRED_BACKEND_VERSION = '3.1.0';
+const MIN_REQUIRED_BACKEND_VERSION = '3.5.0';
 
 const isVersionCompatible = (serverVersion?: string, minVersion: string = MIN_REQUIRED_BACKEND_VERSION) => {
   if (!serverVersion) return false;

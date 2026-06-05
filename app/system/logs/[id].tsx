@@ -42,7 +42,7 @@ export default function LogViewerScreen() {
       if (!serverIp) return;
       const protocol = serverIp.includes('https') ? 'wss' : 'ws';
       const host = serverIp.replace(/^https?:\/\//, '').replace(/\/$/, '');
-      const wsUrl = `${protocol}://${host}/ws/logs/${id}/`;
+      const wsUrl = `${protocol}://${host}/ws/logs/${id}/${token ? `?token=${token}` : ''}`;
       
       console.log(`[WebSocket] Connecting to ${wsUrl}`);
       
