@@ -9,6 +9,7 @@ All notable changes to **r3ngine Mobile** are documented here.
 - **Hardware Profiles Tab (Infrastructure Hub)**: Added a dedicated tab in the mobile app's Infrastructure Hub inline with Engines, Tools, and Wordlists. Fetches profiles securely, displaying thread limits, rate limits, timeouts, request delays, description, and status with accent-colored styling and type guards to prevent layout-sync rendering crashes.
 - **JWT WebSocket Authentication (Mobile Logs & Stress Telemetry)**: Appended JWT access tokens (`?token=${token}`) to WebSocket URLs, allowing React Native clients to stream scan and system logs securely.
 - **System-Wide Log Viewer**: Designed a premium tactical interface for viewing multiple backend log categories (System, Database, Temporal, Scan). Added support for real-time search filtering, auto-refresh toggles, auto-scroll management, level highlighting, and a Clipboard-integrated log line details modal.
+- **Production Build R8 Optimization**: Enabled R8 code minification and resource shrinking for release builds, reducing the final APK size significantly.
 
 
 ### Fixed
