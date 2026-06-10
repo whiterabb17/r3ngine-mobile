@@ -18,10 +18,10 @@ import {
 } from '@expo-google-fonts/bangers';
 
 import {
-  registerForPushNotificationsAsync,
-  sendTokenToServer,
+  requestLocalNotificationPermissionsAsync,
   setupNotificationHandlers,
 } from '../src/utils/notifications';
+import { registerNotificationTask } from '../src/utils/backgroundTasks';
 
 const queryClient = new QueryClient();
 
@@ -66,7 +66,7 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const { isAuthenticated, loadAuth } = useAuthStore();
-  const { serverIp, pushEnabled, setPushEnabled, loadSettings } = useSettingsStore();
+  const { serverIp, pushEnabled, setPushEnabled, pollingInterval, loadSettings } = useSettingsStore();
   const segments = useSegments();
   const router = useRouter();
 
@@ -100,10 +100,10 @@ function RootLayoutNav() {
   }, [isAuthenticated, serverIp, segments]);
 
   /**
-   * Register push notifications once the user is authenticated.
+   * Register local background polling once the user is authenticated.
    * Steps:
-   *   1. Request OS permission and get the Expo push token.
-   *   2. Send the token to the r3ngine backend for storage.
+   *   1. Request OS local notification permission.
+   *   2. Register the Expo Background Fetch task.
    *   3. Set up a listener for notification taps that routes to Notification Center.
    *
    * The subscription is cleaned up on unmount to prevent memory leaks.
@@ -113,17 +113,16 @@ function RootLayoutNav() {
     if (!isAuthenticated || hasRegisteredPushToken.current || pushEnabled === false) return;
 
     const initPushNotifications = async () => {
-      // Request permission + fetch Expo push token
-      const token = await registerForPushNotificationsAsync();
+      // Request permission + register background fetch
+      const isGranted = await requestLocalNotificationPermissionsAsync();
 
-      if (token) {
-        // Store the token in the backend against this user
-        await sendTokenToServer(token);
+      if (isGranted) {
+        await registerNotificationTask(pollingInterval || 15);
         // Persist enabled state so the Settings toggle reflects reality
         await setPushEnabled(true);
       }
 
-      // Set up the notification tap handler regardless of token success
+      // Set up the notification tap handler regardless of success
       // (the user may still receive in-app notification centre navigation)
       notificationSubscriptionRef.current = setupNotificationHandlers(router);
       hasRegisteredPushToken.current = true;
@@ -138,7 +137,7 @@ function RootLayoutNav() {
         notificationSubscriptionRef.current = null;
       }
     };
-  }, [isAuthenticated, pushEnabled]);
+  }, [isAuthenticated, pushEnabled, pollingInterval]);
 
   return (
     <QueryClientProvider client={queryClient}>

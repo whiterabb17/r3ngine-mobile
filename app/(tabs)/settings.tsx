@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch, Linking, Modal } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { LogOut, Server, Shield, Bell, Info, Activity, Database, Globe, Clock, Terminal, Cpu } from 'lucide-react-native';
 import * as Notifications from 'expo-notifications';
@@ -7,16 +7,18 @@ import { Theme } from '../../src/constants/Theme';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 import apiClient from '../../src/api/client';
-import { registerForPushNotificationsAsync, sendTokenToServer } from '../../src/utils/notifications';
+import { requestLocalNotificationPermissionsAsync } from '../../src/utils/notifications';
+import { registerNotificationTask, unregisterNotificationTask } from '../../src/utils/backgroundTasks';
 import { version as appVersion } from '../../package.json';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { logout } = useAuthStore();
-  const { serverIp, pushEnabled, setPushEnabled } = useSettingsStore();
+  const { serverIp, pushEnabled, setPushEnabled, pollingInterval, setPollingInterval } = useSettingsStore();
   const [socEnabled, setSocEnabled] = React.useState(false);
   const [loadingSoc, setLoadingSoc] = React.useState(true);
   const [togglingPush, setTogglingPush] = React.useState(false);
+  const [showIntervalModal, setShowIntervalModal] = React.useState(false);
 
   React.useEffect(() => {
     fetchSocSettings();
@@ -56,42 +58,44 @@ export default function SettingsScreen() {
     );
   };
 
-  const togglePushNotifications = async () => {
-    if (togglingPush) return;
+  const handleIntervalSelect = async (interval: number) => {
+    setShowIntervalModal(false);
     setTogglingPush(true);
     try {
-      if (pushEnabled) {
-        await apiClient.delete('/mapi/push-token/register/');
-        await setPushEnabled(false);
-      } else {
-        // Check whether the OS will even show a permission dialog
-        const current = await Notifications.getPermissionsAsync() as any;
-        if (!current.granted && !current.canAskAgain) {
-          // Permanently denied — OS won't prompt; must go to device Settings
-          promptOpenSettings();
-          return;
-        }
-
-        const token = await registerForPushNotificationsAsync();
-        if (!token) {
-          // Re-check permission state to decide the right message:
-          // only send to Settings if permission is actually still denied.
-          const after = await Notifications.getPermissionsAsync() as any;
-          if (!after.granted) {
-            promptOpenSettings();
-          } else {
-            Alert.alert('Error', 'Could not retrieve push notification token. Please try again.');
-          }
-          return;
-        }
-        await sendTokenToServer(token);
-        await setPushEnabled(true);
+      const isGranted = await requestLocalNotificationPermissionsAsync();
+      if (!isGranted) {
+        promptOpenSettings();
+        setTogglingPush(false);
+        return;
       }
+      
+      await setPollingInterval(interval);
+      await registerNotificationTask(interval);
+      await setPushEnabled(true);
     } catch (err) {
-      console.error('[Settings] Failed to toggle push notifications:', err);
-      Alert.alert('Error', 'Failed to update push notification settings.');
+      console.error('[Settings] Failed to enable background polling:', err);
+      Alert.alert('Error', 'Failed to enable background notifications.');
     } finally {
       setTogglingPush(false);
+    }
+  };
+
+  const togglePushNotifications = async () => {
+    if (togglingPush) return;
+    
+    if (pushEnabled) {
+      setTogglingPush(true);
+      try {
+        await unregisterNotificationTask();
+        await setPushEnabled(false);
+      } catch (err) {
+        console.error('[Settings] Failed to disable background polling:', err);
+      } finally {
+        setTogglingPush(false);
+      }
+    } else {
+      // Open modal to select interval instead of turning on immediately
+      setShowIntervalModal(true);
     }
   };
 
@@ -256,6 +260,34 @@ export default function SettingsScreen() {
           <Text style={styles.footerText}>Crafted for Security Researchers</Text>
         </View>
       </ScrollView>
+
+      {/* Interval Selection Modal */}
+      <Modal visible={showIntervalModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Check for Notifications</Text>
+            <Text style={styles.modalSubtitle}>
+              To save battery, notifications are pulled in the background. Select how often to check:
+            </Text>
+            
+            <TouchableOpacity style={styles.intervalOption} onPress={() => handleIntervalSelect(15)}>
+              <Text style={styles.intervalText}>Every 15 Minutes</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.intervalOption} onPress={() => handleIntervalSelect(30)}>
+              <Text style={styles.intervalText}>Every 30 Minutes</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.intervalOption} onPress={() => handleIntervalSelect(60)}>
+              <Text style={styles.intervalText}>Every 1 Hour</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.intervalOption, styles.cancelOption]} onPress={() => setShowIntervalModal(false)}>
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -337,5 +369,60 @@ const styles = StyleSheet.create({
     color: Theme.colors.textMuted,
     fontSize: 12,
     marginBottom: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Theme.spacing.lg,
+  },
+  modalContent: {
+    backgroundColor: Theme.colors.surface,
+    borderRadius: Theme.borderRadius.lg,
+    padding: Theme.spacing.lg,
+    width: '100%',
+    maxWidth: 400,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+  },
+  modalTitle: {
+    fontSize: 20,
+    color: Theme.colors.text,
+    fontFamily: 'Bangers',
+    marginBottom: Theme.spacing.sm,
+    textAlign: 'center',
+    letterSpacing: 1,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: Theme.colors.textMuted,
+    marginBottom: Theme.spacing.xl,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  intervalOption: {
+    backgroundColor: Theme.colors.background,
+    padding: Theme.spacing.md,
+    borderRadius: Theme.borderRadius.md,
+    marginBottom: Theme.spacing.sm,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Theme.colors.border + '55',
+  },
+  intervalText: {
+    color: Theme.colors.text,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  cancelOption: {
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    marginTop: Theme.spacing.sm,
+  },
+  cancelText: {
+    color: Theme.colors.error,
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
