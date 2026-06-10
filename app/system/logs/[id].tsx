@@ -25,7 +25,7 @@ export default function LogViewerScreen() {
   const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    if (!id || !serverIp) return;
+    if (!id || !serverIp || !token) return;
 
     connectWebSocket();
 
@@ -34,7 +34,7 @@ export default function LogViewerScreen() {
         ws.current.close();
       }
     };
-  }, [id, serverIp]);
+  }, [id, serverIp, token]);
 
   const connectWebSocket = () => {
     try {
