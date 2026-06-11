@@ -61,6 +61,19 @@ export default function ScanDetailScreen() {
     fetchScanDetail();
   }, [fetchScanDetail]);
 
+  // Auto-refresh every 5 seconds if the scan is currently running (status === 1)
+  useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval>;
+    if (data?.scan_info?.scan_status === 1) {
+      intervalId = setInterval(() => {
+        fetchScanDetail();
+      }, 5000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [data?.scan_info?.scan_status, fetchScanDetail]);
+
   const onRefresh = () => {
     setRefreshing(true);
     fetchScanDetail();
@@ -240,7 +253,11 @@ export default function ScanDetailScreen() {
         )}
 
         {activeTab === 'TIMELINE' && data && (
-           <TimelineTab timeline={data.timeline} />
+           <TimelineTab 
+             timeline={data.timeline} 
+             refreshing={refreshing}
+             onRefresh={fetchScanDetail}
+           />
         )}
 
         {activeTab === 'GRAPH' && (

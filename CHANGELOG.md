@@ -2,6 +2,17 @@
 
 All notable changes to **r3ngine Mobile** are documented here.
 
+## [1.3.2] - 2026-06-11
+
+### Fixed
+- **Subdomains Tab Deduplication**: Implemented a robust deduplication mechanism in the mobile app's Scan Details Subdomains Tab. Duplicate entries across multiple scans are now seamlessly merged into a single cohesive entry, updating and aggregating vulnerability counts, screenshots, and discovered IP addresses without rendering duplicates.
+
+### Added
+- **Self-Hosted Background Notifications**: Migrated away from Expo Push Servers and Firebase Cloud Messaging (FCM). Implemented a completely self-hosted headless background polling mechanism using `expo-background-fetch` and `expo-task-manager` that speaks directly to the r3ngine backend, triggering native OS-level local notifications upon finding new alerts.
+- **Background Polling Interval Selector**: Replaced the binary push notification toggle in Settings with a custom interval selection modal, allowing users to choose the background polling frequency (Every 15 Minutes, 30 Minutes, or 1 Hour).
+- **Timeline Auto-Refresh & Manual Polling**: Added pull-to-refresh (`RefreshControl`) to the scan details Timeline tab. Additionally implemented silent periodic auto-polling every 5 seconds for the entire Scan Details page when a scan is actively running (`status === 1`), ensuring real-time visibility without manual intervention.
+
+
 ## [1.3.0] - 2026-06-05
 
 ### Added
