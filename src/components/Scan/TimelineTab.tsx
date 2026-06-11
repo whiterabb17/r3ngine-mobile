@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, Modal, ScrollView } from 'react-native';
+import { StyleSheet, FlatList, Modal, ScrollView, RefreshControl } from 'react-native';
 import { CheckCircle2, Clock, XCircle, AlertCircle, Terminal, X, Copy, ChevronRight } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
@@ -21,9 +21,11 @@ interface TimelineActivity {
 
 interface TimelineTabProps {
   timeline: TimelineActivity[];
+  refreshing?: boolean;
+  onRefresh?: () => void;
 }
 
-export default function TimelineTab({ timeline = [] }: TimelineTabProps) {
+export default function TimelineTab({ timeline = [], refreshing = false, onRefresh }: TimelineTabProps) {
   const [selectedLog, setSelectedLog] = useState<CommandOutput | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   
@@ -90,15 +92,37 @@ export default function TimelineTab({ timeline = [] }: TimelineTabProps) {
   return (
     <View style={styles.container}>
       {timeline.length === 0 ? (
-        <View style={styles.emptyContainer}>
+        <ScrollView 
+          contentContainerStyle={styles.emptyContainer}
+          refreshControl={
+            onRefresh ? (
+              <RefreshControl 
+                refreshing={refreshing} 
+                onRefresh={onRefresh}
+                tintColor={Theme.colors.primary}
+                colors={[Theme.colors.primary]}
+              />
+            ) : undefined
+          }
+        >
           <Text style={styles.emptyText}>No activity logs recorded for this scan.</Text>
-        </View>
+        </ScrollView>
       ) : (
         <FlatList
           data={[...timeline].reverse()} // Show newest first
           keyExtractor={(item) => String(item.id)}
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
+          refreshControl={
+            onRefresh ? (
+              <RefreshControl 
+                refreshing={refreshing} 
+                onRefresh={onRefresh}
+                tintColor={Theme.colors.primary}
+                colors={[Theme.colors.primary]}
+              />
+            ) : undefined
+          }
         />
       )}
 

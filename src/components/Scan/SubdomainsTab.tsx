@@ -73,12 +73,61 @@ export default function SubdomainsTab({ subdomains = [], onRefresh }: Subdomains
     return getMediaSource(path);
   };
 
+  const deduplicatedSubdomains = useMemo(() => {
+    const map = new Map<string, Subdomain>();
+    
+    subdomains.forEach(sub => {
+      const existing = map.get(sub.name);
+      if (!existing) {
+        map.set(sub.name, { ...sub });
+      } else {
+        const updated = sub.id > existing.id ? { ...sub } : { ...existing };
+        
+        updated.critical_count = Math.max(existing.critical_count, sub.critical_count);
+        updated.high_count = Math.max(existing.high_count, sub.high_count);
+        updated.medium_count = Math.max(existing.medium_count, sub.medium_count);
+        updated.low_count = Math.max(existing.low_count, sub.low_count);
+        updated.info_count = Math.max(existing.info_count, sub.info_count);
+        
+        const ipMap = new Map<string, IpAddress>();
+        [...(existing.ip_addresses || []), ...(sub.ip_addresses || [])].forEach(ip => {
+            if (!ipMap.has(ip.address)) ipMap.set(ip.address, ip);
+        });
+        updated.ip_addresses = Array.from(ipMap.values());
+        
+        const screens = new Set<string>();
+        const mergedScreenshots: Array<{ screenshot_path: string }> = [];
+        const addScreen = (path?: string) => {
+            if (path && !screens.has(path)) {
+                screens.add(path);
+                mergedScreenshots.push({ screenshot_path: path });
+            }
+        };
+        addScreen(existing.screenshot_path);
+        addScreen(sub.screenshot_path);
+        existing.screenshots?.forEach(s => addScreen(s.screenshot_path));
+        sub.screenshots?.forEach(s => addScreen(s.screenshot_path));
+        
+        updated.screenshots = mergedScreenshots;
+        if (mergedScreenshots.length > 0 && !updated.screenshot_path) {
+            updated.screenshot_path = mergedScreenshots[0].screenshot_path;
+        }
+
+        updated.is_important = existing.is_important || sub.is_important;
+
+        map.set(sub.name, updated);
+      }
+    });
+    
+    return Array.from(map.values());
+  }, [subdomains]);
+
   const filteredSubdomains = useMemo(() => {
-    return subdomains.filter(s => 
+    return deduplicatedSubdomains.filter(s => 
       s.name.toLowerCase().includes(search.toLowerCase()) || 
       (s.origin_ip && s.origin_ip.includes(search))
     );
-  }, [subdomains, search]);
+  }, [deduplicatedSubdomains, search]);
 
   const handleToggleImportant = async (subdomainId: number) => {
     try {
