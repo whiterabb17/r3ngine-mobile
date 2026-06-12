@@ -46,3 +46,20 @@ export const getAttackPaths = async (scanId: number): Promise<GetAttackPathsResp
   const response = await apiClient.get<GetAttackPathsResponse>('/mapi/apme/paths/', { params });
   return response.data;
 };
+
+export const explainAttackPath = async (pathId: string) => {
+  const response = await apiClient.post<any>('/mapi/apme/explain/', { path_id: pathId });
+  return response.data;
+};
+
+export const recalculateAttackPaths = async (scanId: number) => {
+  const response = await apiClient.post<any>('/mapi/apme/recalculate/', { scan_id: scanId });
+  return response.data;
+};
+
+export const getVulnerabilityDetails = async (vulnId: number) => {
+  const response = await apiClient.get<any>(`/mapi/listVulnerability/${vulnId}/`);
+  return response.data;
+};
+
+

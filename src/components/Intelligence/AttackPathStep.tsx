@@ -1,9 +1,19 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { Globe, Server, Database, Lock, Zap, Search, Key, ChevronDown } from 'lucide-react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Globe, Server, Database, Lock, Zap, Search, Key, ShieldAlert, CheckCircle2, HelpCircle } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
+
+export interface EnrichedNode {
+  id: string;
+  type: string;
+  subtype: string;
+  name?: string;
+  severity?: number;
+  cvss_score?: number;
+  vuln_id?: number | null;
+}
 
 export interface PathStepData {
   from: string;
@@ -12,64 +22,105 @@ export interface PathStepData {
   confidence: number;
   edge_type: string;
   validated: boolean;
+  status?: 'validated' | 'inferred';
+  from_node?: EnrichedNode;
+  to_node?: EnrichedNode;
 }
 
 interface AttackPathStepProps {
   step: PathStepData;
   index: number;
   isLast: boolean;
+  onViewVulnerability?: (vulnId: number) => void;
 }
 
-export default function AttackPathStep({ step, index, isLast }: AttackPathStepProps) {
-  const getIcon = (type: string, label: string) => {
-    const l = label.toLowerCase();
-    if (l === 'internet') return <Globe size={20} color={Theme.colors.textMuted} />;
-    if (l.includes('db') || l.includes('data')) return <Database size={20} color={Theme.colors.primary} />;
-    if (l.includes('internal') || l.includes('private')) return <Lock size={20} color={Theme.colors.warning} />;
-    return <Server size={20} color={Theme.colors.primary} />;
-  };
+const RenderNode: React.FC<{ node: EnrichedNode | undefined; rawId: string; onViewVulnerability?: (vulnId: number) => void }> = ({ node, rawId, onViewVulnerability }) => {
+  const type = node?.type ?? (rawId.startsWith('vuln::') ? 'Vulnerability' : rawId.startsWith('goal::capability::') ? 'Capability' : rawId.startsWith('goal::privilege::') ? 'Privilege' : 'Asset');
+  const subtype = node?.subtype ?? rawId.split('::').pop() ?? '';
+  const name = node?.name ?? (type === 'Vulnerability' ? `Vulnerability #${subtype}` : subtype);
 
-  const getEdgeIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'exploit': return <Zap size={14} color={Theme.colors.danger} />;
-      case 'discovery': return <Search size={14} color={Theme.colors.info} />;
-      case 'access': return <Key size={14} color={Theme.colors.warning} />;
-      default: return <Zap size={14} color={Theme.colors.textMuted} />;
-    }
-  };
+  let color = '#00f3ff';
+  let icon = <Server size={16} color={color} />;
+  let bgColor = 'rgba(0, 243, 255, 0.03)';
+  let borderColor = 'rgba(0, 243, 255, 0.1)';
 
-  const getEdgeColor = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'exploit': return Theme.colors.danger;
-      case 'discovery': return Theme.colors.info;
-      case 'access': return Theme.colors.warning;
-      default: return Theme.colors.border;
-    }
-  };
+  if (type === 'Vulnerability') {
+    const severity = node?.severity ?? 2;
+    const sevColors = ['#00ff62', '#00ff62', '#fffc00', '#ff9f00', '#ff003c'];
+    color = sevColors[severity] ?? '#ff9f00';
+    icon = <ShieldAlert size={16} color={color} />;
+    bgColor = `${color}08`;
+    borderColor = `${color}20`;
+  } else if (type === 'Capability') {
+    color = '#d500f9';
+    icon = <Zap size={16} color={color} />;
+    bgColor = 'rgba(213, 0, 249, 0.03)';
+    borderColor = 'rgba(213, 0, 249, 0.1)';
+  } else if (type === 'Privilege') {
+    color = '#ffab00';
+    icon = <Key size={16} color={color} />;
+    bgColor = 'rgba(255, 171, 0, 0.03)';
+    borderColor = 'rgba(255, 171, 0, 0.1)';
+  } else if (type === 'Credential') {
+    color = '#ffab00';
+    icon = <Lock size={16} color={color} />;
+    bgColor = 'rgba(255, 171, 0, 0.03)';
+    borderColor = 'rgba(255, 171, 0, 0.1)';
+  }
+
+  return (
+    <View style={[styles.nodeCard, { backgroundColor: bgColor, borderColor: borderColor }]}>
+      <View style={[styles.nodeIconBox, { backgroundColor: `${color}15`, borderColor: `${color}33` }]}>
+        {icon}
+      </View>
+      <View style={styles.nodeMeta}>
+        <View style={styles.nodeHeaderRow}>
+          <Text style={styles.nodeTypeText}>{type.toUpperCase()} ({subtype.toUpperCase()})</Text>
+          {type === 'Vulnerability' && node?.cvss_score !== undefined && (
+            <View style={styles.cvssBadge}>
+              <Text style={styles.cvssText}>CVSS {node.cvss_score}</Text>
+            </View>
+          )}
+        </View>
+        <Text style={styles.nodeNameText} numberOfLines={1}>{name}</Text>
+      </View>
+      {type === 'Vulnerability' && node?.vuln_id && onViewVulnerability && (
+        <TouchableOpacity 
+          style={[styles.viewButton, { borderColor: color }]}
+          onPress={() => onViewVulnerability(node.vuln_id!)}
+        >
+          <Text style={[styles.viewButtonText, { color }]}>VIEW</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+};
+
+export default function AttackPathStep({ step, index, isLast, onViewVulnerability }: AttackPathStepProps) {
+  const isValidated = step.validated;
+  const edgeColor = isValidated ? '#00ff62' : '#ff9f00';
+  const EdgeIcon = isValidated ? CheckCircle2 : HelpCircle;
 
   return (
     <Animated.View 
-      entering={FadeInDown.delay(index * 200).duration(500)}
+      entering={FadeInDown.delay(index * 150).duration(400)}
       style={styles.container}
     >
-      {/* Origin Node */}
-      <View style={styles.nodeRow}>
-        <View style={styles.iconCircle}>
-          {getIcon('node', step.from)}
-        </View>
-        <View style={styles.nodeInfo}>
-          <Text style={styles.nodeLabel}>{step.from}</Text>
-        </View>
-      </View>
+      <RenderNode node={step.from_node} rawId={step.from} onViewVulnerability={onViewVulnerability} />
 
-      {/* Exploit Edge (The Action) */}
       <View style={styles.edgeContainer}>
-        <View style={[styles.edgeLine, { backgroundColor: getEdgeColor(step.edge_type) }]} />
+        <View style={[styles.edgeLine, { borderLeftColor: edgeColor + '44' }]} />
         <View style={styles.actionBox}>
-          <View style={[styles.actionBadge, { borderColor: getEdgeColor(step.edge_type) }]}>
-            {getEdgeIcon(step.edge_type)}
-            <Text style={styles.actionText}>{step.action}</Text>
+          <View style={styles.edgeHeaderRow}>
+            <View style={[styles.actionBadge, { borderColor: edgeColor + '44', backgroundColor: 'rgba(255,255,255,0.01)' }]}>
+              <Text style={[styles.actionText, { color: Theme.colors.text }]}>{step.edge_type.toUpperCase()}</Text>
+            </View>
+            <View style={styles.statusRow}>
+              <EdgeIcon size={10} color={edgeColor} />
+              <Text style={[styles.statusText, { color: edgeColor }]}>{(step.status || 'inferred').toUpperCase()}</Text>
+            </View>
           </View>
+          <Text style={styles.actionDescription}>{step.action}</Text>
           <View style={styles.confidenceRow}>
             <Text style={styles.confidenceLabel}>Confidence:</Text>
             <Text style={styles.confidenceValue}>{(step.confidence * 100).toFixed(0)}%</Text>
@@ -77,19 +128,8 @@ export default function AttackPathStep({ step, index, isLast }: AttackPathStepPr
         </View>
       </View>
 
-      {/* If it's the last step, we need to show the final "To" node explicitly */}
       {isLast && (
-        <View style={styles.nodeRow}>
-          <View style={[styles.iconCircle, styles.targetCircle]}>
-            {getIcon('node', step.to)}
-          </View>
-          <View style={styles.nodeInfo}>
-            <Text style={[styles.nodeLabel, styles.targetLabel]}>{step.to}</Text>
-            <View style={styles.impactBadge}>
-              <Text style={styles.impactText}>CRITICAL IMPACT</Text>
-            </View>
-          </View>
-        </View>
+        <RenderNode node={step.to_node} rawId={step.to} onViewVulnerability={onViewVulnerability} />
       )}
     </Animated.View>
   );
@@ -98,110 +138,131 @@ export default function AttackPathStep({ step, index, isLast }: AttackPathStepPr
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
+    width: '100%',
   },
-  nodeRow: {
+  nodeCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: 'transparent',
-    zIndex: 2,
-  },
-  iconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Theme.colors.surface,
+    padding: 12,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: Theme.colors.border,
+    width: '100%',
+  },
+  nodeIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  targetCircle: {
-    borderColor: Theme.colors.danger,
-    shadowColor: Theme.colors.danger,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  nodeInfo: {
+  nodeMeta: {
     flex: 1,
-    backgroundColor: 'transparent',
   },
-  nodeLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: Theme.colors.text,
+  nodeHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 2,
+  },
+  nodeTypeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: 'rgba(255,255,255,0.4)',
+    fontFamily: 'Orbitron',
+  },
+  cvssBadge: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 3,
+    borderWidth: 0.5,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  cvssText: {
+    fontSize: 8,
     fontFamily: 'monospace',
+    color: '#fff',
   },
-  targetLabel: {
-    color: Theme.colors.danger,
+  nodeNameText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.95)',
+  },
+  viewButton: {
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 4,
+  },
+  viewButtonText: {
+    fontSize: 9,
     fontWeight: '900',
+    fontFamily: 'Orbitron',
   },
   edgeContainer: {
     flexDirection: 'row',
-    marginLeft: 19, // Align with center of iconCircle
+    marginLeft: 27,
     minHeight: 80,
-    backgroundColor: 'transparent',
   },
   edgeLine: {
     width: 2,
-    height: '100%',
-    opacity: 0.5,
+    borderLeftWidth: 2,
+    borderStyle: 'dashed',
   },
   actionBox: {
     flex: 1,
-    paddingLeft: 24,
+    paddingLeft: 20,
     justifyContent: 'center',
-    backgroundColor: 'transparent',
+    paddingVertical: 8,
   },
-  actionBadge: {
+  edgeHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: Theme.colors.surface,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    borderWidth: 1,
-    alignSelf: 'flex-start',
+    justifyContent: 'space-between',
     marginBottom: 4,
   },
+  actionBadge: {
+    borderWidth: 1,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
   actionText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: Theme.colors.text,
+    fontSize: 9,
+    fontWeight: '900',
     fontFamily: 'Orbitron',
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  statusText: {
+    fontSize: 8,
+    fontWeight: '900',
+    fontFamily: 'Orbitron',
+  },
+  actionDescription: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 4,
+    lineHeight: 14,
   },
   confidenceRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'transparent',
   },
   confidenceLabel: {
-    fontSize: 10,
+    fontSize: 9,
     color: Theme.colors.textMuted,
   },
   confidenceValue: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: 'bold',
     color: Theme.colors.primary,
   },
-  impactBadge: {
-    backgroundColor: Theme.colors.danger + '22',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
-    marginTop: 4,
-    borderWidth: 0.5,
-    borderColor: Theme.colors.danger,
-  },
-  impactText: {
-    fontSize: 9,
-    fontWeight: '900',
-    color: Theme.colors.danger,
-    letterSpacing: 1,
-  }
 });
+
