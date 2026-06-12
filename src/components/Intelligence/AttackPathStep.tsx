@@ -68,7 +68,11 @@ const RenderNode: React.FC<{ node: EnrichedNode | undefined; rawId: string; onVi
     borderColor = 'rgba(255, 171, 0, 0.1)';
   }
 
-  const isTappable = type === 'Vulnerability' && !!node?.vuln_id && !!onViewVulnerability;
+  const resolvedVulnId: number | null =
+    node?.vuln_id ??
+    (rawId.startsWith('vuln::') ? (parseInt(rawId.split('::').pop() ?? '', 10) || null) : null);
+
+  const isTappable = type === 'Vulnerability' && resolvedVulnId !== null && !!onViewVulnerability;
 
   const inner = (
     <>
@@ -94,7 +98,7 @@ const RenderNode: React.FC<{ node: EnrichedNode | undefined; rawId: string; onVi
     return (
       <TouchableOpacity
         style={[styles.nodeCard, { backgroundColor: bgColor, borderColor: borderColor }]}
-        onPress={() => onViewVulnerability!(node!.vuln_id!)}
+        onPress={() => onViewVulnerability!(resolvedVulnId!)}
         activeOpacity={0.7}
       >
         {inner}
