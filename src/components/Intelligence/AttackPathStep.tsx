@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Server, Lock, Zap, Key, ShieldAlert, CheckCircle2, HelpCircle } from 'lucide-react-native';
+import { Server, Lock, Zap, Key, ShieldAlert, CheckCircle2, HelpCircle, ChevronRight } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Text, View } from 'react-native';
 import { Theme } from '../../constants/Theme';
@@ -68,8 +68,10 @@ const RenderNode: React.FC<{ node: EnrichedNode | undefined; rawId: string; onVi
     borderColor = 'rgba(255, 171, 0, 0.1)';
   }
 
-  return (
-    <View style={[styles.nodeCard, { backgroundColor: bgColor, borderColor: borderColor }]}>
+  const isTappable = type === 'Vulnerability' && !!node?.vuln_id && !!onViewVulnerability;
+
+  const inner = (
+    <>
       <View style={[styles.nodeIconBox, { backgroundColor: `${color}15`, borderColor: `${color}33` }]}>
         {icon}
       </View>
@@ -84,14 +86,25 @@ const RenderNode: React.FC<{ node: EnrichedNode | undefined; rawId: string; onVi
         </View>
         <Text style={styles.nodeNameText} numberOfLines={1}>{name}</Text>
       </View>
-      {type === 'Vulnerability' && node?.vuln_id && onViewVulnerability && (
-        <TouchableOpacity 
-          style={[styles.viewButton, { borderColor: color }]}
-          onPress={() => onViewVulnerability(node.vuln_id!)}
-        >
-          <Text style={[styles.viewButtonText, { color }]}>VIEW</Text>
-        </TouchableOpacity>
-      )}
+      {isTappable && <ChevronRight size={16} color={color} style={{ opacity: 0.7 }} />}
+    </>
+  );
+
+  if (isTappable) {
+    return (
+      <TouchableOpacity
+        style={[styles.nodeCard, { backgroundColor: bgColor, borderColor: borderColor }]}
+        onPress={() => onViewVulnerability!(node!.vuln_id!)}
+        activeOpacity={0.7}
+      >
+        {inner}
+      </TouchableOpacity>
+    );
+  }
+
+  return (
+    <View style={[styles.nodeCard, { backgroundColor: bgColor, borderColor: borderColor }]}>
+      {inner}
     </View>
   );
 };
@@ -189,17 +202,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: 'rgba(255,255,255,0.95)',
-  },
-  viewButton: {
-    borderWidth: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
-  },
-  viewButtonText: {
-    fontSize: 9,
-    fontWeight: '900',
-    fontFamily: 'Orbitron',
   },
   edgeContainer: {
     flexDirection: 'row',
