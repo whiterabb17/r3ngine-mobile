@@ -2,6 +2,13 @@
 
 All notable changes to **r3ngine Mobile** are documented here.
 
+## [1.4.1] - 2026-06-12
+
+### Fixed
+- **System Log Viewer Double Header**: Removed the duplicate navigation header on the System Observability screen. The redundant "SYSTEM OBSERVABILITY" title rendered by the navigation stack has been removed; the component's own styled header now sits flush at the top. The back button has been relocated into the component header, to the left of the terminal icon, preserving full navigation without visual duplication.
+
+---
+
 ## [1.4.0] - 2026-06-12
 
 ### Added
