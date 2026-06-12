@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import { Text, View } from 'react-native';
 import { Theme } from '../../constants/Theme';
 import AttackPathStep, { PathStepData } from './AttackPathStep';
 

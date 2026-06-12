@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Globe, Server, Database, Lock, Zap, Search, Key, ShieldAlert, CheckCircle2, HelpCircle } from 'lucide-react-native';
+import { Server, Lock, Zap, Key, ShieldAlert, CheckCircle2, HelpCircle } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { Text, View } from '@/components/Themed';
+import { Text, View } from 'react-native';
 import { Theme } from '../../constants/Theme';
 
 export interface EnrichedNode {
