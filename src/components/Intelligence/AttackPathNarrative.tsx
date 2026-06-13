@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import { Text, View } from 'react-native';
 import { Theme } from '../../constants/Theme';
 import AttackPathStep, { PathStepData } from './AttackPathStep';
 
@@ -8,9 +8,10 @@ interface AttackPathNarrativeProps {
   steps: PathStepData[];
   score: number;
   risk: string;
+  onViewVulnerability?: (vulnId: number) => void;
 }
 
-export default function AttackPathNarrative({ steps, score, risk }: AttackPathNarrativeProps) {
+export default function AttackPathNarrative({ steps, score, risk, onViewVulnerability }: AttackPathNarrativeProps) {
   return (
     <ScrollView 
       style={styles.container} 
@@ -38,9 +39,11 @@ export default function AttackPathNarrative({ steps, score, risk }: AttackPathNa
             step={step} 
             index={index} 
             isLast={index === steps.length - 1} 
+            onViewVulnerability={onViewVulnerability}
           />
         ))}
       </View>
+
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>

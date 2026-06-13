@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/whiterabb17/r3ngine-mobile/releases" target="_blank"><img src="https://img.shields.io/badge/version-v1.3.2-informational?&logo=none" alt="r3ngine Mobile Version" /></a>&nbsp;<a href="https://github.com/whiterabb17/r3ngine/releases" target="_blank"><img src="https://img.shields.io/badge/compatible_with-r3ngine_v3.5.0+-warning?&logo=none" alt="Compatible r3Ngine version" /></a><br/><a href="https://www.gnu.org/licenses/gpl-3.0" target="_blank"><img src="https://img.shields.io/badge/License-GPLv3-red.svg?&logo=none" alt="License" /></a>&nbsp;<a href="https://expo.dev" target="_blank"><img src="https://img.shields.io/badge/Platform-Expo--iOS--Android-blue.svg?&logo=none" alt="Platform" /></a>
+<a href="https://github.com/whiterabb17/r3ngine-mobile/releases" target="_blank"><img src="https://img.shields.io/badge/version-v1.4.1-informational?&logo=none" alt="r3ngine Mobile Version" /></a>&nbsp;<a href="https://github.com/whiterabb17/r3ngine/releases" target="_blank"><img src="https://img.shields.io/badge/compatible_with-r3ngine_v3.5.0+-warning?&logo=none" alt="Compatible r3Ngine version" /></a><br/><a href="https://www.gnu.org/licenses/gpl-3.0" target="_blank"><img src="https://img.shields.io/badge/License-GPLv3-red.svg?&logo=none" alt="License" /></a>&nbsp;<a href="https://expo.dev" target="_blank"><img src="https://img.shields.io/badge/Platform-Expo--iOS--Android-blue.svg?&logo=none" alt="Platform" /></a>
 </p>
 
 <h4>r3ngine Mobile: Tactical Reconnaissance 3.0</h4>
@@ -41,6 +41,12 @@ The mobile app isn't just a viewer; it's a portable command center synchronized 
 *   **Scan History**: Review historical scan results and summaries with full data persistence.
 *   **Live Log Viewer**: Stream scan and system logs in real-time with full ANSI colour support. Colour-coded log lines render directly in-app via WebSocket, so you can watch a running scan's raw output from your device.
 *   **Directories Tab**: Fully wired directory discovery view with push-notification alerts on new directory findings.
+
+### 🗺️ Attack Path Intelligence (APME)
+*   **Interactive Attack Path Viewer**: Navigate full compromise chains from the Intelligence Reports screen. Each node in the path renders custom styled badges with severity colours for Assets, Vulnerabilities, Capabilities, Privileges, and Credentials — including CVSS scores and chain transitions.
+*   **AI-Powered Path Analysis ("Explain This")**: Tap the brain icon on any attack path to trigger an LLM-powered tactical narrative. Explanations are persisted server-side and load instantly on repeat views without regeneration.
+*   **Vulnerability Details Modal**: Tap **VIEW** on any enriched vulnerability node inside an attack path to pull full threat-intel (Name, Severity, Domain, URL, Description, Impact, Remediation) directly from the backend.
+*   **On-Demand Recalculation**: Trigger a full APME recalculation from the Scan Summary Tab with a single tap, dispatching a background recalculation workflow to the core engine.
 
 ### ⚙️ Infrastructure & Settings
 *   **Engines Management**: Browse, inspect, and identify scan engine configurations — view task assignments and the active default engine.

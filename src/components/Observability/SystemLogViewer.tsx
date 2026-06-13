@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useRouter } from 'expo-router';
 import { 
   View, 
   Text, 
@@ -17,12 +18,12 @@ import {
 import { Theme } from '../../constants/Theme';
 import AnsiText from '../AnsiText';
 import { observabilityApi } from '../../api/observability';
-import { 
-  Terminal, 
-  RefreshCw, 
-  Share2, 
-  AlertTriangle, 
-  Info, 
+import {
+  Terminal,
+  RefreshCw,
+  Share2,
+  AlertTriangle,
+  Info,
   CheckCircle,
   Clock,
   Search,
@@ -30,11 +31,13 @@ import {
   Copy,
   Database,
   Zap,
-  Shield
+  Shield,
+  ChevronLeft
 } from 'lucide-react-native';
 import { TacticalHaptics } from '../../utils/haptics';
 
 export default function SystemLogViewer() {
+  const router = useRouter();
   const [logs, setLogs] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -162,6 +165,9 @@ export default function SystemLogViewer() {
       {/* Header Panel */}
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} activeOpacity={0.7}>
+            <ChevronLeft size={22} color={Theme.colors.secondary} />
+          </TouchableOpacity>
           <Terminal size={20} color={Theme.colors.secondary} />
           <Text style={styles.title}>SYSTEM OBSERVABILITY</Text>
         </View>
@@ -339,6 +345,10 @@ const styles = StyleSheet.create({
   headerTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  backBtn: {
+    marginRight: 6,
+    padding: 2,
   },
   title: {
     color: Theme.colors.secondary,

@@ -2,6 +2,21 @@
 
 All notable changes to **r3ngine Mobile** are documented here.
 
+## [1.4.1] - 2026-06-12
+
+### Fixed
+- **System Log Viewer Double Header**: Removed the duplicate navigation header on the System Observability screen. The redundant "SYSTEM OBSERVABILITY" title rendered by the navigation stack has been removed; the component's own styled header now sits flush at the top. The back button has been relocated into the component header, to the left of the terminal icon, preserving full navigation without visual duplication.
+
+---
+
+## [1.4.0] - 2026-06-12
+
+### Added
+- **AI Attack Path Explanations ("Explain This")**: Added an LLM-powered "Explain Path" feature that generates in-depth tactical analyses of attack vectors. Accessible via a dedicated brain icon button on the path detail screen. Persisted in the database to load instantly without regeneration on subsequent views.
+- **Enriched Timeline Visualizer**: Replaced the simple vertical list of text nodes with a compromise chain timeline. Renders custom styled badges and severity colors for different node types (Asset, Vulnerability, Capability, Privilege, Credential), CVSS scores, and transitions.
+- **Vulnerability Details Modal**: Integrated a details modal inside the Attack Path view. Tapping "VIEW" on any enriched vulnerability node fetches threat intel (Name, Severity, Domain/Target, URL, Description, Impact, Remediation) from `/mapi/listVulnerability/` and displays it.
+- **On-Demand Recalculation**: Added a "RE-CALCULATE ATTACK PATHS" action button to the scan Summary Tab. Triggers a backend recalculation workflow and alerts the user upon background execution.
+
 ## [1.3.2] - 2026-06-11
 
 ### Fixed

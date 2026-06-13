@@ -20,9 +20,10 @@ import {
   Zap
 } from 'lucide-react-native';
 import { Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { createScanReport, getReportStatus, triggerAiInsights } from '../../api/reports';
+import { createScanReport, getReportStatus, triggerAiInsights, recalculateAttackPaths } from '../../api/reports';
 import { useRouter } from 'expo-router';
 import { queryWhois } from '../../api/tools';
+import { GitBranch } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
@@ -118,6 +119,29 @@ export default function SummaryTab({ data, scanId, onRefresh }: SummaryTabProps)
       Alert.alert('Error', 'Failed to trigger AI insights');
     }
   };
+
+  const [isRecalculating, setIsRecalculating] = React.useState(false);
+  const handleRecalculatePaths = async () => {
+    setIsRecalculating(true);
+    try {
+      const response = await recalculateAttackPaths(scanId);
+      if (response.status === 'triggered') {
+        Alert.alert(
+          'Recalculation Triggered',
+          'Attack paths are being recalculated algorthmically in the background.',
+          [
+            { text: 'View Explorer', onPress: () => router.push('/intelligence/attack-paths' as any) },
+            { text: 'OK', style: 'cancel' }
+          ]
+        );
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to trigger attack path recalculation');
+    } finally {
+      setIsRecalculating(false);
+    }
+  };
+
 
   const KpiCard = ({ title, value, subtitle, color, icon: Icon }: any) => (
     <View style={[styles.kpiCard, { width: cardWidth }]}>
@@ -298,6 +322,26 @@ export default function SummaryTab({ data, scanId, onRefresh }: SummaryTabProps)
             </View>
             <ChevronRight size={16} color={Theme.colors.textMuted} />
           </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.actionButton, { borderColor: Theme.colors.primary + '44' }]}
+            onPress={handleRecalculatePaths}
+            disabled={isRecalculating}
+          >
+            <View style={[styles.actionIconBox, { backgroundColor: Theme.colors.primary + '15' }]}>
+              {isRecalculating ? (
+                <ActivityIndicator size="small" color={Theme.colors.primary} />
+              ) : (
+                <GitBranch size={20} color={Theme.colors.primary} />
+              )}
+            </View>
+            <View style={styles.actionTextContent}>
+              <Text style={[styles.actionTitle, { color: Theme.colors.primary }]}>RE-CALCULATE ATTACK PATHS</Text>
+              <Text style={styles.actionSubtitle}>Trigger algorithmic recalculation workflow</Text>
+            </View>
+            <ChevronRight size={16} color={Theme.colors.textMuted} />
+          </TouchableOpacity>
+
 
           {(data.endpoint_count > 0 || data.scan_info?.engine_name === 'Stress Testing') && (
             <TouchableOpacity 
