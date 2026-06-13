@@ -5,6 +5,59 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Text, View } from 'react-native';
 import { Theme } from '../../constants/Theme';
 
+const TACTIC_COLORS: Record<string, string> = {
+  'initial-access':       '#ff4444',
+  'execution':            '#ff8800',
+  'persistence':          '#ffcc00',
+  'privilege-escalation': '#aa00ff',
+  'defense-evasion':      '#0088ff',
+  'credential-access':    '#00aaff',
+  'discovery':            '#00ff88',
+  'lateral-movement':     '#ff00aa',
+  'collection':           '#ff6600',
+  'command-and-control':  '#9944ff',
+  'exfiltration':         '#ff0066',
+  'impact':               '#ff0000',
+  'resource-development': '#888888',
+  'reconnaissance':       '#44aaff',
+};
+
+interface MitreBadgeProps {
+  technique?: string;
+  tactic?: string;
+  tacticColor?: string;
+}
+
+const MitreBadge: React.FC<MitreBadgeProps> = ({ technique, tactic, tacticColor }) => {
+  if (!technique) return null;
+  const color = tacticColor ?? TACTIC_COLORS[tactic ?? ''] ?? '#888888';
+  return (
+    <View style={[mStyles.mitreBadge, {
+      borderLeftColor: color,
+      backgroundColor: color + '14',
+    }]}>
+      <Text style={[mStyles.mitreText, { color }]}>
+        ATT&CK {technique}
+      </Text>
+    </View>
+  );
+};
+
+const mStyles = StyleSheet.create({
+  mitreBadge: {
+    borderLeftWidth: 3,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    borderRadius: 3,
+    marginRight: 4,
+  },
+  mitreText: {
+    fontSize: 8,
+    fontWeight: '900',
+    fontFamily: 'monospace',
+  },
+});
+
 export interface EnrichedNode {
   id: string;
   type: string;
@@ -13,6 +66,8 @@ export interface EnrichedNode {
   severity?: number;
   cvss_score?: number;
   vuln_id?: number | null;
+  cwe?: string;
+  technique?: string;
 }
 
 export interface PathStepData {
@@ -25,6 +80,11 @@ export interface PathStepData {
   status?: 'validated' | 'inferred';
   from_node?: EnrichedNode;
   to_node?: EnrichedNode;
+  mitre_technique?: string;
+  mitre_technique_name?: string;
+  mitre_tactic?: string;
+  mitre_tactic_display?: string;
+  mitre_tactic_color?: string;
 }
 
 interface AttackPathStepProps {
@@ -87,6 +147,14 @@ const RenderNode: React.FC<{ node: EnrichedNode | undefined; rawId: string; onVi
               <Text style={styles.cvssText}>CVSS {node.cvss_score}</Text>
             </View>
           )}
+          {type === 'Vulnerability' && node?.cwe && (
+            <View style={[styles.cvssBadge, { borderColor: 'rgba(255,159,0,0.3)', backgroundColor: 'rgba(255,159,0,0.08)' }]}>
+              <Text style={[styles.cvssText, { color: '#ff9f00' }]}>{node.cwe}</Text>
+            </View>
+          )}
+          {type === 'Vulnerability' && node?.technique && (
+            <MitreBadge technique={node.technique} />
+          )}
         </View>
         <Text style={styles.nodeNameText} numberOfLines={1}>{name}</Text>
       </View>
@@ -132,6 +200,11 @@ export default function AttackPathStep({ step, index, isLast, onViewVulnerabilit
             <View style={[styles.actionBadge, { borderColor: edgeColor + '44', backgroundColor: 'rgba(255,255,255,0.01)' }]}>
               <Text style={[styles.actionText, { color: Theme.colors.text }]}>{step.edge_type.toUpperCase()}</Text>
             </View>
+            <MitreBadge
+              technique={step.mitre_technique}
+              tactic={step.mitre_tactic}
+              tacticColor={step.mitre_tactic_color}
+            />
             <View style={styles.statusRow}>
               <EdgeIcon size={10} color={edgeColor} />
               <Text style={[styles.statusText, { color: edgeColor }]}>{(step.status || 'inferred').toUpperCase()}</Text>

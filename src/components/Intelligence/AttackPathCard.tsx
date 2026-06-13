@@ -1,8 +1,25 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { ChevronRight, ShieldAlert, Footprints, Zap } from 'lucide-react-native';
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
+
+const TACTIC_COLORS: Record<string, string> = {
+  'initial-access':       '#ff4444',
+  'execution':            '#ff8800',
+  'persistence':          '#ffcc00',
+  'privilege-escalation': '#aa00ff',
+  'defense-evasion':      '#0088ff',
+  'credential-access':    '#00aaff',
+  'discovery':            '#00ff88',
+  'lateral-movement':     '#ff00aa',
+  'collection':           '#ff6600',
+  'command-and-control':  '#9944ff',
+  'exfiltration':         '#ff0066',
+  'impact':               '#ff0000',
+  'resource-development': '#888888',
+  'reconnaissance':       '#44aaff',
+};
 
 interface AttackPathCardProps {
   path: {
@@ -11,6 +28,7 @@ interface AttackPathCardProps {
     score: number;
     step_count: number;
     potential_impact: string;
+    mitre_tactics?: string[];
   };
   onPress: () => void;
 }
@@ -30,6 +48,32 @@ export default function AttackPathCard({ path, onPress }: AttackPathCardProps) {
       </View>
 
       <Text style={styles.impactText} numberOfLines={2}>{path.potential_impact}</Text>
+
+      {path.mitre_tactics && path.mitre_tactics.length > 0 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.tacticScroll}
+          contentContainerStyle={styles.tacticScrollContent}
+        >
+          {path.mitre_tactics.map((tactic) => {
+            const color = TACTIC_COLORS[tactic] ?? '#888888';
+            return (
+              <View
+                key={tactic}
+                style={[
+                  styles.tacticPill,
+                  { borderColor: color + '44', backgroundColor: color + '12' },
+                ]}
+              >
+                <Text style={[styles.tacticText, { color }]}>
+                  {tactic.replace(/-/g, ' ').toUpperCase()}
+                </Text>
+              </View>
+            );
+          })}
+        </ScrollView>
+      )}
 
       <View style={styles.footer}>
         <View style={styles.stat}>
@@ -114,5 +158,24 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: Theme.colors.textMuted,
     fontWeight: '700',
-  }
+  },
+  tacticScroll: {
+    marginBottom: 12,
+  },
+  tacticScrollContent: {
+    gap: 6,
+    paddingRight: 4,
+  },
+  tacticPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  tacticText: {
+    fontSize: 7,
+    fontWeight: '900',
+    fontFamily: 'Orbitron',
+    letterSpacing: 0.5,
+  },
 });
