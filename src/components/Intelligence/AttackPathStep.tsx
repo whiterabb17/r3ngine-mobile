@@ -92,6 +92,14 @@ interface AttackPathStepProps {
   index: number;
   isLast: boolean;
   onViewVulnerability?: (vulnId: number) => void;
+  leafDetectability?: 'low' | 'medium' | 'high' | null;
+  isLeaf?: boolean;
+}
+
+function detectColor(d: 'low' | 'medium' | 'high'): string {
+  if (d === 'low') return Theme.colors.success;
+  if (d === 'medium') return Theme.colors.warning;
+  return Theme.colors.danger;
 }
 
 const RenderNode: React.FC<{ node: EnrichedNode | undefined; rawId: string; onViewVulnerability?: (vulnId: number) => void }> = ({ node, rawId, onViewVulnerability }) => {
@@ -181,7 +189,7 @@ const RenderNode: React.FC<{ node: EnrichedNode | undefined; rawId: string; onVi
   );
 };
 
-export default function AttackPathStep({ step, index, isLast, onViewVulnerability }: AttackPathStepProps) {
+export default function AttackPathStep({ step, index, isLast, onViewVulnerability, leafDetectability, isLeaf }: AttackPathStepProps) {
   const isValidated = step.validated;
   const edgeColor = isValidated ? '#00ff62' : '#ff9f00';
   const EdgeIcon = isValidated ? CheckCircle2 : HelpCircle;
@@ -220,6 +228,11 @@ export default function AttackPathStep({ step, index, isLast, onViewVulnerabilit
 
       {isLast && (
         <RenderNode node={step.to_node} rawId={step.to} onViewVulnerability={onViewVulnerability} />
+      )}
+      {isLeaf && leafDetectability && (
+        <View style={[styles.detectChip, { borderColor: detectColor(leafDetectability), backgroundColor: detectColor(leafDetectability) + '22' }]}>
+          <Text style={[styles.detectText, { color: detectColor(leafDetectability) }]}>{leafDetectability.toUpperCase()} DETECTABILITY</Text>
+        </View>
       )}
     </Animated.View>
   );
@@ -342,6 +355,19 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: 'bold',
     color: Theme.colors.primary,
+  },
+  detectChip: {
+    paddingHorizontal: Theme.spacing.sm,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderRadius: Theme.borderRadius.sm,
+    alignSelf: 'flex-start',
+    marginTop: Theme.spacing.sm,
+  },
+  detectText: {
+    fontSize: 9,
+    fontWeight: '700',
+    letterSpacing: 1,
   },
 });
 
