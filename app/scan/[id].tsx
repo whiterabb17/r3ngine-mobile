@@ -28,8 +28,13 @@ import VulnerabilitiesTab from '../../src/components/Scan/VulnerabilitiesTab';
 import TimelineTab from '../../src/components/Scan/TimelineTab';
 import DirectoriesTab from '../../src/components/Scan/DirectoriesTab';
 import AssetGraph from '../../src/components/Observability/AssetGraph';
+import ExposuresScreen from '../intelligence/exposures/index';
+import AttackPathsScreen from '../intelligence/attack-paths';
+import CertificatesScreen from '../intelligence/certificates/index';
+import IdentityScreen from '../intelligence/identity/index';
 
-type TabType = 'SUMMARY' | 'SUBDOMAINS' | 'DIRECTORIES' | 'VULNERABILITIES' | 'TIMELINE' | 'GRAPH';
+type TabType = 'SUMMARY' | 'SUBDOMAINS' | 'DIRECTORIES' | 'VULNERABILITIES' | 'TIMELINE' | 'GRAPH'
+  | 'EXPOSURES' | 'ATTACK_PATHS' | 'CERTS' | 'IDENTITY';
 
 export default function ScanDetailScreen() {
   const { id, slug } = useLocalSearchParams();
@@ -195,9 +200,9 @@ export default function ScanDetailScreen() {
       </View>
 
       {/* Tab Bar */}
-      <View style={styles.tabBar}>
-        {(['SUMMARY', 'SUBDOMAINS', 'DIRECTORIES', 'VULNERABILITIES', 'TIMELINE', 'GRAPH'] as TabType[]).map((tab) => (
-          <TouchableOpacity 
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabBar} contentContainerStyle={styles.tabBarContent}>
+        {(['SUMMARY', 'SUBDOMAINS', 'DIRECTORIES', 'VULNERABILITIES', 'TIMELINE', 'GRAPH', 'EXPOSURES', 'ATTACK_PATHS', 'CERTS', 'IDENTITY'] as TabType[]).map((tab) => (
+          <TouchableOpacity
             key={tab}
             onPress={() => setActiveTab(tab)}
             style={[styles.tabItem, activeTab === tab && styles.tabItemActive]}
@@ -208,12 +213,16 @@ export default function ScanDetailScreen() {
             {tab === 'VULNERABILITIES' && <ShieldAlert size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'TIMELINE' && <History size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'GRAPH' && <Network size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'EXPOSURES' && <Zap size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'ATTACK_PATHS' && <Target size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'CERTS' && <Clock size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'IDENTITY' && <ShieldAlert size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             <Text style={[styles.tabLabel, activeTab === tab && styles.tabLabelActive]}>
-              {tab === 'VULNERABILITIES' ? 'Vulns' : tab.charAt(0) + tab.slice(1).toLowerCase()}
+              {tab === 'VULNERABILITIES' ? 'Vulns' : tab === 'ATTACK_PATHS' ? 'Paths' : tab.charAt(0) + tab.slice(1).toLowerCase()}
             </Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
 
       <View 
         style={[styles.content, { backgroundColor: 'transparent' }]}
@@ -262,6 +271,18 @@ export default function ScanDetailScreen() {
 
         {activeTab === 'GRAPH' && (
            <AssetGraph scanId={Number(id)} />
+        )}
+        {activeTab === 'EXPOSURES' && (
+           <ExposuresScreen scanId={Number(id)} />
+        )}
+        {activeTab === 'ATTACK_PATHS' && (
+           <AttackPathsScreen scanId={Number(id)} />
+        )}
+        {activeTab === 'CERTS' && (
+           <CertificatesScreen scanId={Number(id)} />
+        )}
+        {activeTab === 'IDENTITY' && (
+           <IdentityScreen scanId={Number(id)} />
         )}
       </View>
     </View>
@@ -369,13 +390,15 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   tabBar: {
-    flexDirection: 'row',
     backgroundColor: Theme.colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: Theme.colors.border,
+    maxHeight: 56,
+  },
+  tabBarContent: {
+    flexDirection: 'row',
   },
   tabItem: {
-    flex: 1,
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 2,

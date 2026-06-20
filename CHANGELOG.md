@@ -2,6 +2,20 @@
 
 All notable changes to **r3ngine Mobile** are documented here.
 
+## [1.5.0] - 2026-06-20
+
+### Added
+- **Exposure Correlation Engine**: Full intelligence-tab + scan-detail-tab support. Browse, filter (status + search), and act on correlated exposures with status mutations (Accept / Mark FP / Resolve / Reopen). Bulk multi-select with optimistic update and per-row partial-failure handling. Evidence rendered as key-value rows with monospaced raw strings; linked vulnerabilities open existing detail modal.
+- **Enhanced APME Attack Paths**: New `RiskSummaryBar` (score + priority + path count + speculative count), `PriorityBadge` (P0–P3), tap-and-hold score tooltip with exploitability/impact/confidence breakdown, collapsible Speculative Paths section, LEAF detectability chip. Per-card overflow menu adds `Regenerate Impact` and `Dismiss Path` mutations.
+- **Certificate Intelligence**: List with filter chips (All / Expired / Self-signed / Expiring <30d), chain viewer (depth-indented), collapsible SAN list, SHA-256/SHA-1 fingerprints with tap-to-copy. Detail screen exposes `Resync` (client-rate-limited) and `Flag Anomaly` (chip selector + optional note) actions.
+- **Identity Infrastructure**: Discovery list grouped by provider (Okta / Azure AD / Auth0 / Ping / OneLogin / JumpCloud / Other) with match-strength chips. Detail surfaces matched URLs / titles / headers as collapsible evidence bands. Confirm Provider / Dismiss as False Match mutations with optimistic UI.
+- **Intelligence Hub Landing**: New `app/intelligence/index.tsx` with 2×2 KpiCard grid (Exposures / Attack Paths / Certificates / Identity) and a merged Recent Activity feed.
+- **Scan Detail tabs**: Added Exposures, Attack Paths, Certs, Identity tabs to the Scan Detail screen (horizontally scrollable tab bar); same screen components mounted with the scan filter pre-applied.
+- **`useUndoableMutation` hook** (`src/hooks/useUndoableMutation.ts`): Shared 5-second undo-snackbar window with cancel + unmount cleanup, used across all four intelligence modules.
+- **Theme**: New priority palette (`Theme.colors.priority.p0..p3`).
+
+---
+
 ## [1.4.1] - 2026-06-12
 
 ### Fixed
