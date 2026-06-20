@@ -19,7 +19,13 @@ export const Theme = {
       medium: '#F59E0B',
       low: '#10B981',
       info: '#3B82F6',
-    }
+    },
+    priority: {
+      p0: '#EF4444',
+      p1: '#F97316',
+      p2: '#F59E0B',
+      p3: '#3B82F6',
+    },
   },
   spacing: {
     xs: 4,
