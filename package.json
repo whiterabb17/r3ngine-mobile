@@ -36,6 +36,7 @@
     "expo": "~54.0.35",
     "expo-background-task": "~1.0.10",
     "expo-build-properties": "~1.0.10",
+    "expo-clipboard": "^56.0.4",
     "expo-constants": "~18.0.13",
     "expo-dev-client": "~6.0.21",
     "expo-device": "~8.0.10",
