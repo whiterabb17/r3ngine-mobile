@@ -15,7 +15,7 @@ The intelligence features that shipped in v3.7.0 have no mobile representation t
 3. **Certificate Intelligence** — `features/certificates/` CertIntelTab (cert chain, SAN viewer, issuer, fingerprints).
 4. **Identity Infrastructure** — `features/identity/` IdentityInfraPanel (IdP discovery, URL/title/header detection results).
 
-## Phase 2 — Graph & API Intelligence
+## Phase 2 — Graph & API Intelligence ✅ COMPLETE (shipped v1.6.0)
 
 5. **API Intelligence + Expanded Graph** — Application/Organization nodes, distinct node colors, `/api/graph/chain/` endpoints, DEPENDS_ON / TRUSTS_DOMAIN / PART_OF edges, APIIntelligenceProfile.
 
