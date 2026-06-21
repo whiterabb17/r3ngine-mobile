@@ -2,12 +2,13 @@ import React, { useMemo } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, RefreshControl } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { ShieldAlert, Crosshair, FileCheck, KeyRound } from 'lucide-react-native';
+import { ShieldAlert, Crosshair, FileCheck, KeyRound, Network, Code } from 'lucide-react-native';
 import { Theme } from '../../src/constants/Theme';
 import { KpiCard } from '../../src/components/KpiCard';
 import { getExposureStats, listExposures, EXPOSURES_KEYS } from '../../src/api/exposures';
 import { listCertificates, CERTS_KEYS } from '../../src/api/certificates';
 import { listIdentityInfra, IDENTITY_KEYS } from '../../src/api/identity';
+import { listAPIIntelProfiles, API_INTEL_KEYS } from '../../src/api/apiIntel';
 
 export default function IntelHub() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function IntelHub() {
   const exposuresQ = useQuery({ queryKey: EXPOSURES_KEYS.list(), queryFn: () => listExposures(), staleTime: 30_000 });
   const certsQ = useQuery({ queryKey: CERTS_KEYS.list(), queryFn: () => listCertificates(), staleTime: 30_000 });
   const identQ = useQuery({ queryKey: IDENTITY_KEYS.list(), queryFn: () => listIdentityInfra(), staleTime: 30_000 });
+  const apiIntelQ = useQuery({ queryKey: API_INTEL_KEYS.list(), queryFn: () => listAPIIntelProfiles(), staleTime: 30_000 });
 
   const recent = useMemo(() => {
     const items: { kind: string; title: string; created_at: string; id: number }[] = [];
@@ -25,8 +27,14 @@ export default function IntelHub() {
     return items.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || '')).slice(0, 10);
   }, [exposuresQ.data, certsQ.data, identQ.data]);
 
-  const isRefreshing = statsQ.isRefetching || exposuresQ.isRefetching || certsQ.isRefetching || identQ.isRefetching;
-  const onRefresh = () => { void statsQ.refetch(); void exposuresQ.refetch(); void certsQ.refetch(); void identQ.refetch(); };
+  const isRefreshing = statsQ.isRefetching || exposuresQ.isRefetching || certsQ.isRefetching || identQ.isRefetching || apiIntelQ.isRefetching;
+  const onRefresh = () => {
+    void statsQ.refetch();
+    void exposuresQ.refetch();
+    void certsQ.refetch();
+    void identQ.refetch();
+    void apiIntelQ.refetch();
+  };
 
   return (
     <View style={styles.root}>
@@ -70,6 +78,24 @@ export default function IntelHub() {
               title="Identity"
               value={identQ.data?.length ?? '—'}
               onPress={() => router.push('/intelligence/identity' as never)}
+            />
+          </View>
+          <View style={styles.cell}>
+            <KpiCard
+              icon={Network}
+              color={Theme.colors.success}
+              title="Chain Graph"
+              value="—"
+              onPress={() => router.push('/intelligence/graph' as never)}
+            />
+          </View>
+          <View style={styles.cell}>
+            <KpiCard
+              icon={Code}
+              color={Theme.colors.secondary}
+              title="API Intel"
+              value={apiIntelQ.data?.length ?? '—'}
+              onPress={() => router.push('/intelligence/api-intel' as never)}
             />
           </View>
         </View>
