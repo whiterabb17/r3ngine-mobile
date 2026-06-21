@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, FlatList, Modal, ScrollView, RefreshControl } from 'react-native';
-import { CheckCircle2, Clock, XCircle, AlertCircle, Terminal, X, Copy, ChevronRight } from 'lucide-react-native';
+import { CheckCircle2, Clock, XCircle, AlertCircle, Terminal, X, Copy, ChevronRight, RefreshCw } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
@@ -23,9 +23,11 @@ interface TimelineTabProps {
   timeline: TimelineActivity[];
   refreshing?: boolean;
   onRefresh?: () => void;
+  isTerminal?: boolean;
+  onRetryTask?: (activity: TimelineActivity) => void;
 }
 
-export default function TimelineTab({ timeline = [], refreshing = false, onRefresh }: TimelineTabProps) {
+export default function TimelineTab({ timeline = [], refreshing = false, onRefresh, isTerminal = false, onRetryTask }: TimelineTabProps) {
   const [selectedLog, setSelectedLog] = useState<CommandOutput | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   
@@ -74,16 +76,28 @@ export default function TimelineTab({ timeline = [], refreshing = false, onRefre
              </Text>
           </View>
           
-          {/* View Logs button if logs are available */}
-          {item.commands && item.commands.length > 0 && (
-            <TouchableOpacity 
-              style={styles.logButton}
-              onPress={() => handleViewOutput(item.commands)}
-            >
-               <Terminal size={12} color={Theme.colors.primary} />
-               <Text style={styles.logButtonText}>VIEW OUTPUT</Text>
-            </TouchableOpacity>
-          )}
+          {/* Action buttons */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+            {item.commands && item.commands.length > 0 && (
+              <TouchableOpacity 
+                style={styles.logButton}
+                onPress={() => handleViewOutput(item.commands)}
+              >
+                 <Terminal size={12} color={Theme.colors.primary} />
+                 <Text style={styles.logButtonText}>VIEW OUTPUT</Text>
+              </TouchableOpacity>
+            )}
+
+            {isTerminal && onRetryTask && item.title !== 'Raw Scan History' && (
+              <TouchableOpacity 
+                style={[styles.logButton, { borderColor: Theme.colors.primary + '40', backgroundColor: Theme.colors.primary + '10' }]}
+                onPress={() => onRetryTask(item)}
+              >
+                 <RefreshCw size={12} color={Theme.colors.primary} />
+                 <Text style={[styles.logButtonText, { color: Theme.colors.primary }]}>RETRY</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       </View>
     );

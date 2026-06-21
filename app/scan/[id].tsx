@@ -111,6 +111,33 @@ export default function ScanDetailScreen() {
     );
   };
 
+  const handleRetryTask = (activity: any) => {
+    Alert.alert(
+      "Retry Task",
+      `Are you sure you want to retry ${activity.title}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Retry", 
+          onPress: async () => {
+            try {
+              const response = await apiClient.post(`/mapi/action/retry/task/${activity.id}/`);
+              if (response.data && !response.data.error) {
+                Alert.alert("Success", "Task retry initiated.");
+                fetchScanDetail();
+              } else {
+                Alert.alert("Error", response.data.message || response.data.error || "Failed to retry task.");
+              }
+            } catch (err: any) {
+              const msg = err.response?.data?.error || err.response?.data?.message || err.message;
+              Alert.alert("Error", msg || "An error occurred while retrying the task.");
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const getStatusColor = (status: number) => {
     switch (status) {
       case 2: return Theme.colors.success; // Success
@@ -266,6 +293,8 @@ export default function ScanDetailScreen() {
              timeline={data.timeline} 
              refreshing={refreshing}
              onRefresh={fetchScanDetail}
+             isTerminal={[0, 1, 3].includes(data?.scan_info?.scan_status)}
+             onRetryTask={handleRetryTask}
            />
         )}
 
