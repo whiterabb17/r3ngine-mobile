@@ -32,9 +32,11 @@ import ExposuresScreen from '../intelligence/exposures/index';
 import AttackPathsScreen from '../intelligence/attack-paths';
 import CertificatesScreen from '../intelligence/certificates/index';
 import IdentityScreen from '../intelligence/identity/index';
+import ChainGraphScreen from '../intelligence/graph/index';
+import APIIntelListScreen from '../intelligence/api-intel/index';
 
 type TabType = 'SUMMARY' | 'SUBDOMAINS' | 'DIRECTORIES' | 'VULNERABILITIES' | 'TIMELINE' | 'GRAPH'
-  | 'EXPOSURES' | 'ATTACK_PATHS' | 'CERTS' | 'IDENTITY';
+  | 'EXPOSURES' | 'ATTACK_PATHS' | 'CERTS' | 'IDENTITY' | 'CHAIN_GRAPH' | 'API_INTEL';
 
 export default function ScanDetailScreen() {
   const { id, slug } = useLocalSearchParams();
@@ -228,7 +230,7 @@ export default function ScanDetailScreen() {
 
       {/* Tab Bar */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabBar} contentContainerStyle={styles.tabBarContent}>
-        {(['SUMMARY', 'SUBDOMAINS', 'DIRECTORIES', 'VULNERABILITIES', 'TIMELINE', 'GRAPH', 'EXPOSURES', 'ATTACK_PATHS', 'CERTS', 'IDENTITY'] as TabType[]).map((tab) => (
+        {(['SUMMARY', 'SUBDOMAINS', 'DIRECTORIES', 'VULNERABILITIES', 'TIMELINE', 'GRAPH', 'EXPOSURES', 'ATTACK_PATHS', 'CERTS', 'IDENTITY', 'CHAIN_GRAPH', 'API_INTEL'] as TabType[]).map((tab) => (
           <TouchableOpacity
             key={tab}
             onPress={() => setActiveTab(tab)}
@@ -244,8 +246,10 @@ export default function ScanDetailScreen() {
             {tab === 'ATTACK_PATHS' && <Target size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'CERTS' && <Clock size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'IDENTITY' && <ShieldAlert size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'CHAIN_GRAPH' && <Network size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'API_INTEL' && <Zap size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             <Text style={[styles.tabLabel, activeTab === tab && styles.tabLabelActive]}>
-              {tab === 'VULNERABILITIES' ? 'Vulns' : tab === 'ATTACK_PATHS' ? 'Paths' : tab.charAt(0) + tab.slice(1).toLowerCase()}
+              {tab === 'VULNERABILITIES' ? 'Vulns' : tab === 'ATTACK_PATHS' ? 'Paths' : tab === 'CHAIN_GRAPH' ? 'Chain' : tab === 'API_INTEL' ? 'API' : tab.charAt(0) + tab.slice(1).toLowerCase()}
             </Text>
           </TouchableOpacity>
         ))}
@@ -312,6 +316,12 @@ export default function ScanDetailScreen() {
         )}
         {activeTab === 'IDENTITY' && (
            <IdentityScreen scanId={Number(id)} />
+        )}
+        {activeTab === 'CHAIN_GRAPH' && (
+           <ChainGraphScreen scanId={typeof id === 'string' ? Number(id) : Number(id?.[0])} />
+        )}
+        {activeTab === 'API_INTEL' && (
+           <APIIntelListScreen scanId={typeof id === 'string' ? Number(id) : Number(id?.[0])} />
         )}
       </View>
     </View>
