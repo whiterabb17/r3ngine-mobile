@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  authRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  authRow: { flexDirection: 'row', alignItems: 'center', gap: Theme.spacing.xs },
   authText: { fontSize: 11, fontWeight: '600', color: Theme.colors.warning },
   noAuthText: { fontSize: 11, color: Theme.colors.textMuted },
   url: { color: Theme.colors.text, fontFamily: 'SpaceMono', fontSize: 12 },

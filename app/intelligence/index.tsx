@@ -85,7 +85,7 @@ export default function IntelHub() {
               icon={Network}
               color={Theme.colors.success}
               title="Chain Graph"
-              value="—"
+              value="—" // scan-scoped; no global graph count available without a scan_id
               onPress={() => router.push('/intelligence/graph' as never)}
             />
           </View>

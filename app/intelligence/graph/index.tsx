@@ -1,5 +1,5 @@
 // app/intelligence/graph/index.tsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   FlatList,
@@ -50,16 +50,16 @@ export default function ChainGraphScreen({ scanId: scanIdProp }: Props = {}) {
     return selectedType ? all.filter(n => n.type === selectedType) : all;
   }, [graphQ.data?.nodes, selectedType]);
 
-  const renderItem = ({ item }: { item: ChainGraphNode }) => (
+  const renderItem = useCallback(({ item }: { item: ChainGraphNode }) => (
     <NodeCard node={item} />
-  );
+  ), []);
 
   return (
     <View style={styles.root}>
       <Stack.Screen options={{ title: 'Attack Chain Graph' }} />
       {scanId === 0 ? (
         <View style={styles.center}>
-          <Network size={48} color={Theme.colors.surface} />
+          <Network size={48} color={Theme.colors.textMuted} />
           <Text style={styles.emptyText}>No Scan Selected</Text>
           <Text style={styles.emptySubtext}>
             Open a scan from Scan History, then navigate to the Chain tab to explore the expanded attack chain graph.
@@ -82,7 +82,7 @@ export default function ChainGraphScreen({ scanId: scanIdProp }: Props = {}) {
         </View>
       ) : (graphQ.data?.nodes.length ?? 0) === 0 ? (
         <View style={styles.center}>
-          <Network size={48} color={Theme.colors.surface} />
+          <Network size={48} color={Theme.colors.textMuted} />
           <Text style={styles.emptyText}>No Chain Graph Data</Text>
           <Text style={styles.emptySubtext}>
             Run a scan with APME enabled to generate the attack chain graph.

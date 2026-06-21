@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   FlatList,
@@ -52,12 +52,12 @@ export default function APIIntelListScreen({ scanId: scanIdProp }: Props = {}) {
     return selectedType ? all.filter(p => p.api_type === selectedType) : all;
   }, [profilesQ.data, selectedType]);
 
-  const renderItem = ({ item }: { item: APIIntelProfile }) => (
+  const renderItem = useCallback(({ item }: { item: APIIntelProfile }) => (
     <APIProfileCard
       profile={item}
       onPress={() => router.push(`/intelligence/api-intel/${item.id}` as never)}
     />
-  );
+  ), [router]);
 
   return (
     <View style={styles.root}>
@@ -76,7 +76,7 @@ export default function APIIntelListScreen({ scanId: scanIdProp }: Props = {}) {
         </View>
       ) : (profilesQ.data?.length ?? 0) === 0 ? (
         <View style={styles.center}>
-          <Code size={48} color={Theme.colors.surface} />
+          <Code size={48} color={Theme.colors.textMuted} />
           <Text style={styles.emptyText}>No API Profiles Found</Text>
           <Text style={styles.emptySubtext}>
             Run a scan with API Intelligence collection enabled to discover API clusters.
