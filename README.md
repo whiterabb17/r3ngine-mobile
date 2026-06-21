@@ -41,12 +41,42 @@ The mobile app isn't just a viewer; it's a portable command center synchronized 
 *   **Scan History**: Review historical scan results and summaries with full data persistence.
 *   **Live Log Viewer**: Stream scan and system logs in real-time with full ANSI colour support. Colour-coded log lines render directly in-app via WebSocket, so you can watch a running scan's raw output from your device.
 *   **Directories Tab**: Fully wired directory discovery view with push-notification alerts on new directory findings.
+*   **Single Task Retry**: Retry any failed scan task individually from the Timeline tab without re-running the full scan — a retry button appears inline on any failed task row.
 
 ### 🗺️ Attack Path Intelligence (APME)
 *   **Interactive Attack Path Viewer**: Navigate full compromise chains from the Intelligence Reports screen. Each node in the path renders custom styled badges with severity colours for Assets, Vulnerabilities, Capabilities, Privileges, and Credentials — including CVSS scores and chain transitions.
 *   **AI-Powered Path Analysis ("Explain This")**: Tap the brain icon on any attack path to trigger an LLM-powered tactical narrative. Explanations are persisted server-side and load instantly on repeat views without regeneration.
 *   **Vulnerability Details Modal**: Tap **VIEW** on any enriched vulnerability node inside an attack path to pull full threat-intel (Name, Severity, Domain, URL, Description, Impact, Remediation) directly from the backend.
 *   **On-Demand Recalculation**: Trigger a full APME recalculation from the Scan Summary Tab with a single tap, dispatching a background recalculation workflow to the core engine.
+*   **Risk Summary Bar**: At-a-glance risk score, priority rating (P0–P3), total path count, and speculative path count displayed at the top of the attack path list.
+*   **Priority Badges & Score Tooltips**: Each attack path card shows a colour-coded priority badge; tap-and-hold reveals a detailed score breakdown (exploitability / impact / confidence).
+*   **Speculative Paths**: Collapsible section surfaces unconfirmed attack vectors alongside confirmed chains.
+*   **Path Mutations**: Per-card overflow menu exposes **Regenerate Impact** and **Dismiss Path** actions with optimistic UI and 5-second undo window.
+*   **LEAF Detectability Chip**: Terminal nodes display a detectability rating (Low / Medium / High) for operational awareness.
+
+### 🔍 Intelligence Hub
+*   **Hub Landing**: A unified 2×2 KPI grid surfaces live counts for Open Exposures, Attack Paths, Certificates, and Identity discoveries — each card navigates directly to its detail list.
+*   **Recent Activity Feed**: Cross-module feed merges the latest Exposures, Certificate updates, and Identity discoveries into a single chronological stream.
+
+### 🚨 Exposure Correlation Engine
+*   **Exposure List & Filters**: Browse correlated exposures with status filter chips (Open / Accepted / False Positive / Resolved) and a live search bar.
+*   **Aggregate Stats Bar**: At-a-glance exposure counts by severity across the current scan or all scans.
+*   **Status Mutations**: Accept, mark as False Positive, Resolve, or Reopen any exposure with optimistic UI and a 5-second undo window.
+*   **Bulk Actions**: Multi-select exposures and apply a status change to all selected rows in one tap.
+*   **Evidence & Linked Vulns**: Evidence rendered as key-value rows with monospaced raw strings; linked vulnerabilities open the existing vuln detail modal.
+
+### 🔐 Certificate Intelligence
+*   **Certificate List**: All TLS/SSL certificates discovered across live subdomains, filterable by All / Expired / Self-Signed / Expiring within 30 days.
+*   **Chain Viewer**: Full certificate trust chain displayed with depth-indented entries.
+*   **SAN List**: Collapsible Subject Alternative Names viewer for each certificate.
+*   **Fingerprints**: SHA-256 and SHA-1 fingerprints displayed with tap-to-copy support.
+*   **Resync Action**: Trigger an on-demand re-probe of the certificate host via the backend Temporal workflow directly from the detail screen (client-side rate-limited).
+*   **Flag Anomaly**: Mark a certificate with a predefined anomaly type (Expired-Not-Revoked / Weak Key / Suspicious SAN / Other) and optional note.
+
+### 🪪 Identity Infrastructure Discovery
+*   **Provider Discovery List**: Identity infrastructure findings grouped by provider (Okta / Azure AD / Auth0 / Ping / OneLogin / JumpCloud / Other) with match-strength chips (Definitive / Probable / Possible).
+*   **Evidence Detail**: Matched URLs, page titles, and HTTP headers surfaced as collapsible evidence bands per discovery.
+*   **Mutations**: Confirm Provider or Dismiss as False Match with optimistic UI and undo support.
 
 ### ⚙️ Infrastructure & Settings
 *   **Engines Management**: Browse, inspect, and identify scan engine configurations — view task assignments and the active default engine.

@@ -2,6 +2,17 @@
 
 All notable changes to **r3ngine Mobile** are documented here.
 
+## [1.6.0] - 2026-06-21
+
+### Added
+- **Single Task Retry**: Failed individual scan tasks can now be retried directly from the Scan Detail Timeline tab without re-running the entire scan. A retry button appears inline on any failed task row, dispatching a targeted re-run to the backend and updating the task status in real time.
+
+### Fixed
+- **expo-clipboard Dependency**: Corrected `expo-clipboard` to the version compatible with Expo SDK 54 (`~7.0.0`), resolving an R8 build failure caused by a missing `AnyTypeCache` class reference from an incompatible v56 package.
+- **Login Error Message Extraction**: Improved error message parsing in the login flow to handle string-body error responses from the backend in addition to the standard `detail` field, reducing "Could not connect" false positives.
+
+---
+
 ## [1.5.0] - 2026-06-20
 
 ### Added
