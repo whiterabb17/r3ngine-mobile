@@ -144,7 +144,7 @@ export default function ToolsScreen() {
         <FlatList
           data={tools}
           renderItem={renderItem}
-          keyExtractor={(t) => t.id.toString()}
+          keyExtractor={(t) => t.id?.toString() ?? t.name}
           contentContainerStyle={styles.list}
           refreshControl={
             <RefreshControl
