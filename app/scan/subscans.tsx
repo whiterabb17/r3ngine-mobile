@@ -4,7 +4,7 @@ import {
   RefreshControl, ActivityIndicator,
 } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
-import { Layers, ChevronLeft, AlertTriangle, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react-native';
+import { Layers, ChevronLeft, AlertTriangle, Clock } from 'lucide-react-native';
 import { Theme } from '../../src/constants/Theme';
 import { listSubScans, SubScan } from '../../src/api/scans';
 import { useProjectStore } from '../../src/store/useProjectStore';
