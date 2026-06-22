@@ -16,6 +16,7 @@ export default function PluginManagementPage() {
   const [error, setError] = useState<string | null>(null);
   const [installStatus, setInstallStatus] = useState<InstallStatus | null>(null);
   const [installVisible, setInstallVisible] = useState(false);
+  const pollRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchPlugins = useCallback(async () => {
     setError(null);
@@ -32,6 +33,12 @@ export default function PluginManagementPage() {
 
   useEffect(() => { fetchPlugins(); }, [fetchPlugins]);
 
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
+
   const handleToggle = async (slug: string, current: boolean) => {
     try {
       const updated = await setPluginEnabled(slug, !current);
@@ -41,21 +48,23 @@ export default function PluginManagementPage() {
     }
   };
 
-  const pollInstall = async (installId: string) => {
+  const pollInstall = (installId: string) => {
     setInstallVisible(true);
-    const interval = setInterval(async () => {
+    pollRef.current = setInterval(async () => {
       try {
         const status = await getInstallStatus(installId);
         setInstallStatus(status);
         if (status.status !== 'running') {
-          clearInterval(interval);
+          if (pollRef.current) clearInterval(pollRef.current);
           if (status.status === 'completed') {
             fetchPlugins();
+            setTimeout(() => setInstallVisible(false), 2000);
+          } else {
             setTimeout(() => setInstallVisible(false), 2000);
           }
         }
       } catch {
-        clearInterval(interval);
+        if (pollRef.current) clearInterval(pollRef.current);
       }
     }, 1000);
   };
@@ -66,7 +75,7 @@ export default function PluginManagementPage() {
         options={{
           title: 'Plugin Management',
           headerStyle: { backgroundColor: Theme.colors.background },
-          headerTintColor: '#fff',
+          headerTintColor: Theme.colors.text,
         }}
       />
 
