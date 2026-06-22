@@ -7,7 +7,6 @@ import { Theme } from '../../src/constants/Theme';
 import { useProjectStore } from '../../src/store/useProjectStore';
 import ProjectSwitcherModal from '../../src/components/Projects/ProjectSwitcherModal';
 import InstanceSwitcherModal from '../../src/components/Instances/InstanceSwitcherModal';
-import { useInstanceStore } from '../../src/store/useInstanceStore';
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();

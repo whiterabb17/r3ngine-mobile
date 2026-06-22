@@ -81,7 +81,6 @@ export default function LoginScreen() {
     } catch (error: any) {
       console.error('Login error:', error);
       const msg = error.response?.data?.detail
-        || (typeof error.response?.data === 'string' ? error.response.data : null)
         || error.message
         || 'Could not connect to server. Please check IP and credentials.';
       Alert.alert('Login Failed', msg);

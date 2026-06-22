@@ -17,15 +17,17 @@ interface Props {
 
 export default function InstanceSwitcherModal({ visible, onClose }: Props) {
   const { instances, currentInstanceId, switchInstance, removeInstance } = useInstanceStore();
-  const { setTokens } = useAuthStore();
   const { setServerIp } = useSettingsStore();
   const [addVisible, setAddVisible] = useState(false);
 
   const handleSelect = async (inst: Instance) => {
+    const { setTokens, logout } = useAuthStore();
     switchInstance(inst.id);
     await setServerIp(inst.serverIp);
     if (inst.token && inst.refreshToken) {
       await setTokens(inst.token, inst.refreshToken);
+    } else {
+      await logout();
     }
     onClose();
   };
