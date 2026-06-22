@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, ScrollView, RefreshControl, TouchableOpacity, useWindowDimensions, ActivityIndicator, Alert } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { 
-  Activity, 
-  Globe, 
-  ShieldAlert, 
-  History, 
-  ChevronLeft, 
-  MoreVertical,
+import {
+  Activity,
+  Globe,
+  ShieldAlert,
+  History,
+  ChevronLeft,
   Clock,
   Zap,
   Target,

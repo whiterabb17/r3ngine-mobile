@@ -28,8 +28,8 @@ export default function ScanActionMenu({
   slug,
   scanStatus,
   domainName,
-  onStopScan,
-  onRefresh,
+  onStopScan: _onStopScan,
+  onRefresh: _onRefresh,
 }: ScanActionMenuProps) {
   const router = useRouter();
   const [visible, setVisible] = useState(false);
