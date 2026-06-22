@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, View, Text } from 'react-native';
 import { Shield, Zap, Info, Cpu } from 'lucide-react-native';
 import { Theme } from '../../constants/Theme';
+import PipelineBuilderView from './PipelineBuilderView';
 
 interface Engine {
   id: number;
   engine_name: string;
+  tasks?: string[];
 }
 
 interface HardwareProfile {
@@ -28,15 +30,17 @@ interface EngineSelectorProps {
   loading?: boolean;
 }
 
-export default function EngineSelector({ 
-  engines, 
-  selectedEngineId, 
+export default function EngineSelector({
+  engines,
+  selectedEngineId,
   onSelectEngine,
   profiles,
   selectedProfileId,
   onSelectProfile,
-  loading 
+  loading
 }: EngineSelectorProps) {
+  const [previewId, setPreviewId] = useState<number | null>(null);
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -52,35 +56,53 @@ export default function EngineSelector({
         <Text style={styles.sectionTitle}>Select Scan Engine</Text>
         <View style={styles.grid}>
           {engines.map(engine => (
-            <TouchableOpacity
-              key={engine.id}
-              style={[
-                styles.card,
-                selectedEngineId === engine.id && styles.selectedCard
-              ]}
-              onPress={() => onSelectEngine(engine.id)}
-            >
-              <View style={[
-                styles.iconContainer,
-                selectedEngineId === engine.id && styles.selectedIconContainer
-              ]}>
-                <Shield 
-                  size={20} 
-                  color={selectedEngineId === engine.id ? Theme.colors.primary : Theme.colors.textMuted} 
-                />
-              </View>
-              <View style={styles.info}>
-                <Text style={[
-                  styles.name,
-                  selectedEngineId === engine.id && styles.selectedText
+            <View key={engine.id} style={styles.engineWrapper}>
+              <TouchableOpacity
+                style={[
+                  styles.card,
+                  selectedEngineId === engine.id && styles.selectedCard
+                ]}
+                onPress={() => onSelectEngine(engine.id)}
+              >
+                <View style={[
+                  styles.iconContainer,
+                  selectedEngineId === engine.id && styles.selectedIconContainer
                 ]}>
-                  {engine.engine_name}
-                </Text>
-                {selectedEngineId === engine.id && (
-                  <Text style={styles.selectedBadge}>Active Configuration</Text>
-                )}
-              </View>
-            </TouchableOpacity>
+                  <Shield
+                    size={20}
+                    color={selectedEngineId === engine.id ? Theme.colors.primary : Theme.colors.textMuted}
+                  />
+                </View>
+                <View style={styles.info}>
+                  <Text style={[
+                    styles.name,
+                    selectedEngineId === engine.id && styles.selectedText
+                  ]}>
+                    {engine.engine_name}
+                  </Text>
+                  {selectedEngineId === engine.id && (
+                    <Text style={styles.selectedBadge}>Active Configuration</Text>
+                  )}
+                </View>
+              </TouchableOpacity>
+              {selectedEngineId === engine.id && engine.tasks && engine.tasks.length > 0 && (
+                <>
+                  <TouchableOpacity
+                    onPress={() => setPreviewId(previewId === engine.id ? null : engine.id)}
+                    style={styles.pipelineToggle}
+                  >
+                    <Text style={styles.pipelineToggleText}>
+                      {previewId === engine.id ? '▲ Hide Pipeline' : '▼ Show Pipeline'}
+                    </Text>
+                  </TouchableOpacity>
+                  {previewId === engine.id && (
+                    <View style={styles.pipelineContainer}>
+                      <PipelineBuilderView tasks={engine.tasks} />
+                    </View>
+                  )}
+                </>
+              )}
+            </View>
           ))}
         </View>
 
@@ -173,6 +195,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     gap: 12,
     marginBottom: 20,
+  },
+  engineWrapper: {
+    backgroundColor: 'transparent',
   },
   card: {
     flexDirection: 'row',
@@ -269,6 +294,21 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: Theme.colors.textMuted,
     lineHeight: 16,
+  },
+  pipelineToggle: {
+    marginTop: 6,
+    paddingVertical: 4,
+    alignItems: 'center',
+  },
+  pipelineToggleText: {
+    fontSize: 10,
+    color: Theme.colors.primary,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  pipelineContainer: {
+    marginTop: 8,
+    maxHeight: 300,
   },
 });
 

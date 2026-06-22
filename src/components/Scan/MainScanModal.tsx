@@ -14,6 +14,7 @@ import { paths, components } from '../../types/api';
 type Engine = {
   id: number;
   engine_name: string;
+  tasks?: string[];
 };
 
 type HardwareProfile = {
@@ -70,9 +71,14 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
       // Falling back to any because schema content is missing for scans/configuration
       const response = await apiClient.get<any>('/mapi/scans/configuration/');
       if (response.data && response.data.engines) {
-        setEngines(response.data.engines);
-        if (response.data.engines.length > 0 && !selectedEngineId) {
-          setSelectedEngineId(response.data.engines[0].id || null);
+        const engineData: Engine[] = response.data.engines.map((e: any) => ({
+          id: e.id,
+          engine_name: e.engine_name,
+          tasks: (e.yaml_configuration ?? '').match(/^([a-z_]+):/gm)?.map((m: string) => m.replace(':', '').trim()) ?? [],
+        }));
+        setEngines(engineData);
+        if (engineData.length > 0 && !selectedEngineId) {
+          setSelectedEngineId(engineData[0].id || null);
         }
       }
     } catch (error) {
@@ -81,7 +87,12 @@ export default function MainScanModal({ visible, onClose, targetId, targetName }
       try {
         const fallback = await apiClient.get<any>('/mapi/listEngines/');
         if (fallback.data && fallback.data.engines) {
-          setEngines(fallback.data.engines);
+          const engineData: Engine[] = fallback.data.engines.map((e: any) => ({
+            id: e.id,
+            engine_name: e.engine_name,
+            tasks: (e.yaml_configuration ?? '').match(/^([a-z_]+):/gm)?.map((m: string) => m.replace(':', '').trim()) ?? [],
+          }));
+          setEngines(engineData);
         }
       } catch (err) {
         Alert.alert('Error', 'Failed to load scan configurations');
