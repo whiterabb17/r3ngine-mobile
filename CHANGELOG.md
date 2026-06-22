@@ -2,6 +2,23 @@
 
 All notable changes to **r3ngine Mobile** are documented here.
 
+## [1.7.0] — Phase 3: Workflow & Org Surfaces
+
+### Added
+- **Projects Switcher** — header button on all tabs shows current project and opens a bottom-sheet list to switch between projects; `useProjectStore` now loads and caches the full project list.
+- **Global Search** (`app/search/`) — debounced cross-entity search across subdomains, endpoints, and vulnerabilities; recent query history chips for quick repeat searches.
+- **Todos** (`app/todos/`) — full CRUD todo management scoped to current project; cards with done toggle (✓), importance star, and swipe-to-delete; add modal. Backend: new RESTful `/mapi/todos/` and `/mapi/todos/<id>/` endpoints.
+- **Bounty Hub** (`app/bounty/`) — HackerOne bounty program browser with sort filters (Newest, Most Reports, A–Z); program detail shows in-scope assets and max severity per asset type.
+- **Plugin Management** (`app/plugins/`) — installed plugin list with enable/disable toggle, trust-level badge (signed/community/unsigned), and install progress modal for background installs.
+- **Workflows** (`app/workflows/`) — lists all 13 Temporal workflow types with descriptions and required-field chips; launch modal accepts inputs and starts the workflow via the Temporal API.
+- **Profiles** (`app/profiles/`) — scan profile browser sectioned into Built-in and Custom; category color coding (full/stealth/basic/custom).
+- **Backend** — `/mapi/todos/` CRUD endpoints (`web/api/todo_mobile_views.py`), `/mapi/workflows/` registry list (`web/api/workflow_mobile_views.py`).
+
+### Compatibility
+- r3ngine core: v3.7.0+
+
+---
+
 ## [1.6.0] — Phase 2: Graph & API Intelligence
 
 ### Added

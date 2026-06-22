@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch, Linking, Modal } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { LogOut, Server, Shield, Bell, Info, Activity, Database, Globe, Clock, Terminal, Cpu } from 'lucide-react-native';
+import { LogOut, Server, Shield, Bell, Info, Activity, Database, Globe, Clock, Terminal, Cpu, DollarSign, Search, Package, CheckSquare, Zap, Sliders } from 'lucide-react-native';
 import * as Notifications from 'expo-notifications';
 import { Theme } from '../../src/constants/Theme';
 import { useAuthStore } from '../../src/store/useAuthStore';
@@ -226,6 +226,48 @@ export default function SettingsScreen() {
               onValueChange={toggleSocStreaming}
               color={socEnabled ? Theme.colors.primary : Theme.colors.textMuted}
               disabled={loadingSoc}
+            />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Org & Workflows</Text>
+          <View style={styles.card}>
+            <SettingRow
+              icon={DollarSign}
+              label="Bounty Hub"
+              value="Program Browser"
+              onPress={() => router.push('/bounty' as any)}
+            />
+            <SettingRow
+              icon={Search}
+              label="Global Search"
+              value="Cross-Entity Search"
+              onPress={() => router.push('/search' as any)}
+            />
+            <SettingRow
+              icon={Package}
+              label="Plugin Management"
+              value="Installed Plugins"
+              onPress={() => router.push('/plugins' as any)}
+            />
+            <SettingRow
+              icon={CheckSquare}
+              label="Todos"
+              value="Task Management"
+              onPress={() => router.push('/todos' as any)}
+            />
+            <SettingRow
+              icon={Zap}
+              label="Workflows"
+              value="Temporal Workflows"
+              onPress={() => router.push('/workflows' as any)}
+            />
+            <SettingRow
+              icon={Sliders}
+              label="Profiles"
+              value="Scan Profiles"
+              onPress={() => router.push('/profiles' as any)}
             />
           </View>
         </View>
