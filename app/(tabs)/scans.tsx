@@ -178,6 +178,24 @@ export default function ScansScreen() {
         }
       }} />
 
+      <View style={styles.segmentBar}>
+        <View style={[styles.segmentTab, styles.segmentTabActive]}>
+          <Text style={[styles.segmentLabel, styles.segmentLabelActive]}>History</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.segmentTab}
+          onPress={() => router.push('/scan/scheduled' as any)}
+        >
+          <Text style={styles.segmentLabel}>Scheduled</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.segmentTab}
+          onPress={() => router.push('/scan/subscans' as any)}
+        >
+          <Text style={styles.segmentLabel}>Sub Scans</Text>
+        </TouchableOpacity>
+      </View>
+
       {targetId && (
         <View style={styles.filterHeader}>
           <Text style={styles.filterText}>Filtering by Target: {targetName || targetId}</Text>
@@ -216,6 +234,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Theme.colors.background,
+  },
+  segmentBar: {
+    flexDirection: 'row',
+    backgroundColor: Theme.colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: Theme.colors.border,
+  },
+  segmentTab: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  segmentTabActive: {
+    borderBottomColor: Theme.colors.primary,
+  },
+  segmentLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Theme.colors.textMuted,
+    letterSpacing: 0.3,
+    textTransform: 'uppercase',
+  },
+  segmentLabelActive: {
+    color: Theme.colors.primary,
   },
   listContent: {
     padding: Theme.spacing.md,
