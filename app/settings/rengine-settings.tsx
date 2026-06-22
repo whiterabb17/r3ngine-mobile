@@ -92,7 +92,7 @@ export default function ReNgineSettingsScreen() {
                   </Text>
                 </View>
                 <View style={styles.progressBg}>
-                  <View style={[styles.progressFill, { width: `${settings.consumed_percent}%` as any, backgroundColor: fillColor }]} />
+                  <View style={[styles.progressFill, { width: `${settings.consumed_percent}%` as `${number}%`, backgroundColor: fillColor }]} />
                 </View>
                 <View style={styles.diskStats}>
                   <Text style={styles.diskStat}>Used: {settings.used} GB</Text>
