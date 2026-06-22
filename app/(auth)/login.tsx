@@ -80,7 +80,13 @@ export default function LoginScreen() {
       router.replace('/(tabs)');
     } catch (error: any) {
       console.error('Login error:', error);
-      const msg = error.response?.data?.detail || error.message || 'Could not connect to server. Please check IP and credentials.';
+      console.error('Login error response status:', error.response?.status);
+      console.error('Login error response data:', JSON.stringify(error.response?.data));
+      console.error('Login error response headers:', JSON.stringify(error.response?.headers));
+      const msg = error.response?.data?.detail
+        || (typeof error.response?.data === 'string' ? error.response.data : null)
+        || error.message
+        || 'Could not connect to server. Please check IP and credentials.';
       Alert.alert('Login Failed', msg);
     } finally {
       setLoading(false);
@@ -167,13 +173,6 @@ export default function LoginScreen() {
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.diagButton}
-            onPress={() => router.push('/diagnostics')}
-          >
-            <Activity size={16} color={Theme.colors.textMuted} />
-            <Text style={styles.diagButtonText}>System Diagnostics</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -273,18 +272,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginRight: Theme.spacing.sm,
-  },
-  diagButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Theme.spacing.lg,
-    padding: Theme.spacing.sm,
-  },
-  diagButtonText: {
-    color: Theme.colors.textMuted,
-    fontSize: 14,
-    marginLeft: Theme.spacing.xs,
-    textDecorationLine: 'underline',
   },
 });
