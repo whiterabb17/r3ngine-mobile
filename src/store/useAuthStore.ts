@@ -22,6 +22,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     await SecureStore.setItemAsync('access_token', access);
     await SecureStore.setItemAsync('refresh_token', refresh);
     set({ token: access, refreshToken: refresh, isAuthenticated: true });
+    // Sync refreshed tokens back into the instance store so stored credentials stay current
+    const { useInstanceStore } = require('./useInstanceStore');
+    const instStore = useInstanceStore.getState();
+    if (instStore.currentInstanceId) {
+      instStore.updateTokens(instStore.currentInstanceId, access, refresh);
+    }
   },
   logout: async () => {
     await SecureStore.deleteItemAsync('access_token');
