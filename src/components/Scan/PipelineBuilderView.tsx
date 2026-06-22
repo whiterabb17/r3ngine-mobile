@@ -44,8 +44,6 @@ interface PipelineBuilderViewProps {
 }
 
 export default function PipelineBuilderView({ tasks }: PipelineBuilderViewProps) {
-  const activeSet = new Set(tasks);
-
   const tierRows: TierRow[] = [];
   for (let t = 1; t <= 7; t++) {
     const tierTasks = tasks.filter((task) => TASK_TIER_MAP[task] === t);
