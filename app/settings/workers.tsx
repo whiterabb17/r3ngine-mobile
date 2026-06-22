@@ -60,7 +60,7 @@ export default function WorkersScreen() {
     }
   };
 
-  const renderItem = ({ item }: { item: ScanWorker }) => {
+  const renderItem = useCallback(({ item }: { item: ScanWorker }) => {
     const hbColor = heartbeatColor(item.last_heartbeat);
     return (
       <View style={styles.card}>
@@ -89,7 +89,7 @@ export default function WorkersScreen() {
         </View>
       </View>
     );
-  };
+  }, [togglingId]);
 
   return (
     <View style={styles.container}>
