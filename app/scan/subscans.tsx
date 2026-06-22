@@ -31,6 +31,7 @@ export default function SubScansScreen() {
   const fetchScans = useCallback(async () => {
     if (!currentProject) {
       setLoading(false);
+      setRefreshing(false);
       return;
     }
     try {
