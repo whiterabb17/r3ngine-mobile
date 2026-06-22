@@ -62,7 +62,10 @@ export default function EngineSelector({
                   styles.card,
                   selectedEngineId === engine.id && styles.selectedCard
                 ]}
-                onPress={() => onSelectEngine(engine.id)}
+                onPress={() => {
+                  onSelectEngine(engine.id);
+                  setPreviewId(null);
+                }}
               >
                 <View style={[
                   styles.iconContainer,
