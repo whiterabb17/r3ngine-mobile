@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch, Linking, Modal } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { LogOut, Server, Shield, Bell, Info, Activity, Database, Globe, Clock, Terminal, Cpu, DollarSign, Search, Package, CheckSquare, Zap, Sliders } from 'lucide-react-native';
+import { LogOut, Server, Shield, Bell, Info, Activity, Database, Globe, Clock, Terminal, Cpu, DollarSign, Search, Package, CheckSquare, Zap, Sliders, Wifi, FileText, Key, Brain, UserCog, Wrench } from 'lucide-react-native';
 import * as Notifications from 'expo-notifications';
 import { Theme } from '../../src/constants/Theme';
 import { useAuthStore } from '../../src/store/useAuthStore';
@@ -239,6 +239,77 @@ export default function SettingsScreen() {
               label="Scan Schedules"
               value="Automation Pipeline"
               onPress={() => router.push('/system/schedules' as any)}
+            />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Platform Config</Text>
+          <View style={styles.card}>
+            <SettingRow
+              icon={Wifi}
+              label="Remote Workers"
+              value="Worker Infrastructure"
+              onPress={() => router.push('/settings/workers' as any)}
+            />
+            <SettingRow
+              icon={Wrench}
+              label="Tool Arsenal"
+              value="Installed Tools"
+              onPress={() => router.push('/settings/tools' as any)}
+            />
+            <SettingRow
+              icon={Database}
+              label="ReNgine Settings"
+              value="System & Disk"
+              onPress={() => router.push('/settings/rengine-settings' as any)}
+            />
+            <SettingRow
+              icon={FileText}
+              label="Report Settings"
+              value="Branding & Output"
+              onPress={() => router.push('/settings/report-settings' as any)}
+            />
+            <SettingRow
+              icon={Bell}
+              label="Notification Settings"
+              value="Webhooks & Events"
+              onPress={() => router.push('/settings/notification-settings' as any)}
+            />
+            <SettingRow
+              icon={Shield}
+              label="OpSec"
+              value="Configure on web"
+              onPress={() => router.push('/settings/opsec' as any)}
+              color={Theme.colors.textMuted}
+            />
+            <SettingRow
+              icon={Key}
+              label="API Vault"
+              value="Configure on web"
+              onPress={() => router.push('/settings/api-vault' as any)}
+              color={Theme.colors.textMuted}
+            />
+            <SettingRow
+              icon={Brain}
+              label="LLM Toolkit"
+              value="Configure on web"
+              onPress={() => router.push('/settings/llm-toolkit' as any)}
+              color={Theme.colors.textMuted}
+            />
+            <SettingRow
+              icon={Sliders}
+              label="Tool Settings"
+              value="Configure on web"
+              onPress={() => router.push('/settings/tool-settings' as any)}
+              color={Theme.colors.textMuted}
+            />
+            <SettingRow
+              icon={UserCog}
+              label="Admin"
+              value="Configure on web"
+              onPress={() => router.push('/settings/admin' as any)}
+              color={Theme.colors.textMuted}
             />
           </View>
         </View>
