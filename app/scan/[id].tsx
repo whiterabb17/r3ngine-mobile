@@ -34,6 +34,7 @@ import CertificatesScreen from '../intelligence/certificates/index';
 import IdentityScreen from '../intelligence/identity/index';
 import ChainGraphScreen from '../intelligence/graph/index';
 import APIIntelListScreen from '../intelligence/api-intel/index';
+import ScanActionMenu from '../../src/components/Scan/ScanActionMenu';
 
 type TabType = 'SUMMARY' | 'SUBDOMAINS' | 'DIRECTORIES' | 'VULNERABILITIES' | 'TIMELINE' | 'GRAPH'
   | 'EXPOSURES' | 'ATTACK_PATHS' | 'CERTS' | 'IDENTITY' | 'CHAIN_GRAPH' | 'API_INTEL';
@@ -212,6 +213,14 @@ export default function ScanDetailScreen() {
                 <Square size={14} color={Theme.colors.error} fill={Theme.colors.error} />
               </TouchableOpacity>
             )}
+            <ScanActionMenu
+              scanId={Number(id)}
+              slug={slug as string}
+              scanStatus={data?.scan_info?.scan_status ?? -1}
+              domainName={data?.target_info?.name}
+              onStopScan={handleStopScan}
+              onRefresh={fetchScanDetail}
+            />
           </View>
         </View>
 
