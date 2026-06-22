@@ -20,6 +20,7 @@ import {
 import {
   requestLocalNotificationPermissionsAsync,
   setupNotificationHandlers,
+  registerPushNotificationToken,
 } from '../src/utils/notifications';
 import { registerNotificationTask } from '../src/utils/backgroundTasks';
 
@@ -120,6 +121,8 @@ function RootLayoutNav() {
         await registerNotificationTask(pollingInterval || 15);
         // Persist enabled state so the Settings toggle reflects reality
         await setPushEnabled(true);
+        // Register push token with the Django backend
+        await registerPushNotificationToken();
       }
 
       // Set up the notification tap handler regardless of success

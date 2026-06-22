@@ -9,7 +9,7 @@ import { useSettingsStore } from '../../src/store/useSettingsStore';
 import { useInstanceStore } from '../../src/store/useInstanceStore';
 import InstanceSwitcherModal from '../../src/components/Instances/InstanceSwitcherModal';
 import apiClient from '../../src/api/client';
-import { requestLocalNotificationPermissionsAsync } from '../../src/utils/notifications';
+import { requestLocalNotificationPermissionsAsync, registerPushNotificationToken } from '../../src/utils/notifications';
 import { registerNotificationTask, unregisterNotificationTask } from '../../src/utils/backgroundTasks';
 import { version as appVersion } from '../../package.json';
 
@@ -78,6 +78,8 @@ export default function SettingsScreen() {
       await setPollingInterval(interval);
       await registerNotificationTask(interval);
       await setPushEnabled(true);
+      // Register push token with backend
+      await registerPushNotificationToken();
     } catch (err) {
       console.error('[Settings] Failed to enable background polling:', err);
       Alert.alert('Error', 'Failed to enable background notifications.');
@@ -94,6 +96,8 @@ export default function SettingsScreen() {
       try {
         await unregisterNotificationTask();
         await setPushEnabled(false);
+        // Deactivate push token on backend
+        await apiClient.delete('/mapi/push-token/register/');
       } catch (err) {
         console.error('[Settings] Failed to disable background polling:', err);
       } finally {
@@ -111,7 +115,19 @@ export default function SettingsScreen() {
       'Are you sure you want to logout? Your server settings will be preserved but you will need to log in again.',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', style: 'destructive', onPress: () => logout() }
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Deactivate push token on logout
+              await apiClient.delete('/mapi/push-token/register/');
+            } catch (err) {
+              console.error('[Settings] Failed to unregister push token during logout:', err);
+            }
+            logout();
+          },
+        },
       ]
     );
   };

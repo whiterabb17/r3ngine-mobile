@@ -12,6 +12,7 @@ All notable changes to **r3ngine Mobile** are documented here.
 - **Plugin Management** (`app/plugins/`) — installed plugin list with enable/disable toggle, trust-level badge (signed/community/unsigned), and install progress modal for background installs.
 - **Workflows** (`app/workflows/`) — lists all 13 Temporal workflow types with descriptions and required-field chips; launch modal accepts inputs and starts the workflow via the Temporal API.
 - **Profiles** (`app/profiles/`) — scan profile browser sectioned into Built-in and Custom; category color coding (full/stealth/basic/custom).
+- **Push Notification Registration** — Implemented automatic fetching and registration of the Expo push token with the backend `/mapi/push-token/register/` endpoint. The token is registered upon user login or toggle selection, and deactivated on logout or opt-out, enabling real-time push notifications on mobile devices when scans are started or completed.
 - **Backend** — `/mapi/todos/` CRUD endpoints (`web/api/todo_mobile_views.py`), `/mapi/workflows/` registry list (`web/api/workflow_mobile_views.py`).
 
 ### Compatibility
