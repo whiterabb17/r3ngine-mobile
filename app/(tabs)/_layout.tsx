@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import { Tabs } from 'expo-router';
-import { LayoutDashboard, Shield, Settings, Activity, Wrench } from 'lucide-react-native';
+import { LayoutDashboard, Shield, Settings, Activity, Wrench, Server } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Theme } from '../../src/constants/Theme';
 import { useProjectStore } from '../../src/store/useProjectStore';
 import ProjectSwitcherModal from '../../src/components/Projects/ProjectSwitcherModal';
+import InstanceSwitcherModal from '../../src/components/Instances/InstanceSwitcherModal';
+import { useInstanceStore } from '../../src/store/useInstanceStore';
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
   const { currentProject, loadProjects } = useProjectStore();
   const [switcherVisible, setSwitcherVisible] = useState(false);
+  const [instanceVisible, setInstanceVisible] = useState(false);
+  const currentInstance = useInstanceStore((s) =>
+    s.instances.find((i) => i.id === s.currentInstanceId) ?? null
+  );
 
   useEffect(() => {
     loadProjects();
@@ -19,15 +25,24 @@ export default function TabLayout() {
   const projectLabel = currentProject ?? 'No Project';
 
   const headerRight = () => (
-    <TouchableOpacity
-      onPress={() => setSwitcherVisible(true)}
-      style={styles.projectBtn}
-      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-    >
-      <Text style={styles.projectLabel} numberOfLines={1}>
-        {projectLabel}
-      </Text>
-    </TouchableOpacity>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: Theme.spacing.sm, backgroundColor: 'transparent' }}>
+      <TouchableOpacity
+        onPress={() => setInstanceVisible(true)}
+        style={[styles.projectBtn, { paddingHorizontal: 6 }]}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      >
+        <Server size={14} color={Theme.colors.primary} />
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => setSwitcherVisible(true)}
+        style={styles.projectBtn}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      >
+        <Text style={styles.projectLabel} numberOfLines={1}>
+          {projectLabel}
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -74,6 +89,11 @@ export default function TabLayout() {
       <ProjectSwitcherModal
         visible={switcherVisible}
         onClose={() => setSwitcherVisible(false)}
+      />
+
+      <InstanceSwitcherModal
+        visible={instanceVisible}
+        onClose={() => setInstanceVisible(false)}
       />
     </>
   );

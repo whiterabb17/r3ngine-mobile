@@ -6,6 +6,8 @@ import * as Notifications from 'expo-notifications';
 import { Theme } from '../../src/constants/Theme';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
+import { useInstanceStore } from '../../src/store/useInstanceStore';
+import InstanceSwitcherModal from '../../src/components/Instances/InstanceSwitcherModal';
 import apiClient from '../../src/api/client';
 import { requestLocalNotificationPermissionsAsync } from '../../src/utils/notifications';
 import { registerNotificationTask, unregisterNotificationTask } from '../../src/utils/backgroundTasks';
@@ -19,6 +21,10 @@ export default function SettingsScreen() {
   const [loadingSoc, setLoadingSoc] = React.useState(true);
   const [togglingPush, setTogglingPush] = React.useState(false);
   const [showIntervalModal, setShowIntervalModal] = React.useState(false);
+  const [instanceSwitcherVisible, setInstanceSwitcherVisible] = React.useState(false);
+  const currentInstance = useInstanceStore((s) =>
+    s.instances.find((i) => i.id === s.currentInstanceId) ?? null
+  );
 
   React.useEffect(() => {
     fetchSocSettings();
@@ -152,6 +158,19 @@ export default function SettingsScreen() {
       }} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Instances</Text>
+          <View style={styles.card}>
+            <SettingRow
+              icon={Server}
+              label="Active Server"
+              value={currentInstance?.label ?? 'Not configured'}
+              onPress={() => setInstanceSwitcherVisible(true)}
+              color={currentInstance ? Theme.colors.primary : Theme.colors.textMuted}
+            />
+          </View>
+        </View>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Connection</Text>
           <View style={styles.card}>
@@ -302,6 +321,11 @@ export default function SettingsScreen() {
           <Text style={styles.footerText}>Crafted for Security Researchers</Text>
         </View>
       </ScrollView>
+
+      <InstanceSwitcherModal
+        visible={instanceSwitcherVisible}
+        onClose={() => setInstanceSwitcherVisible(false)}
+      />
 
       {/* Interval Selection Modal */}
       <Modal visible={showIntervalModal} transparent animationType="fade">
