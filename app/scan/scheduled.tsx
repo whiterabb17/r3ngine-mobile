@@ -19,7 +19,10 @@ export default function ScheduledScansScreen() {
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
   const fetchScans = useCallback(async () => {
-    if (!currentProject) return;
+    if (!currentProject) {
+      setLoading(false);
+      return;
+    }
     try {
       setError(null);
       const data = await listScheduledScans(currentProject);

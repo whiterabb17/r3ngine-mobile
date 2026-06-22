@@ -217,8 +217,6 @@ export default function ScanDetailScreen() {
               slug={slug as string}
               scanStatus={data?.scan_info?.scan_status ?? -1}
               domainName={data?.target_info?.name}
-              onStopScan={handleStopScan}
-              onRefresh={fetchScanDetail}
             />
           </View>
         </View>

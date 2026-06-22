@@ -19,8 +19,6 @@ interface ScanActionMenuProps {
   slug: string;
   scanStatus: number;
   domainName?: string;
-  onStopScan: () => void;
-  onRefresh: () => void;
 }
 
 export default function ScanActionMenu({
@@ -28,8 +26,6 @@ export default function ScanActionMenu({
   slug,
   scanStatus,
   domainName,
-  onStopScan: _onStopScan,
-  onRefresh: _onRefresh,
 }: ScanActionMenuProps) {
   const router = useRouter();
   const [visible, setVisible] = useState(false);
@@ -69,14 +65,18 @@ export default function ScanActionMenu({
         'The AI export bundle has been triggered. Download it from the web interface under the scan detail page.',
       );
     } catch (err: any) {
-      const msg = err.response?.data?.error ?? err.message ?? 'Export failed';
-      Alert.alert('Export Error', msg);
+      console.error('[ScanActionMenu] AI export failed:', err);
+      Alert.alert('Export Error', 'Failed to queue AI export. Please try again.');
     } finally {
       setExporting(false);
     }
   };
 
   const handleDeleteScan = () => {
+    if (scanStatus === 1) {
+      Alert.alert('Scan Running', 'Stop the scan before deleting it.');
+      return;
+    }
     close();
     Alert.alert(
       'Delete Scan',

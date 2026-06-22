@@ -29,7 +29,10 @@ export default function SubScansScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchScans = useCallback(async () => {
-    if (!currentProject) return;
+    if (!currentProject) {
+      setLoading(false);
+      return;
+    }
     try {
       setError(null);
       const data = await listSubScans(currentProject, scanHistoryId);
