@@ -14,9 +14,6 @@ export default function TabLayout() {
   const { currentProject, loadProjects } = useProjectStore();
   const [switcherVisible, setSwitcherVisible] = useState(false);
   const [instanceVisible, setInstanceVisible] = useState(false);
-  const currentInstance = useInstanceStore((s) =>
-    s.instances.find((i) => i.id === s.currentInstanceId) ?? null
-  );
 
   useEffect(() => {
     loadProjects();

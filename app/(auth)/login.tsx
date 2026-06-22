@@ -80,9 +80,6 @@ export default function LoginScreen() {
       router.replace('/(tabs)');
     } catch (error: any) {
       console.error('Login error:', error);
-      console.error('Login error response status:', error.response?.status);
-      console.error('Login error response data:', JSON.stringify(error.response?.data));
-      console.error('Login error response headers:', JSON.stringify(error.response?.headers));
       const msg = error.response?.data?.detail
         || (typeof error.response?.data === 'string' ? error.response.data : null)
         || error.message
