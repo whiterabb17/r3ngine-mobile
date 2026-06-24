@@ -74,3 +74,43 @@ export async function getScanEngineConfig(): Promise<{ engines: EngineConfig[]; 
   );
   return resp.data;
 }
+
+export interface SubdomainPort {
+  number: number;
+  service_name: string;
+  is_uncommon: boolean;
+}
+
+export interface SubdomainIpAddress {
+  address: string;
+  is_cdn: boolean;
+  ports: SubdomainPort[];
+}
+
+export interface ScanSubdomain {
+  id: number;
+  name: string;
+  http_status: number;
+  page_title: string;
+  http_url: string;
+  origin_ip: string;
+  response_time: number;
+  screenshot_path: string;
+  screenshots?: Array<{ screenshot_path: string }>;
+  critical_count: number;
+  high_count: number;
+  medium_count: number;
+  low_count: number;
+  info_count: number;
+  content_length: number;
+  is_important: boolean;
+  ip_addresses: SubdomainIpAddress[];
+}
+
+export async function fetchSubdomains(scanId: number): Promise<ScanSubdomain[]> {
+  const resp = await apiClient.get<{ subdomains: ScanSubdomain[] }>(
+    '/mapi/querySubdomains/',
+    { params: { scan_id: scanId } }
+  );
+  return resp.data.subdomains ?? [];
+}

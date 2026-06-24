@@ -14,7 +14,10 @@ import {
   Folder,
   Terminal,
   Network,
-  Square
+  Square,
+  Fingerprint,
+  GitBranch,
+  Code2
 } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
@@ -251,9 +254,9 @@ export default function ScanDetailScreen() {
             {tab === 'EXPOSURES' && <Zap size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'ATTACK_PATHS' && <Target size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'CERTS' && <Clock size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
-            {tab === 'IDENTITY' && <ShieldAlert size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
-            {tab === 'CHAIN_GRAPH' && <Network size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
-            {tab === 'API_INTEL' && <Zap size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'IDENTITY' && <Fingerprint size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'CHAIN_GRAPH' && <GitBranch size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'API_INTEL' && <Code2 size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             <Text style={[styles.tabLabel, activeTab === tab && styles.tabLabelActive]}>
               {tab === 'VULNERABILITIES' ? 'Vulns' : tab === 'ATTACK_PATHS' ? 'Paths' : tab === 'CHAIN_GRAPH' ? 'Chain' : tab === 'API_INTEL' ? 'API' : tab.charAt(0) + tab.slice(1).toLowerCase()}
             </Text>
@@ -280,9 +283,9 @@ export default function ScanDetailScreen() {
            <SummaryTab data={data} scanId={Number(id)} onRefresh={fetchScanDetail} />
         )}
         
-        {activeTab === 'SUBDOMAINS' && data && (
-           <SubdomainsTab 
-             subdomains={data.subdomains} 
+        {activeTab === 'SUBDOMAINS' && (
+           <SubdomainsTab
+             scanId={Number(id)}
              onRefresh={fetchScanDetail}
            />
         )}
@@ -445,6 +448,7 @@ const styles = StyleSheet.create({
   },
   tabItem: {
     alignItems: 'center',
+    paddingHorizontal: 14,
     paddingVertical: 12,
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',
