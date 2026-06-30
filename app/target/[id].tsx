@@ -212,7 +212,7 @@ export default function TargetDetailScreen() {
             refreshControl={<RefreshControl refreshing={loadingNotes} onRefresh={() => fetchTabContent('NOTES')} />}
           >
             {notes.length === 0 && !loadingNotes ? (
-              <View style={{ alignItems: 'center', padding: 40 }}>
+              <View style={{ alignItems: 'center', padding: 40, backgroundColor: 'transparent' }}>
                 <StickyNote size={48} color={Theme.colors.surface} />
                 <Text style={{ marginTop: 16, color: Theme.colors.textMuted }}>No Notes for this target</Text>
               </View>
