@@ -2,7 +2,7 @@
   "expo": {
     "name": "r3nginemobile",
     "slug": "r3nginemobile",
-    "version": "1.6.0",
+    "version": "1.6.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "r3nginemobile",
