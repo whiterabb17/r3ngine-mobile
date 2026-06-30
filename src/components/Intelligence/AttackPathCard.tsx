@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { ChevronRight, ShieldAlert, Footprints, Zap } from 'lucide-react-native';
+import { ChevronRight, ShieldAlert, Footprints, Zap, MoreVertical } from 'lucide-react-native';
 import { Text, View } from '@/components/Themed';
 import { Theme } from '../../constants/Theme';
 
@@ -31,20 +31,33 @@ interface AttackPathCardProps {
     mitre_tactics?: string[];
   };
   onPress: () => void;
+  onOptionsPress?: () => void;
+  renderMenu?: React.ReactNode;
 }
 
-export default function AttackPathCard({ path, onPress }: AttackPathCardProps) {
+export default function AttackPathCard({ path, onPress, onOptionsPress, renderMenu }: AttackPathCardProps) {
   const isCritical = path.risk.toLowerCase() === 'critical';
   
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
       <View style={styles.header}>
-        <View style={styles.idBadge}>
-          <Text style={styles.idText}>{path.path_id}</Text>
+        <View style={styles.badgesWrapper}>
+          <View style={styles.idBadge}>
+            <Text style={styles.idText}>{path.path_id}</Text>
+          </View>
+          <View style={[styles.riskBadge, { backgroundColor: isCritical ? Theme.colors.danger + '22' : Theme.colors.warning + '22', borderColor: isCritical ? Theme.colors.danger : Theme.colors.warning }]}>
+            <Text style={[styles.riskText, { color: isCritical ? Theme.colors.danger : Theme.colors.warning }]}>{path.risk.toUpperCase()}</Text>
+          </View>
         </View>
-        <View style={[styles.riskBadge, { backgroundColor: isCritical ? Theme.colors.danger + '22' : Theme.colors.warning + '22', borderColor: isCritical ? Theme.colors.danger : Theme.colors.warning }]}>
-          <Text style={[styles.riskText, { color: isCritical ? Theme.colors.danger : Theme.colors.warning }]}>{path.risk.toUpperCase()}</Text>
-        </View>
+        {onOptionsPress && (
+          <TouchableOpacity 
+            style={styles.optionsButton} 
+            onPress={onOptionsPress}
+            accessibilityLabel={`overflow-${path.path_id}`}
+          >
+            <MoreVertical size={16} color={Theme.colors.textMuted} />
+          </TouchableOpacity>
+        )}
       </View>
 
       <Text style={styles.impactText} numberOfLines={2}>{path.potential_impact}</Text>
@@ -87,6 +100,8 @@ export default function AttackPathCard({ path, onPress }: AttackPathCardProps) {
         <View style={{ flex: 1 }} />
         <ChevronRight size={18} color={Theme.colors.textMuted} />
       </View>
+
+      {renderMenu}
     </TouchableOpacity>
   );
 }
@@ -106,6 +121,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
     backgroundColor: 'transparent',
+  },
+  badgesWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'transparent',
+  },
+  optionsButton: {
+    padding: 4,
+    marginLeft: 8,
   },
   idBadge: {
     backgroundColor: Theme.colors.background,

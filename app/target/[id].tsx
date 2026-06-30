@@ -161,19 +161,21 @@ export default function TargetDetailScreen() {
 
       {/* Custom Tab Bar */}
       <View style={styles.tabBar}>
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.type;
-          return (
-            <TouchableOpacity 
-              key={tab.type} 
-              style={[styles.tabItem, isActive && styles.tabItemActive]}
-              onPress={() => setActiveTab(tab.type)}
-            >
-              <tab.icon size={18} color={isActive ? Theme.colors.primary : Theme.colors.textMuted} />
-              <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>{tab.label}</Text>
-            </TouchableOpacity>
-          );
-        })}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 4 }}>
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.type;
+            return (
+              <TouchableOpacity 
+                key={tab.type} 
+                style={[styles.tabItem, isActive && styles.tabItemActive]}
+                onPress={() => setActiveTab(tab.type)}
+              >
+                <tab.icon size={18} color={isActive ? Theme.colors.primary : Theme.colors.textMuted} />
+                <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>{tab.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
       </View>
 
       {/* Tab Content */}
@@ -326,12 +328,12 @@ const styles = StyleSheet.create({
     borderBottomColor: Theme.colors.border,
   },
   tabItem: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
     paddingVertical: 12,
+    paddingHorizontal: 16,
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',
     backgroundColor: 'transparent',

@@ -45,12 +45,21 @@ export default function TimelineTab({ timeline = [], refreshing = false, onRefre
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const getStatusColor = (status: string) => {
+    const s = status.toUpperCase();
+    if (s === 'SUCCESS') return Theme.colors.success;
+    if (s === 'FAILED' || s === 'ABORTED') return Theme.colors.error;
+    if (s === 'RUNNING') return Theme.colors.info;
+    return Theme.colors.warning;
+  };
+
   const getStatusIcon = (status: string) => {
     const s = status.toUpperCase();
-    if (s === 'SUCCESS') return <CheckCircle2 size={16} color={Theme.colors.success} />;
-    if (s === 'FAILED' || s === 'ABORTED') return <XCircle size={16} color={Theme.colors.error} />;
-    if (s === 'RUNNING') return <Clock size={16} color={Theme.colors.info} />;
-    return <AlertCircle size={16} color={Theme.colors.warning} />;
+    const color = getStatusColor(status);
+    if (s === 'SUCCESS') return <CheckCircle2 size={16} color={color} />;
+    if (s === 'FAILED' || s === 'ABORTED') return <XCircle size={16} color={color} />;
+    if (s === 'RUNNING') return <Clock size={16} color={color} />;
+    return <AlertCircle size={16} color={color} />;
   };
 
   const renderItem = ({ item, index }: { item: TimelineActivity, index: number }) => {
@@ -70,33 +79,34 @@ export default function TimelineTab({ timeline = [], refreshing = false, onRefre
             <Text style={styles.itemTitle}>{item.title}</Text>
             <Text style={styles.itemTime}>{formatTime(item.time)}</Text>
           </View>
+
           <View style={styles.statusRow}>
              <Text style={[styles.statusText, { color: item.status.toUpperCase() === 'SUCCESS' ? Theme.colors.success : Theme.colors.textMuted }]}>
                {item.status.toUpperCase()}
              </Text>
-          </View>
-          
-          {/* Action buttons */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
-            {item.commands && item.commands.length > 0 && (
-              <TouchableOpacity 
-                style={styles.logButton}
-                onPress={() => handleViewOutput(item.commands)}
-              >
-                 <Terminal size={12} color={Theme.colors.primary} />
-                 <Text style={styles.logButtonText}>VIEW OUTPUT</Text>
-              </TouchableOpacity>
-            )}
+             
+             {/* Action buttons */}
+             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'transparent' }}>
+               {item.commands && item.commands.length > 0 && (
+                 <TouchableOpacity 
+                   style={styles.logButton}
+                   onPress={() => handleViewOutput(item.commands)}
+                 >
+                    <Terminal size={12} color={Theme.colors.primary} />
+                    <Text style={styles.logButtonText}>VIEW OUTPUT</Text>
+                 </TouchableOpacity>
+               )}
 
-            {isTerminal && onRetryTask && item.title !== 'Raw Scan History' && (
-              <TouchableOpacity 
-                style={[styles.logButton, { borderColor: Theme.colors.primary + '40', backgroundColor: Theme.colors.primary + '10' }]}
-                onPress={() => onRetryTask(item)}
-              >
-                 <RefreshCw size={12} color={Theme.colors.primary} />
-                 <Text style={[styles.logButtonText, { color: Theme.colors.primary }]}>RETRY</Text>
-              </TouchableOpacity>
-            )}
+               {isTerminal && onRetryTask && item.title !== 'Raw Scan History' && (
+                 <TouchableOpacity 
+                   style={[styles.logButton, { borderColor: Theme.colors.primary + '40', backgroundColor: Theme.colors.primary + '10' }]}
+                   onPress={() => onRetryTask(item)}
+                 >
+                    <RefreshCw size={12} color={Theme.colors.primary} />
+                    <Text style={[styles.logButtonText, { color: Theme.colors.primary }]}>RETRY</Text>
+                 </TouchableOpacity>
+               )}
+             </View>
           </View>
         </View>
       </View>
@@ -247,6 +257,9 @@ const styles = StyleSheet.create({
     color: Theme.colors.textMuted,
   },
   statusRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 8,
     backgroundColor: 'transparent',
   },

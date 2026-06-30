@@ -17,6 +17,7 @@ import {
   APME_KEYS,
   type AttackPathExtended,
 } from '../../src/api/apme';
+import { getAttackPaths } from '../../src/api/reports';
 
 interface Props {
   scanId?: number;
@@ -47,6 +48,13 @@ export default function AttackPathsScreen({ scanId: scanIdProp, targetId: target
     enabled: targetId !== '0',
   });
 
+  const pathsQ = useQuery({
+    queryKey: ['apme', 'paths', scanId],
+    queryFn: () => getAttackPaths(scanId),
+    staleTime: 30_000,
+    enabled: scanId > 0 && targetId === '0',
+  });
+
   const dismissM = useMutation({
     mutationFn: (id: string) => markPathDismissed(id),
     onMutate: async (id) => {
@@ -68,46 +76,64 @@ export default function AttackPathsScreen({ scanId: scanIdProp, targetId: target
     onSuccess: () => Alert.alert('Queued', 'Impact regeneration started — refresh in ~30s'),
   });
 
-  const paths = treeQ.data?.paths ?? [];
+  const mapPath = (p: any, isSpeculative: boolean): AttackPathExtended => ({
+    ...p,
+    is_speculative: isSpeculative,
+    priority: p.priority ?? `P${Math.max(0, Math.min(3, 3 - (p.remediation_priority || 0)))}`,
+  });
+
+  const paths = targetId !== '0'
+    ? (treeQ.data?.paths ?? [])
+    : [
+        ...(pathsQ.data?.paths ?? []).map((p: any) => mapPath(p, false)),
+        ...(pathsQ.data?.speculative_paths ?? []).map((p: any) => mapPath(p, true))
+      ];
+
   const primary = paths.filter(p => !p.is_speculative);
   const speculative = paths.filter(p => p.is_speculative);
 
-  const renderCard = (p: AttackPathExtended) => (
-    <View key={p.path_id} style={styles.card}>
-      <View style={styles.cardHead}>
-        <Text style={styles.id}>{p.path_id}</Text>
-        <PriorityBadge priority={p.priority} />
+  const renderCard = (p: AttackPathExtended) => {
+    const isMenuOpen = menuFor === p.path_id;
+    const menu = isMenuOpen ? (
+      <View style={styles.menu}>
         <TouchableOpacity
-          accessibilityLabel={`overflow-${p.path_id}`}
-          onPress={() => setMenuFor(menuFor === p.path_id ? null : p.path_id)}
+          accessibilityLabel={`regen-${p.path_id}`}
+          onPress={() => { setMenuFor(null); regenM.mutate(p.path_id); }}
         >
-          <MoreVertical size={16} color={Theme.colors.textMuted} />
+          <Text style={styles.menuItem}>Regenerate Impact</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          accessibilityLabel={`dismiss-${p.path_id}`}
+          onPress={() => { setMenuFor(null); dismissM.mutate(p.path_id); }}
+        >
+          <Text style={[styles.menuItem, { color: Theme.colors.danger }]}>Dismiss Path</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onLongPress={() => setTooltipFor(p)}>
-        <Text style={styles.score}>{p.score}</Text>
-      </TouchableOpacity>
-      <Text style={styles.impact} numberOfLines={2}>{p.potential_impact}</Text>
-      {menuFor === p.path_id && (
-        <View style={styles.menu}>
-          <TouchableOpacity
-            accessibilityLabel={`regen-${p.path_id}`}
-            onPress={() => { setMenuFor(null); regenM.mutate(p.path_id); }}
-          >
-            <Text style={styles.menuItem}>Regenerate Impact</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            accessibilityLabel={`dismiss-${p.path_id}`}
-            onPress={() => { setMenuFor(null); dismissM.mutate(p.path_id); }}
-          >
-            <Text style={[styles.menuItem, { color: Theme.colors.danger }]}>Dismiss Path</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
-  );
+    ) : null;
 
-  const isLoading = treeQ.isLoading || summaryQ.isLoading;
+    return (
+      <AttackPathCard
+        key={p.path_id}
+        path={p}
+        onPress={() => router.push({
+          pathname: `/intelligence/${p.path_id}` as any,
+          params: { pathData: JSON.stringify(p) }
+        })}
+        onOptionsPress={() => setMenuFor(isMenuOpen ? null : p.path_id)}
+        renderMenu={menu}
+      />
+    );
+  };
+
+  const isLoading = (targetId !== '0' ? treeQ.isLoading : pathsQ.isLoading) || summaryQ.isLoading;
+
+  const onRefresh = () => {
+    if (targetId !== '0') treeQ.refetch();
+    else pathsQ.refetch();
+    summaryQ.refetch();
+  };
+
+  const isRefetching = (targetId !== '0' ? treeQ.isRefetching : pathsQ.isRefetching) || summaryQ.isRefetching;
 
   return (
     <View style={styles.root}>
@@ -122,8 +148,8 @@ export default function AttackPathsScreen({ scanId: scanIdProp, targetId: target
           contentContainerStyle={{ padding: Theme.spacing.md }}
           refreshControl={
             <RefreshControl
-              refreshing={treeQ.isRefetching || summaryQ.isRefetching}
-              onRefresh={() => { treeQ.refetch(); summaryQ.refetch(); }}
+              refreshing={isRefetching}
+              onRefresh={onRefresh}
               tintColor={Theme.colors.primary}
             />
           }
@@ -158,11 +184,6 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Theme.colors.background },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   loadingText: { marginTop: Theme.spacing.sm, color: Theme.colors.textMuted, fontSize: 12, fontFamily: 'Bangers' },
-  card: { backgroundColor: Theme.colors.surface, borderColor: Theme.colors.border, borderWidth: 1, borderRadius: Theme.borderRadius.md, padding: Theme.spacing.md, marginBottom: Theme.spacing.sm },
-  cardHead: { flexDirection: 'row', alignItems: 'center', gap: Theme.spacing.sm },
-  id: { color: Theme.colors.textMuted, flex: 1, fontFamily: 'SpaceMono' },
-  score: { color: Theme.colors.primary, fontSize: 24, fontWeight: '800', marginTop: Theme.spacing.xs },
-  impact: { color: Theme.colors.text, marginTop: Theme.spacing.xs },
   menu: { marginTop: Theme.spacing.sm, borderTopWidth: 1, borderTopColor: Theme.colors.border, paddingTop: Theme.spacing.sm, gap: Theme.spacing.sm },
   menuItem: { color: Theme.colors.text, paddingVertical: Theme.spacing.xs },
   emptyState: { alignItems: 'center', paddingVertical: 100, paddingHorizontal: 40 },
