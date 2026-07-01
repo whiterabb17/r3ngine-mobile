@@ -17,7 +17,8 @@ import {
   Square,
   Fingerprint,
   GitBranch,
-  Code2
+  Code2,
+  Search
 } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
@@ -29,6 +30,7 @@ import SubdomainsTab from '../../src/components/Scan/SubdomainsTab';
 import VulnerabilitiesTab from '../../src/components/Scan/VulnerabilitiesTab';
 import TimelineTab from '../../src/components/Scan/TimelineTab';
 import DirectoriesTab from '../../src/components/Scan/DirectoriesTab';
+import OsintTab from '../../src/components/Scan/OsintTab';
 import AssetGraph from '../../src/components/Observability/AssetGraph';
 import ExposuresScreen from '../intelligence/exposures/index';
 import AttackPathsScreen from '../intelligence/attack-paths';
@@ -38,7 +40,7 @@ import ChainGraphScreen from '../intelligence/graph/index';
 import APIIntelListScreen from '../intelligence/api-intel/index';
 import ScanActionMenu from '../../src/components/Scan/ScanActionMenu';
 
-type TabType = 'SUMMARY' | 'SUBDOMAINS' | 'DIRECTORIES' | 'VULNERABILITIES' | 'TIMELINE' | 'GRAPH'
+type TabType = 'SUMMARY' | 'SUBDOMAINS' | 'DIRECTORIES' | 'OSINT' | 'VULNERABILITIES' | 'TIMELINE' | 'GRAPH'
   | 'EXPOSURES' | 'ATTACK_PATHS' | 'CERTS' | 'IDENTITY' | 'CHAIN_GRAPH' | 'API_INTEL';
 
 export default function ScanDetailScreen() {
@@ -239,7 +241,7 @@ export default function ScanDetailScreen() {
 
       {/* Tab Bar */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabBar} contentContainerStyle={styles.tabBarContent}>
-        {(['SUMMARY', 'SUBDOMAINS', 'DIRECTORIES', 'VULNERABILITIES', 'TIMELINE', 'GRAPH', 'EXPOSURES', 'ATTACK_PATHS', 'CERTS', 'IDENTITY', 'CHAIN_GRAPH', 'API_INTEL'] as TabType[]).map((tab) => (
+        {(['SUMMARY', 'SUBDOMAINS', 'DIRECTORIES', 'OSINT', 'VULNERABILITIES', 'TIMELINE', 'GRAPH', 'EXPOSURES', 'ATTACK_PATHS', 'CERTS', 'IDENTITY', 'CHAIN_GRAPH', 'API_INTEL'] as TabType[]).map((tab) => (
           <TouchableOpacity
             key={tab}
             onPress={() => setActiveTab(tab)}
@@ -248,6 +250,7 @@ export default function ScanDetailScreen() {
             {tab === 'SUMMARY' && <Activity size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'SUBDOMAINS' && <Globe size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'DIRECTORIES' && <Folder size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'OSINT' && <Search size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'VULNERABILITIES' && <ShieldAlert size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'TIMELINE' && <History size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'GRAPH' && <Network size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
@@ -280,12 +283,13 @@ export default function ScanDetailScreen() {
         )}
 
         {activeTab === 'SUMMARY' && data && (
-           <SummaryTab data={data} scanId={Number(id)} onRefresh={fetchScanDetail} />
+           <SummaryTab data={data} scanId={Number(id)} refreshing={refreshing} onRefresh={fetchScanDetail} />
         )}
         
         {activeTab === 'SUBDOMAINS' && (
            <SubdomainsTab
              scanId={Number(id)}
+             refreshing={refreshing}
              onRefresh={fetchScanDetail}
            />
         )}
@@ -294,9 +298,14 @@ export default function ScanDetailScreen() {
            <DirectoriesTab scanId={Number(id)} />
         )}
 
+        {activeTab === 'OSINT' && data && (
+           <OsintTab data={data} scanId={Number(id)} refreshing={refreshing} onRefresh={fetchScanDetail} />
+        )}
+
         {activeTab === 'VULNERABILITIES' && data && (
            <VulnerabilitiesTab 
              vulnerabilities={data.vulnerabilities} 
+             refreshing={refreshing}
              onRefresh={fetchScanDetail}
            />
         )}

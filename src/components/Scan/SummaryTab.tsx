@@ -19,7 +19,7 @@ import {
   ChevronRight,
   Zap
 } from 'lucide-react-native';
-import { Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Alert, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { createScanReport, getReportStatus, triggerAiInsights, recalculateAttackPaths } from '../../api/reports';
 import { useRouter } from 'expo-router';
 import { queryWhois } from '../../api/tools';
@@ -31,10 +31,11 @@ import { Theme } from '../../constants/Theme';
 interface SummaryTabProps {
   data: any;
   scanId: number;
+  refreshing?: boolean;
   onRefresh?: () => void;
 }
 
-export default function SummaryTab({ data, scanId, onRefresh }: SummaryTabProps) {
+export default function SummaryTab({ data, scanId, refreshing, onRefresh }: SummaryTabProps) {
   const { width } = useWindowDimensions();
   const router = useRouter();
   const [isExporting, setIsExporting] = React.useState(false);
@@ -174,7 +175,18 @@ export default function SummaryTab({ data, scanId, onRefresh }: SummaryTabProps)
   const totalVulns = data.vulnerability_count || 0;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+    <ScrollView 
+      style={styles.container} 
+      contentContainerStyle={styles.scrollContent}
+      refreshControl={
+        <RefreshControl 
+          refreshing={refreshing || false} 
+          onRefresh={onRefresh} 
+          tintColor={Theme.colors.primary} 
+          colors={[Theme.colors.primary]} 
+        />
+      }
+    >
       {/* KPI Grid */}
       <View style={styles.grid}>
         <KpiCard 

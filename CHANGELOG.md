@@ -5,6 +5,7 @@ All notable changes to **r3ngine Mobile** are documented here.
 ## [1.7.0] — Phase 3: Workflow & Org Surfaces
 
 ### Added
+- **OSINT, Leaks & Secrets Tab** (`app/scan/[id].tsx`) — fully actionable intelligence tab in the scan details view rendering Staged OSINT, Breached Emails, Employees, Secret Leaks, S3 Buckets, Dorks, and Metadata Documents.
 - **Projects Switcher** — header button on all tabs shows current project and opens a bottom-sheet list to switch between projects; `useProjectStore` now loads and caches the full project list.
 - **Global Search** (`app/search/`) — debounced cross-entity search across subdomains, endpoints, and vulnerabilities; recent query history chips for quick repeat searches.
 - **Todos** (`app/todos/`) — full CRUD todo management scoped to current project; cards with done toggle (✓), importance star, and swipe-to-delete; add modal. Backend: new RESTful `/mapi/todos/` and `/mapi/todos/<id>/` endpoints.

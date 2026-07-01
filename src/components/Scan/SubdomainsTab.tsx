@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { StyleSheet, FlatList, TextInput, TouchableOpacity, Image, Modal, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
+import { StyleSheet, FlatList, TextInput, TouchableOpacity, Image, Modal, ScrollView, Dimensions, ActivityIndicator, RefreshControl } from 'react-native';
 import {
   Search,
   Globe,
@@ -26,10 +26,11 @@ import { fetchSubdomains, ScanSubdomain } from '../../api/scans';
 
 interface SubdomainsTabProps {
   scanId: number;
+  refreshing?: boolean;
   onRefresh?: () => void;
 }
 
-export default function SubdomainsTab({ scanId, onRefresh }: SubdomainsTabProps) {
+export default function SubdomainsTab({ scanId, refreshing, onRefresh }: SubdomainsTabProps) {
   const [subdomains, setSubdomains] = useState<ScanSubdomain[]>([]);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -275,6 +276,14 @@ export default function SubdomainsTab({ scanId, onRefresh }: SubdomainsTabProps)
         keyExtractor={(item, index) => `${item.name}-${index}`}
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing || false} 
+            onRefresh={onRefresh} 
+            tintColor={Theme.colors.primary} 
+            colors={[Theme.colors.primary]} 
+          />
+        }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>

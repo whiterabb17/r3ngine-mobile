@@ -119,7 +119,6 @@ export default function LogViewerScreen() {
           fontFamily: 'Bangers',
           fontSize: 22,
           color: Theme.colors.primary,
-          letterSpacing: 1,
         },
         headerLeft: () => (
           <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: -10, padding: 10 }}>
