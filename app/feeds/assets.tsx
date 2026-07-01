@@ -203,9 +203,12 @@ const styles = StyleSheet.create({
     backgroundColor: Theme.colors.background,
   },
   searchBarContainer: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
     backgroundColor: Theme.colors.surface,
   },
+
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -229,6 +232,7 @@ const styles = StyleSheet.create({
   },
   filterRow: {
     backgroundColor: Theme.colors.surface,
+    paddingTop: 0,
     paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: Theme.colors.border,
@@ -243,7 +247,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    backgroundColor: Theme.colors.background,
+    backgroundColor: 'rgba(255,255,255,0.07)',
     borderWidth: 1,
     borderColor: Theme.colors.border,
   },
@@ -253,7 +257,7 @@ const styles = StyleSheet.create({
   },
   filterLabel: {
     fontSize: 12,
-    color: Theme.colors.textMuted,
+    color: Theme.colors.text,
     fontWeight: '600',
   },
   filterLabelActive: {
@@ -373,7 +377,9 @@ const styles = StyleSheet.create({
   },
   filterBar: {
     paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingTop: 0,
+    paddingBottom: 8,
+    backgroundColor: Theme.colors.surface,
   },
   activeFilter: {
     backgroundColor: Theme.colors.primary + '22',

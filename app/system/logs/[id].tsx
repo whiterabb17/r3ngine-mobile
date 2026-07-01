@@ -111,10 +111,15 @@ export default function LogViewerScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ 
+      <Stack.Screen options={{
         title: 'TACTICAL LOGS',
         headerStyle: { backgroundColor: Theme.colors.surface },
         headerTintColor: Theme.colors.text,
+        headerTitleStyle: {
+          fontFamily: 'Bangers',
+          fontSize: 22,
+          color: Theme.colors.primary,
+        },
         headerLeft: () => (
           <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: -10, padding: 10 }}>
             <ChevronLeft size={24} color={Theme.colors.text} />

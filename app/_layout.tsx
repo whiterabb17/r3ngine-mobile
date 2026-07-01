@@ -20,6 +20,7 @@ import {
 import {
   requestLocalNotificationPermissionsAsync,
   setupNotificationHandlers,
+  registerPushNotificationToken,
 } from '../src/utils/notifications';
 import { registerNotificationTask } from '../src/utils/backgroundTasks';
 
@@ -120,6 +121,8 @@ function RootLayoutNav() {
         await registerNotificationTask(pollingInterval || 15);
         // Persist enabled state so the Settings toggle reflects reality
         await setPushEnabled(true);
+        // Register push token with the Django backend
+        await registerPushNotificationToken();
       }
 
       // Set up the notification tap handler regardless of success
@@ -147,6 +150,8 @@ function RootLayoutNav() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="feeds" options={{ headerShown: false }} />
           <Stack.Screen name="intelligence" options={{ headerShown: false }} />
+          <Stack.Screen name="bounty/index" options={{ headerShown: false }} />
+          <Stack.Screen name="bounty/[handle]" options={{ headerShown: false }} />
           <Stack.Screen name="diagnostics" options={{ presentation: 'modal' }} />
           <Stack.Screen name="notifications/index" options={{ presentation: 'modal', title: 'Notifications' }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />

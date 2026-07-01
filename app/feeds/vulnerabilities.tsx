@@ -10,7 +10,7 @@ import { useProjectStore } from '../../src/store/useProjectStore';
 interface Vulnerability {
   id: number;
   name: string;
-  severity: number;
+  severity: number | string;
   discovered_date: string;
   scan_history: {
     domain: {
@@ -48,28 +48,46 @@ export default function GlobalVulnerabilityFeed() {
 
   const filteredVulns = vulns.filter(vuln => {
     const matchesSearch = vuln.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesSeverity = severityFilter !== null ? vuln.severity === severityFilter : true;
+    const matchesSeverity = severityFilter !== null ? getSeverityLabel(vuln.severity) === getSeverityLabel(severityFilter) : true;
     return matchesSearch && matchesSeverity;
   });
 
-  const getSeverityLabel = (severity: number) => {
-    switch (severity) {
-      case 4: return 'Critical';
-      case 3: return 'High';
-      case 2: return 'Medium';
-      case 1: return 'Low';
-      case 0: return 'Info';
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? dateString : date.toLocaleDateString();
+  };
+
+  const getSeverityLabel = (severity: string | number) => {
+    const s = String(severity).toLowerCase();
+    switch (s) {
+      case '4':
+      case 'critical': return 'Critical';
+      case '3':
+      case 'high': return 'High';
+      case '2':
+      case 'medium': return 'Medium';
+      case '1':
+      case 'low': return 'Low';
+      case '0':
+      case 'info': return 'Info';
       default: return 'Unknown';
     }
   };
 
-  const getSeverityColor = (severity: number) => {
-    switch (severity) {
-      case 4: return Theme.colors.vulnerabilities.critical;
-      case 3: return Theme.colors.vulnerabilities.high;
-      case 2: return Theme.colors.vulnerabilities.medium;
-      case 1: return Theme.colors.vulnerabilities.low;
-      case 0: return Theme.colors.vulnerabilities.info;
+  const getSeverityColor = (severity: string | number) => {
+    const s = String(severity).toLowerCase();
+    switch (s) {
+      case '4':
+      case 'critical': return Theme.colors.vulnerabilities.critical;
+      case '3':
+      case 'high': return Theme.colors.vulnerabilities.high;
+      case '2':
+      case 'medium': return Theme.colors.vulnerabilities.medium;
+      case '1':
+      case 'low': return Theme.colors.vulnerabilities.low;
+      case '0':
+      case 'info': return Theme.colors.vulnerabilities.info;
       default: return Theme.colors.textMuted;
     }
   };
@@ -85,7 +103,7 @@ export default function GlobalVulnerabilityFeed() {
             {getSeverityLabel(item.severity)}
           </Text>
         </View>
-        <Text style={styles.timestamp}>{new Date(item.discovered_date).toLocaleDateString()}</Text>
+        <Text style={styles.timestamp}>{formatDate(item.discovered_date)}</Text>
       </View>
 
       <Text style={styles.vulnName} numberOfLines={2}>{item.name}</Text>
@@ -103,7 +121,7 @@ export default function GlobalVulnerabilityFeed() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ 
-        title: 'Tactical Vuln Feed',
+        title: 'Vulnerability Feed',
         headerTitleAlign: 'center'
       }} />
       

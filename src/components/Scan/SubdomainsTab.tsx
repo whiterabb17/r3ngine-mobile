@@ -1,14 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import { StyleSheet, FlatList, TextInput, TouchableOpacity, Image, Modal, ScrollView, Dimensions } from 'react-native';
-import { 
-  Search, 
-  Globe, 
-  ChevronRight, 
-  Copy, 
-  ExternalLink, 
-  Bug, 
-  Zap, 
-  ShieldAlert, 
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { StyleSheet, FlatList, TextInput, TouchableOpacity, Image, Modal, ScrollView, Dimensions, ActivityIndicator, RefreshControl } from 'react-native';
+import {
+  Search,
+  Globe,
+  Copy,
+  ExternalLink,
+  Bug,
+  Zap,
+  ShieldAlert,
   AlertTriangle,
   Info,
   Timer,
@@ -23,78 +22,61 @@ import { Theme } from '../../constants/Theme';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import apiClient, { getMediaSource } from '../../api/client';
 import SubtaskModal from './SubtaskModal';
-import { paths } from '../../types/api';
-
-interface Port {
-  number: number;
-  service_name: string;
-  is_uncommon: boolean;
-}
-
-interface IpAddress {
-  address: string;
-  is_cdn: boolean;
-  ports: Port[];
-}
-
-interface Subdomain {
-  id: number;
-  name: string;
-  http_status: number;
-  page_title: string;
-  http_url: string;
-  origin_ip: string;
-  response_time: number;
-  screenshot_path: string;
-  screenshots?: Array<{ screenshot_path: string }>;
-  critical_count: number;
-  high_count: number;
-  medium_count: number;
-  low_count: number;
-  info_count: number;
-  content_length: number;
-  is_important: boolean;
-  ip_addresses: IpAddress[];
-}
+import { fetchSubdomains, ScanSubdomain } from '../../api/scans';
 
 interface SubdomainsTabProps {
-  subdomains: Subdomain[];
+  scanId: number;
+  refreshing?: boolean;
   onRefresh?: () => void;
 }
 
-export default function SubdomainsTab({ subdomains = [], onRefresh }: SubdomainsTabProps) {
+export default function SubdomainsTab({ scanId, refreshing, onRefresh }: SubdomainsTabProps) {
+  const [subdomains, setSubdomains] = useState<ScanSubdomain[]>([]);
+  const [fetchLoading, setFetchLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedScreenshot, setSelectedScreenshot] = useState<string | null>(null);
   const [subtaskModalVisible, setSubtaskModalVisible] = useState(false);
   const [targetSubdomain, setTargetSubdomain] = useState<{id: number, name: string} | null>(null);
   const { serverIp } = useSettingsStore();
 
-  const getFullImageUrl = (path: string) => {
-    return getMediaSource(path);
-  };
+  const loadSubdomains = useCallback(async () => {
+    try {
+      setFetchLoading(true);
+      const data = await fetchSubdomains(scanId);
+      setSubdomains(data);
+    } catch (err) {
+      console.error('[SubdomainsTab] fetch error', err);
+    } finally {
+      setFetchLoading(false);
+    }
+  }, [scanId]);
+
+  useEffect(() => {
+    loadSubdomains();
+  }, [loadSubdomains]);
 
   const deduplicatedSubdomains = useMemo(() => {
-    const map = new Map<string, Subdomain>();
-    
+    const map = new Map<string, ScanSubdomain>();
+
     subdomains.forEach(sub => {
       const existing = map.get(sub.name);
       if (!existing) {
         map.set(sub.name, { ...sub });
       } else {
         const updated = sub.id > existing.id ? { ...sub } : { ...existing };
-        
+
         updated.critical_count = Math.max(existing.critical_count, sub.critical_count);
         updated.high_count = Math.max(existing.high_count, sub.high_count);
         updated.medium_count = Math.max(existing.medium_count, sub.medium_count);
         updated.low_count = Math.max(existing.low_count, sub.low_count);
         updated.info_count = Math.max(existing.info_count, sub.info_count);
-        
-        const ipMap = new Map<string, IpAddress>();
+
+        const ipMap = new Map<string, ScanSubdomain['ip_addresses'][0]>();
         [...(existing.ip_addresses || []), ...(sub.ip_addresses || [])].forEach(ip => {
             if (!ipMap.has(ip.address)) ipMap.set(ip.address, ip);
         });
         updated.ip_addresses = Array.from(ipMap.values());
-        
+
         const screens = new Set<string>();
         const mergedScreenshots: Array<{ screenshot_path: string }> = [];
         const addScreen = (path?: string) => {
@@ -107,7 +89,7 @@ export default function SubdomainsTab({ subdomains = [], onRefresh }: Subdomains
         addScreen(sub.screenshot_path);
         existing.screenshots?.forEach(s => addScreen(s.screenshot_path));
         sub.screenshots?.forEach(s => addScreen(s.screenshot_path));
-        
+
         updated.screenshots = mergedScreenshots;
         if (mergedScreenshots.length > 0 && !updated.screenshot_path) {
             updated.screenshot_path = mergedScreenshots[0].screenshot_path;
@@ -118,13 +100,13 @@ export default function SubdomainsTab({ subdomains = [], onRefresh }: Subdomains
         map.set(sub.name, updated);
       }
     });
-    
+
     return Array.from(map.values());
   }, [subdomains]);
 
   const filteredSubdomains = useMemo(() => {
-    return deduplicatedSubdomains.filter(s => 
-      s.name.toLowerCase().includes(search.toLowerCase()) || 
+    return deduplicatedSubdomains.filter(s =>
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
       (s.origin_ip && s.origin_ip.includes(search))
     );
   }, [deduplicatedSubdomains, search]);
@@ -133,6 +115,7 @@ export default function SubdomainsTab({ subdomains = [], onRefresh }: Subdomains
     try {
       const response = await apiClient.post<any>('/mapi/toggle/subdomain/important/', { subdomain_id: subdomainId });
       if (response.data.status) {
+        loadSubdomains();
         onRefresh?.();
       }
     } catch (error) {
@@ -158,7 +141,7 @@ export default function SubdomainsTab({ subdomains = [], onRefresh }: Subdomains
     );
   };
 
-  const renderItem = ({ item }: { item: Subdomain }) => (
+  const renderItem = ({ item }: { item: ScanSubdomain }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={styles.nameSection}>
@@ -240,7 +223,7 @@ export default function SubdomainsTab({ subdomains = [], onRefresh }: Subdomains
               <Camera size={16} color={Theme.colors.primary} />
             </TouchableOpacity>
           )}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => {
               setTargetSubdomain({ id: item.id, name: item.name });
@@ -249,14 +232,14 @@ export default function SubdomainsTab({ subdomains = [], onRefresh }: Subdomains
           >
             <Zap size={16} color={Theme.colors.warning} />
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => handleToggleImportant(item.id)}
           >
-            <Star 
-              size={16} 
-              color={item.is_important ? Theme.colors.warning : Theme.colors.textMuted} 
-              fill={item.is_important ? Theme.colors.warning : 'transparent'} 
+            <Star
+              size={16}
+              color={item.is_important ? Theme.colors.warning : Theme.colors.textMuted}
+              fill={item.is_important ? Theme.colors.warning : 'transparent'}
             />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn}>
@@ -266,6 +249,14 @@ export default function SubdomainsTab({ subdomains = [], onRefresh }: Subdomains
       </View>
     </View>
   );
+
+  if (fetchLoading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={Theme.colors.primary} style={{ marginTop: 40 }} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -285,9 +276,19 @@ export default function SubdomainsTab({ subdomains = [], onRefresh }: Subdomains
         keyExtractor={(item, index) => `${item.name}-${index}`}
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing || false} 
+            onRefresh={onRefresh} 
+            tintColor={Theme.colors.primary} 
+            colors={[Theme.colors.primary]} 
+          />
+        }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No subdomains found matching your search.</Text>
+            <Text style={styles.emptyText}>
+              {search ? 'No subdomains found matching your search.' : 'No subdomains discovered for this scan yet.'}
+            </Text>
           </View>
         }
       />
@@ -309,8 +310,8 @@ export default function SubdomainsTab({ subdomains = [], onRefresh }: Subdomains
             </View>
             <ScrollView contentContainerStyle={styles.modalScroll}>
               {selectedScreenshot && (
-                <Image 
-                  source={getMediaSource(selectedScreenshot) as any} 
+                <Image
+                  source={getMediaSource(selectedScreenshot) as any}
                   style={styles.screenshotImage}
                   resizeMode="contain"
                 />
@@ -573,4 +574,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   }
 });
-

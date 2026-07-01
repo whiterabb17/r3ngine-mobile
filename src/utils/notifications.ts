@@ -63,3 +63,35 @@ export function setupNotificationHandlers(router: MinimalRouter): Notifications.
   });
   return subscription;
 }
+
+/**
+ * Fetches the Expo push token and registers it with the Django backend.
+ */
+export async function registerPushNotificationToken(): Promise<boolean> {
+  try {
+    const projectId = Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
+    if (!projectId) {
+      console.warn('[PushNotification] No EAS projectId found in Constants');
+      return false;
+    }
+
+    const tokenData = await Notifications.getExpoPushTokenAsync({
+      projectId,
+    });
+    const token = tokenData.data;
+
+    // Get device info to send a label
+    const deviceLabel = Device.modelName || `${Device.brand} ${Device.designName}` || Platform.OS;
+
+    // Register with backend API
+    await apiClient.post('/mapi/push-token/register/', {
+      token,
+      device_label: deviceLabel,
+    });
+    console.log('[PushNotification] Registered token with backend:', token);
+    return true;
+  } catch (error) {
+    console.error('[PushNotification] Error registering push token with backend:', error);
+    return false;
+  }
+}

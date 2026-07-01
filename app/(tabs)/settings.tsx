@@ -1,13 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch, Linking, Modal } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { LogOut, Server, Shield, Bell, Info, Activity, Database, Globe, Clock, Terminal, Cpu } from 'lucide-react-native';
+import { LogOut, Server, Shield, Bell, Info, Activity, Database, Globe, Clock, Terminal, Cpu, DollarSign, Search, Package, CheckSquare, Zap, Sliders, Wifi, FileText, Key, Brain, UserCog, Wrench } from 'lucide-react-native';
 import * as Notifications from 'expo-notifications';
 import { Theme } from '../../src/constants/Theme';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
+import { useInstanceStore } from '../../src/store/useInstanceStore';
+import InstanceSwitcherModal from '../../src/components/Instances/InstanceSwitcherModal';
 import apiClient from '../../src/api/client';
-import { requestLocalNotificationPermissionsAsync } from '../../src/utils/notifications';
+import { requestLocalNotificationPermissionsAsync, registerPushNotificationToken } from '../../src/utils/notifications';
 import { registerNotificationTask, unregisterNotificationTask } from '../../src/utils/backgroundTasks';
 import { version as appVersion } from '../../package.json';
 
@@ -19,6 +21,10 @@ export default function SettingsScreen() {
   const [loadingSoc, setLoadingSoc] = React.useState(true);
   const [togglingPush, setTogglingPush] = React.useState(false);
   const [showIntervalModal, setShowIntervalModal] = React.useState(false);
+  const [instanceSwitcherVisible, setInstanceSwitcherVisible] = React.useState(false);
+  const currentInstance = useInstanceStore((s) =>
+    s.instances.find((i) => i.id === s.currentInstanceId) ?? null
+  );
 
   React.useEffect(() => {
     fetchSocSettings();
@@ -72,6 +78,8 @@ export default function SettingsScreen() {
       await setPollingInterval(interval);
       await registerNotificationTask(interval);
       await setPushEnabled(true);
+      // Register push token with backend
+      await registerPushNotificationToken();
     } catch (err) {
       console.error('[Settings] Failed to enable background polling:', err);
       Alert.alert('Error', 'Failed to enable background notifications.');
@@ -88,6 +96,8 @@ export default function SettingsScreen() {
       try {
         await unregisterNotificationTask();
         await setPushEnabled(false);
+        // Deactivate push token on backend
+        await apiClient.delete('/mapi/push-token/register/');
       } catch (err) {
         console.error('[Settings] Failed to disable background polling:', err);
       } finally {
@@ -105,7 +115,19 @@ export default function SettingsScreen() {
       'Are you sure you want to logout? Your server settings will be preserved but you will need to log in again.',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', style: 'destructive', onPress: () => logout() }
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Deactivate push token on logout
+              await apiClient.delete('/mapi/push-token/register/');
+            } catch (err) {
+              console.error('[Settings] Failed to unregister push token during logout:', err);
+            }
+            logout();
+          },
+        },
       ]
     );
   };
@@ -152,6 +174,19 @@ export default function SettingsScreen() {
       }} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Instances</Text>
+          <View style={styles.card}>
+            <SettingRow
+              icon={Server}
+              label="Active Server"
+              value={currentInstance?.label ?? 'Not configured'}
+              onPress={() => setInstanceSwitcherVisible(true)}
+              color={currentInstance ? Theme.colors.primary : Theme.colors.textMuted}
+            />
+          </View>
+        </View>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Connection</Text>
           <View style={styles.card}>
@@ -209,6 +244,77 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Platform Config</Text>
+          <View style={styles.card}>
+            <SettingRow
+              icon={Wifi}
+              label="Remote Workers"
+              value="Worker Infrastructure"
+              onPress={() => router.push('/settings/workers' as any)}
+            />
+            <SettingRow
+              icon={Wrench}
+              label="Tool Arsenal"
+              value="Installed Tools"
+              onPress={() => router.push('/settings/tools' as any)}
+            />
+            <SettingRow
+              icon={Database}
+              label="ReNgine Settings"
+              value="System & Disk"
+              onPress={() => router.push('/settings/rengine-settings' as any)}
+            />
+            <SettingRow
+              icon={FileText}
+              label="Report Settings"
+              value="Branding & Output"
+              onPress={() => router.push('/settings/report-settings' as any)}
+            />
+            <SettingRow
+              icon={Bell}
+              label="Notification Settings"
+              value="Webhooks & Events"
+              onPress={() => router.push('/settings/notification-settings' as any)}
+            />
+            <SettingRow
+              icon={Shield}
+              label="OpSec"
+              value="Configure on web"
+              onPress={() => router.push('/settings/opsec' as any)}
+              color={Theme.colors.textMuted}
+            />
+            <SettingRow
+              icon={Key}
+              label="API Vault"
+              value="Configure on web"
+              onPress={() => router.push('/settings/api-vault' as any)}
+              color={Theme.colors.textMuted}
+            />
+            <SettingRow
+              icon={Brain}
+              label="LLM Toolkit"
+              value="Configure on web"
+              onPress={() => router.push('/settings/llm-toolkit' as any)}
+              color={Theme.colors.textMuted}
+            />
+            <SettingRow
+              icon={Sliders}
+              label="Tool Settings"
+              value="Configure on web"
+              onPress={() => router.push('/settings/tool-settings' as any)}
+              color={Theme.colors.textMuted}
+            />
+            <SettingRow
+              icon={UserCog}
+              label="Admin"
+              value="Configure on web"
+              onPress={() => router.push('/settings/admin' as any)}
+              color={Theme.colors.textMuted}
+            />
+          </View>
+        </View>
+
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preferences</Text>
           <View style={styles.card}>
             <SwitchRow
@@ -226,6 +332,48 @@ export default function SettingsScreen() {
               onValueChange={toggleSocStreaming}
               color={socEnabled ? Theme.colors.primary : Theme.colors.textMuted}
               disabled={loadingSoc}
+            />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Org & Workflows</Text>
+          <View style={styles.card}>
+            <SettingRow
+              icon={DollarSign}
+              label="Bounty Hub"
+              value="Program Browser"
+              onPress={() => router.push('/bounty' as any)}
+            />
+            <SettingRow
+              icon={Search}
+              label="Global Search"
+              value="Cross-Entity Search"
+              onPress={() => router.push('/search' as any)}
+            />
+            <SettingRow
+              icon={Package}
+              label="Plugin Management"
+              value="Installed Plugins"
+              onPress={() => router.push('/plugins' as any)}
+            />
+            <SettingRow
+              icon={CheckSquare}
+              label="Todos"
+              value="Task Management"
+              onPress={() => router.push('/todos' as any)}
+            />
+            <SettingRow
+              icon={Zap}
+              label="Workflows"
+              value="Temporal Workflows"
+              onPress={() => router.push('/workflows' as any)}
+            />
+            <SettingRow
+              icon={Sliders}
+              label="Profiles"
+              value="Scan Profiles"
+              onPress={() => router.push('/profiles' as any)}
             />
           </View>
         </View>
@@ -260,6 +408,11 @@ export default function SettingsScreen() {
           <Text style={styles.footerText}>Crafted for Security Researchers</Text>
         </View>
       </ScrollView>
+
+      <InstanceSwitcherModal
+        visible={instanceSwitcherVisible}
+        onClose={() => setInstanceSwitcherVisible(false)}
+      />
 
       {/* Interval Selection Modal */}
       <Modal visible={showIntervalModal} transparent animationType="fade">

@@ -50,10 +50,13 @@ export default function OsintStagingCard({ item, selected, onSelect, onPromote, 
           {getIcon()}
           <Text style={styles.typeText}>{item.osint_type.toUpperCase()}</Text>
         </View>
-        <View style={[styles.confidenceBadge, { borderColor: getConfidenceColor(item.confidence) + '44' }]}>
-          <Text style={[styles.confidenceText, { color: getConfidenceColor(item.confidence) }]}>
-            {item.confidence}% CONFIDENCE
-          </Text>
+        <View style={styles.headerRight}>
+          <Text style={styles.dateText}>{item.discovered_date_humanized}</Text>
+          <View style={[styles.confidenceBadge, { borderColor: getConfidenceColor(item.confidence) + '44' }]}>
+            <Text style={[styles.confidenceText, { color: getConfidenceColor(item.confidence) }]}>
+              {item.confidence}% CONFIDENCE
+            </Text>
+          </View>
         </View>
       </View>
 
@@ -81,7 +84,6 @@ export default function OsintStagingCard({ item, selected, onSelect, onPromote, 
         </View>
       </View>
 
-      <Text style={styles.dateText}>{item.discovered_date_humanized}</Text>
     </TouchableOpacity>
   );
 }
@@ -102,8 +104,13 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 10,
+    backgroundColor: 'transparent',
+  },
+  headerRight: {
+    alignItems: 'flex-end',
+    gap: 4,
     backgroundColor: 'transparent',
   },
   typeTag: {
@@ -178,9 +185,6 @@ const styles = StyleSheet.create({
     borderColor: Theme.colors.success + '33',
   },
   dateText: {
-    position: 'absolute',
-    top: 14,
-    right: 14,
     fontSize: 8,
     color: Theme.colors.textMuted,
     backgroundColor: 'transparent',

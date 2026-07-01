@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, ScrollView, RefreshControl, TouchableOpacity, useWindowDimensions, ActivityIndicator, Alert } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { 
-  Activity, 
-  Globe, 
-  ShieldAlert, 
-  History, 
-  ChevronLeft, 
-  MoreVertical,
+import {
+  Activity,
+  Globe,
+  ShieldAlert,
+  History,
+  ChevronLeft,
   Clock,
   Zap,
   Target,
@@ -15,7 +14,11 @@ import {
   Folder,
   Terminal,
   Network,
-  Square
+  Square,
+  Fingerprint,
+  GitBranch,
+  Code2,
+  Search
 } from 'lucide-react-native';
 
 import { Text, View } from '@/components/Themed';
@@ -27,9 +30,18 @@ import SubdomainsTab from '../../src/components/Scan/SubdomainsTab';
 import VulnerabilitiesTab from '../../src/components/Scan/VulnerabilitiesTab';
 import TimelineTab from '../../src/components/Scan/TimelineTab';
 import DirectoriesTab from '../../src/components/Scan/DirectoriesTab';
+import OsintTab from '../../src/components/Scan/OsintTab';
 import AssetGraph from '../../src/components/Observability/AssetGraph';
+import ExposuresScreen from '../intelligence/exposures/index';
+import AttackPathsScreen from '../intelligence/attack-paths';
+import CertificatesScreen from '../intelligence/certificates/index';
+import IdentityScreen from '../intelligence/identity/index';
+import ChainGraphScreen from '../intelligence/graph/index';
+import APIIntelListScreen from '../intelligence/api-intel/index';
+import ScanActionMenu from '../../src/components/Scan/ScanActionMenu';
 
-type TabType = 'SUMMARY' | 'SUBDOMAINS' | 'DIRECTORIES' | 'VULNERABILITIES' | 'TIMELINE' | 'GRAPH';
+type TabType = 'SUMMARY' | 'SUBDOMAINS' | 'DIRECTORIES' | 'OSINT' | 'VULNERABILITIES' | 'TIMELINE' | 'GRAPH'
+  | 'EXPOSURES' | 'ATTACK_PATHS' | 'CERTS' | 'IDENTITY' | 'CHAIN_GRAPH' | 'API_INTEL';
 
 export default function ScanDetailScreen() {
   const { id, slug } = useLocalSearchParams();
@@ -99,6 +111,33 @@ export default function ScanDetailScreen() {
               }
             } catch (err: any) {
               Alert.alert("Error", "An error occurred while stopping the scan.");
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const handleRetryTask = (activity: any) => {
+    Alert.alert(
+      "Retry Task",
+      `Are you sure you want to retry ${activity.title}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Retry", 
+          onPress: async () => {
+            try {
+              const response = await apiClient.post(`/mapi/action/retry/task/${activity.id}/`);
+              if (response.data && !response.data.error) {
+                Alert.alert("Success", "Task retry initiated.");
+                fetchScanDetail();
+              } else {
+                Alert.alert("Error", response.data.message || response.data.error || "Failed to retry task.");
+              }
+            } catch (err: any) {
+              const msg = err.response?.data?.error || err.response?.data?.message || err.message;
+              Alert.alert("Error", msg || "An error occurred while retrying the task.");
             }
           }
         }
@@ -178,6 +217,12 @@ export default function ScanDetailScreen() {
                 <Square size={14} color={Theme.colors.error} fill={Theme.colors.error} />
               </TouchableOpacity>
             )}
+            <ScanActionMenu
+              scanId={Number(id)}
+              slug={slug as string}
+              scanStatus={data?.scan_info?.scan_status ?? -1}
+              domainName={data?.target_info?.name}
+            />
           </View>
         </View>
 
@@ -195,9 +240,9 @@ export default function ScanDetailScreen() {
       </View>
 
       {/* Tab Bar */}
-      <View style={styles.tabBar}>
-        {(['SUMMARY', 'SUBDOMAINS', 'DIRECTORIES', 'VULNERABILITIES', 'TIMELINE', 'GRAPH'] as TabType[]).map((tab) => (
-          <TouchableOpacity 
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabBar} contentContainerStyle={styles.tabBarContent}>
+        {(['SUMMARY', 'SUBDOMAINS', 'DIRECTORIES', 'OSINT', 'VULNERABILITIES', 'TIMELINE', 'GRAPH', 'EXPOSURES', 'ATTACK_PATHS', 'CERTS', 'IDENTITY', 'CHAIN_GRAPH', 'API_INTEL'] as TabType[]).map((tab) => (
+          <TouchableOpacity
             key={tab}
             onPress={() => setActiveTab(tab)}
             style={[styles.tabItem, activeTab === tab && styles.tabItemActive]}
@@ -205,15 +250,22 @@ export default function ScanDetailScreen() {
             {tab === 'SUMMARY' && <Activity size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'SUBDOMAINS' && <Globe size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'DIRECTORIES' && <Folder size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'OSINT' && <Search size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'VULNERABILITIES' && <ShieldAlert size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'TIMELINE' && <History size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             {tab === 'GRAPH' && <Network size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'EXPOSURES' && <Zap size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'ATTACK_PATHS' && <Target size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'CERTS' && <Clock size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'IDENTITY' && <Fingerprint size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'CHAIN_GRAPH' && <GitBranch size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
+            {tab === 'API_INTEL' && <Code2 size={18} color={activeTab === tab ? Theme.colors.primary : Theme.colors.textMuted} />}
             <Text style={[styles.tabLabel, activeTab === tab && styles.tabLabelActive]}>
-              {tab === 'VULNERABILITIES' ? 'Vulns' : tab.charAt(0) + tab.slice(1).toLowerCase()}
+              {tab === 'VULNERABILITIES' ? 'Vulns' : tab === 'ATTACK_PATHS' ? 'Paths' : tab === 'CHAIN_GRAPH' ? 'Chain' : tab === 'API_INTEL' ? 'API' : tab.charAt(0) + tab.slice(1).toLowerCase()}
             </Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
 
       <View 
         style={[styles.content, { backgroundColor: 'transparent' }]}
@@ -231,12 +283,13 @@ export default function ScanDetailScreen() {
         )}
 
         {activeTab === 'SUMMARY' && data && (
-           <SummaryTab data={data} scanId={Number(id)} onRefresh={fetchScanDetail} />
+           <SummaryTab data={data} scanId={Number(id)} refreshing={refreshing} onRefresh={fetchScanDetail} />
         )}
         
-        {activeTab === 'SUBDOMAINS' && data && (
-           <SubdomainsTab 
-             subdomains={data.subdomains} 
+        {activeTab === 'SUBDOMAINS' && (
+           <SubdomainsTab
+             scanId={Number(id)}
+             refreshing={refreshing}
              onRefresh={fetchScanDetail}
            />
         )}
@@ -245,9 +298,14 @@ export default function ScanDetailScreen() {
            <DirectoriesTab scanId={Number(id)} />
         )}
 
+        {activeTab === 'OSINT' && data && (
+           <OsintTab data={data} scanId={Number(id)} refreshing={refreshing} onRefresh={fetchScanDetail} />
+        )}
+
         {activeTab === 'VULNERABILITIES' && data && (
            <VulnerabilitiesTab 
              vulnerabilities={data.vulnerabilities} 
+             refreshing={refreshing}
              onRefresh={fetchScanDetail}
            />
         )}
@@ -257,11 +315,31 @@ export default function ScanDetailScreen() {
              timeline={data.timeline} 
              refreshing={refreshing}
              onRefresh={fetchScanDetail}
+             isTerminal={[0, 1, 3].includes(data?.scan_info?.scan_status)}
+             onRetryTask={handleRetryTask}
            />
         )}
 
         {activeTab === 'GRAPH' && (
            <AssetGraph scanId={Number(id)} />
+        )}
+        {activeTab === 'EXPOSURES' && (
+           <ExposuresScreen scanId={Number(id)} />
+        )}
+        {activeTab === 'ATTACK_PATHS' && (
+           <AttackPathsScreen scanId={Number(id)} />
+        )}
+        {activeTab === 'CERTS' && (
+           <CertificatesScreen scanId={Number(id)} />
+        )}
+        {activeTab === 'IDENTITY' && (
+           <IdentityScreen scanId={Number(id)} />
+        )}
+        {activeTab === 'CHAIN_GRAPH' && (
+           <ChainGraphScreen scanId={typeof id === 'string' ? Number(id) : Number(id?.[0])} />
+        )}
+        {activeTab === 'API_INTEL' && (
+           <APIIntelListScreen scanId={typeof id === 'string' ? Number(id) : Number(id?.[0])} />
         )}
       </View>
     </View>
@@ -369,14 +447,17 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   tabBar: {
-    flexDirection: 'row',
     backgroundColor: Theme.colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: Theme.colors.border,
+    maxHeight: 56,
+  },
+  tabBarContent: {
+    flexDirection: 'row',
   },
   tabItem: {
-    flex: 1,
     alignItems: 'center',
+    paddingHorizontal: 14,
     paddingVertical: 12,
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',

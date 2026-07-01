@@ -2,6 +2,56 @@
 
 All notable changes to **r3ngine Mobile** are documented here.
 
+## [1.7.0] — Phase 3: Workflow & Org Surfaces
+
+### Added
+- **OSINT, Leaks & Secrets Tab** (`app/scan/[id].tsx`) — fully actionable intelligence tab in the scan details view rendering Staged OSINT, Breached Emails, Employees, Secret Leaks, S3 Buckets, Dorks, and Metadata Documents.
+- **Projects Switcher** — header button on all tabs shows current project and opens a bottom-sheet list to switch between projects; `useProjectStore` now loads and caches the full project list.
+- **Global Search** (`app/search/`) — debounced cross-entity search across subdomains, endpoints, and vulnerabilities; recent query history chips for quick repeat searches.
+- **Todos** (`app/todos/`) — full CRUD todo management scoped to current project; cards with done toggle (✓), importance star, and swipe-to-delete; add modal. Backend: new RESTful `/mapi/todos/` and `/mapi/todos/<id>/` endpoints.
+- **Bounty Hub** (`app/bounty/`) — HackerOne bounty program browser with sort filters (Newest, Most Reports, A–Z); program detail shows in-scope assets and max severity per asset type.
+- **Plugin Management** (`app/plugins/`) — installed plugin list with enable/disable toggle, trust-level badge (signed/community/unsigned), and install progress modal for background installs.
+- **Workflows** (`app/workflows/`) — lists all 13 Temporal workflow types with descriptions and required-field chips; launch modal accepts inputs and starts the workflow via the Temporal API.
+- **Profiles** (`app/profiles/`) — scan profile browser sectioned into Built-in and Custom; category color coding (full/stealth/basic/custom).
+- **Push Notification Registration** — Implemented automatic fetching and registration of the Expo push token with the backend `/mapi/push-token/register/` endpoint. The token is registered upon user login or toggle selection, and deactivated on logout or opt-out, enabling real-time push notifications on mobile devices when scans are started or completed.
+- **Backend** — `/mapi/todos/` CRUD endpoints (`web/api/todo_mobile_views.py`), `/mapi/workflows/` registry list (`web/api/workflow_mobile_views.py`).
+
+### Compatibility
+- r3ngine core: v3.7.0+
+
+---
+
+## [1.6.0] — Phase 2: Graph & API Intelligence
+
+### Added
+- **Chain Graph screen** (`app/intelligence/graph/`) — displays expanded attack chain graph nodes with type-based color coding, filterable by node type (Organization, Application, APIEndpoint, IdentityInfra, etc.) via legend chip row. Accessible from Intel Hub and per-scan CHAIN_GRAPH tab.
+- **API Intelligence screen** (`app/intelligence/api-intel/`) — lists and details APIIntelligenceProfile clusters; grouped by api_type (REST/GraphQL/SOAP/Generic); shows endpoint count, auth scheme, sample endpoint URLs, and optional GraphQL schema snippet. Accessible from Intel Hub and per-scan API_INTEL tab.
+- **Graph components** (`src/components/Graph/`) — ChainGraphStats, NodeTypeLegend, NodeCard, EdgeTypeBadge with full Theme token compliance and distinct node/edge type color palettes.
+- **API Intel components** (`src/components/APIIntel/`) — APITypeChip, APIProfileCard, APIProfileDetail.
+- **Theme tokens** — `Theme.colors.nodeType` (11 node types) and `Theme.colors.edgeType` (14 edge types).
+- **Intel Hub** — expanded KPI grid with Chain Graph and API Intel cards (6 total).
+- **Scan Detail** — CHAIN_GRAPH and API_INTEL tabs (12 tabs total).
+- **Backend** (`r3ngine/web/api/api_intel_mobile_views.py`) — `/mapi/api-intel/` list + detail endpoints for APIIntelligenceProfile.
+
+### Compatibility
+- r3ngine core: v3.7.0+
+
+---
+
+## [1.5.0] - 2026-06-20
+
+### Added
+- **Exposure Correlation Engine**: Full intelligence-tab + scan-detail-tab support. Browse, filter (status + search), and act on correlated exposures with status mutations (Accept / Mark FP / Resolve / Reopen). Bulk multi-select with optimistic update and per-row partial-failure handling. Evidence rendered as key-value rows with monospaced raw strings; linked vulnerabilities open existing detail modal.
+- **Enhanced APME Attack Paths**: New `RiskSummaryBar` (score + priority + path count + speculative count), `PriorityBadge` (P0–P3), tap-and-hold score tooltip with exploitability/impact/confidence breakdown, collapsible Speculative Paths section, LEAF detectability chip. Per-card overflow menu adds `Regenerate Impact` and `Dismiss Path` mutations.
+- **Certificate Intelligence**: List with filter chips (All / Expired / Self-signed / Expiring <30d), chain viewer (depth-indented), collapsible SAN list, SHA-256/SHA-1 fingerprints with tap-to-copy. Detail screen exposes `Resync` (client-rate-limited) and `Flag Anomaly` (chip selector + optional note) actions.
+- **Identity Infrastructure**: Discovery list grouped by provider (Okta / Azure AD / Auth0 / Ping / OneLogin / JumpCloud / Other) with match-strength chips. Detail surfaces matched URLs / titles / headers as collapsible evidence bands. Confirm Provider / Dismiss as False Match mutations with optimistic UI.
+- **Intelligence Hub Landing**: New `app/intelligence/index.tsx` with 2×2 KpiCard grid (Exposures / Attack Paths / Certificates / Identity) and a merged Recent Activity feed.
+- **Scan Detail tabs**: Added Exposures, Attack Paths, Certs, Identity tabs to the Scan Detail screen (horizontally scrollable tab bar); same screen components mounted with the scan filter pre-applied.
+- **`useUndoableMutation` hook** (`src/hooks/useUndoableMutation.ts`): Shared 5-second undo-snackbar window with cancel + unmount cleanup, used across all four intelligence modules.
+- **Theme**: New priority palette (`Theme.colors.priority.p0..p3`).
+
+---
+
 ## [1.4.1] - 2026-06-12
 
 ### Fixed

@@ -55,8 +55,10 @@ interface Kpis {
 interface Vulnerability {
   id: number;
   name: string;
-  severity: number;
+  severity: string | number;
   discovered_date: string;
+  subdomain?: { name: string };
+  target_domain?: { name: string };
 }
 
 interface Project {
@@ -209,20 +211,27 @@ export default function DashboardScreen() {
     return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString();
   };
 
-  const getSeverityColor = (severity: number) => {
-    switch (severity) {
-      case 4: return '#ff003c'; // Critical
-      case 3: return '#ff6b00'; // High
-      case 2: return '#ffcc00'; // Medium
-      case 1: return '#00d1ff'; // Low
-      default: return '#888';
+  const getSeverityColor = (severity: string | number) => {
+    const s = String(severity).toLowerCase();
+    switch (s) {
+      case '4':
+      case 'critical': return Theme.colors.vulnerabilities.critical;
+      case '3':
+      case 'high': return Theme.colors.vulnerabilities.high;
+      case '2':
+      case 'medium': return Theme.colors.vulnerabilities.medium;
+      case '1':
+      case 'low': return Theme.colors.vulnerabilities.low;
+      case '0':
+      case 'info': return Theme.colors.vulnerabilities.info;
+      default: return Theme.colors.textMuted;
     }
   };
 
   const formatRelativeTime = (dateString: string) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return 'N/A';
+    if (isNaN(date.getTime())) return dateString;
 
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
@@ -540,7 +549,9 @@ export default function DashboardScreen() {
                 </View>
                 <View style={styles.vulnInfo}>
                   <Text style={styles.vulnName} numberOfLines={1}>{vuln.name}</Text>
-                  <Text style={styles.vulnDate}>{formatRelativeTime(vuln.discovered_date)}</Text>
+                  <Text style={styles.vulnDate}>
+                    {vuln.subdomain?.name || vuln.target_domain?.name || 'Unknown Target'} • {formatRelativeTime(vuln.discovered_date)}
+                  </Text>
                 </View>
                 <ChevronRight size={16} color={Theme.colors.textMuted} />
               </TouchableOpacity>
@@ -574,10 +585,7 @@ export default function DashboardScreen() {
                 <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
                   <View style={[styles.modalSeverityBadge, { backgroundColor: getSeverityColor(selectedVuln.severity) }]}>
                     <Text style={styles.modalSeverityText}>
-                      {selectedVuln.severity === 4 ? 'CRITICAL' : 
-                       selectedVuln.severity === 3 ? 'HIGH' : 
-                       selectedVuln.severity === 2 ? 'MEDIUM' : 
-                       selectedVuln.severity === 1 ? 'LOW' : 'INFO'}
+                      {String(selectedVuln.severity).toUpperCase()}
                     </Text>
                   </View>
 

@@ -109,9 +109,13 @@ const NotificationsScreen = () => {
     }
 
     if (notification.redirect_link) {
-        // Handle redirection logic if needed
-        // For now, we just close the modal
-        // router.back();
+      // redirect_link from the backend is a web path: /scan/{slug}/detail/{scanId}
+      const match = notification.redirect_link.match(/\/scan\/([^/]+)\/detail\/(\d+)/);
+      if (match) {
+        const slug = match[1];
+        const scanId = match[2];
+        router.push({ pathname: '/scan/[id]', params: { id: scanId, slug } } as any);
+      }
     }
   };
 
