@@ -15,12 +15,12 @@ export default function LogViewerScreen() {
   const router = useRouter();
   const { serverIp } = useSettingsStore();
   const { token } = useAuthStore();
-  
+
   const [logs, setLogs] = useState<string[]>([]);
   const [status, setStatus] = useState<'CONNECTING' | 'CONNECTED' | 'DISCONNECTED' | 'ERROR'>('CONNECTING');
   const [autoScroll, setAutoScroll] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
-  
+
   const scrollViewRef = useRef<ScrollView>(null);
   const ws = useRef<WebSocket | null>(null);
 
@@ -43,9 +43,9 @@ export default function LogViewerScreen() {
       const protocol = serverIp.includes('https') ? 'wss' : 'ws';
       const host = serverIp.replace(/^https?:\/\//, '').replace(/\/$/, '');
       const wsUrl = `${protocol}://${host}/ws/logs/${id}/${token ? `?token=${token}` : ''}`;
-      
+
       console.log(`[WebSocket] Connecting to ${wsUrl}`);
-      
+
       ws.current = new WebSocket(wsUrl);
 
       ws.current.onopen = () => {
@@ -112,7 +112,7 @@ export default function LogViewerScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{
-        title: 'TACTICAL LOGS',
+        title: 'LOGS',
         headerStyle: { backgroundColor: Theme.colors.surface },
         headerTintColor: Theme.colors.text,
         headerTitleStyle: {
@@ -150,7 +150,7 @@ export default function LogViewerScreen() {
           </View>
         </View>
 
-        <ScrollView 
+        <ScrollView
           ref={scrollViewRef}
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -181,17 +181,17 @@ export default function LogViewerScreen() {
 
         {/* Floating Controls */}
         <View style={styles.controls}>
-          <TouchableOpacity 
-            style={[styles.controlBtn, isPaused && styles.pausedBtn]} 
+          <TouchableOpacity
+            style={[styles.controlBtn, isPaused && styles.pausedBtn]}
             onPress={togglePause}
           >
             {isPaused ? <Play size={20} color="#fff" fill="#fff" /> : <Pause size={20} color="#fff" fill="#fff" />}
             <Text style={styles.controlBtnText}>{isPaused ? 'RESUME FEED' : 'PAUSE FEED'}</Text>
           </TouchableOpacity>
-          
+
           {!autoScroll && (
-            <TouchableOpacity 
-              style={styles.scrollLockBtn} 
+            <TouchableOpacity
+              style={styles.scrollLockBtn}
               onPress={() => setAutoScroll(true)}
             >
               <Text style={styles.scrollLockText}>AUTOSCROLL ENABLED</Text>

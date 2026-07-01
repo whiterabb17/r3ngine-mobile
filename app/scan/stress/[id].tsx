@@ -12,6 +12,7 @@ import {
   Modal
 } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { 
   ChevronLeft, 
   Play, 
@@ -51,6 +52,7 @@ interface TelemetryPoint {
 }
 
 export default function MobileStressCockpit() {
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams();
   const scanId = parseInt(Array.isArray(id) ? id[0] : id);
   const router = useRouter();
@@ -88,7 +90,7 @@ export default function MobileStressCockpit() {
       try {
         setLoading(true);
         // Load discovered endpoints
-        const fetchedEndpoints = await stressApi.getEndpoints('default', scanId);
+        const fetchedEndpoints = await stressApi.getEndpoints(scanId);
         setEndpoints(fetchedEndpoints);
 
         // Fetch status
@@ -321,7 +323,7 @@ export default function MobileStressCockpit() {
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Header Bar */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top, height: 70 + insets.top }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <ChevronLeft size={28} color={Theme.colors.text} />
         </TouchableOpacity>

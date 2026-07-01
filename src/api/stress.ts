@@ -25,10 +25,9 @@ export const stressApi = {
     return response.data;
   },
 
-  getEndpoints: async (projectSlug: string, scanId: number) => {
+  getEndpoints: async (scanId: number) => {
     const response = await apiClient.get<any>(`/mapi/listEndpoints/`, {
       params: {
-        project: projectSlug,
         scan_history: scanId,
       }
     });
